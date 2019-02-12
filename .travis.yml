@@ -1,20 +1,32 @@
 language: node_js
 node_js: stable
 
-# S: Build Lifecycle
-# install:
-  # - npm install
+# before_install:
+  # do something before install
 
+# install:
+  # do something for install
 
 before_script:
+  # do something before excute script
   # add loppo dep
   - "npm install loppo -g"
 
 script:
+  # excute some script for build project
   # build project
   - loppo
 
+# after_success:
+  # do something after excute script success
+
+# after_failure:
+  # do something after excute script failure
+
+
+
 after_script:
+  # do something after excute script
   - ls
   - cd ./docs
   - git init
@@ -23,12 +35,12 @@ after_script:
   - git add .
   - git commit -m "Update docs"
   - git push --force --quiet "https://${GH_TOKEN}@${MELON_REF}" master:master
-# E: Build LifeCycle
 
 branches:
   only:
+    # confirm to keep only the corresponding braches monitored
     - blog
 env:
  global:
-  #  - GH_REF: github.com/lifengsofts/lifengsofts.github.io.git
+   # add some global parameters
    - MELON_REF: github.com/mowatermelon/learn-es6.git
