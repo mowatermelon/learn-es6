@@ -1,14 +1,34 @@
-# running on container-based infrastructure
-sudo: false
-
 language: node_js
-node_js:
-  - "node"
+node_js: stable
 
-before_install:
+# S: Build Lifecycle
+install:
+  - npm install
+
+
+before_script:
   # add loppo dep
   - "npm install loppo -g"
 
-install:
+script:
   # build project
   - loppo
+
+after_script:
+  - cd ./docs
+  - git init
+  - git config user.name "mowatermelon"
+  - git config user.email "neefoxmo@gmail.com"
+  - git add .
+  - git commit -m "Update docs"
+  # - git push --force --quiet "https://${GH_TOKEN}@${MELON_REF}" master:master
+  - git push --force --quiet "https://${MELON_REF}" master:master
+# E: Build LifeCycle
+
+branches:
+  only:
+    - blog
+env:
+ global:
+  #  - GH_REF: github.com/lifengsofts/lifengsofts.github.io.git
+   - MELON_REF: github.com/mowatermelon/learn-es6.git
