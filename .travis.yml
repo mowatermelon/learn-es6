@@ -15,6 +15,7 @@ script:
   - loppo
 
 after_script:
+  - ls
   - cd ./docs
   - git init
   - git config user.name "mowatermelon"
