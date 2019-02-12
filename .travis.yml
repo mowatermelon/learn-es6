@@ -4,3 +4,11 @@ sudo: false
 language: node_js
 node_js:
   - "node"
+
+before_install:
+  # add loppo dep
+  - "npm install loppo -g"
+
+install:
+  # build project
+  - loppo
