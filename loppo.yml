@@ -1,5 +1,5 @@
-dir: docs
-output: dist
+dir: src
+output: docs
 site: learn es6
 theme: oceandeep
 customization: false
