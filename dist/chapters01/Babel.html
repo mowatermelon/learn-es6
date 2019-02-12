@@ -1,0 +1,140 @@
+<!DOCTYPE html><html><head><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta charset="utf-8"><title>通过Babel使用ES6 - learn es6</title><meta name="description" content=""><meta name="author" content=""><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1"><link rel="stylesheet" href="../assets/css/bulma.min.css"><link rel="stylesheet" href="../assets/css/app.css"><!--[if lt IE 9]>
+<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]--><link rel="shortcut icon" href=""></head><body dir="ltr"><nav class="columns navbar"><div class="column logo is-3 is-offset-1"><a class="is-brand" href="../index.html">learn es6</a></div></nav><div class="columns content"><div class="column is-2-desktop is-3-widescreen is-hidden-touch"></div><div class="column article-container is-11-tablet is-8-desktop is-6-widescreen"><div class="breadcrumb-area"><a href="../index.html" class="breadcrumb-item">Home</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters01/index.html" class="breadcrumb-item">第一章 ECMAScript 6 简介</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters01/Babel.html" class="breadcrumb-item">通过Babel使用ES6</a></div><h1 class="article-title">通过Babel使用ES6</h1><div class="article"><h2 id="不同环境下使用babel">不同环境下使用babel <a class="markdownIt-Anchor" href="#不同环境下使用babel">#</a></h2><h3 id="node环境的用法">node环境的用法 <a class="markdownIt-Anchor" href="#node环境的用法">#</a></h3><blockquote><p>安装环境依赖</p></blockquote><p><code>Babel</code> 是一个广泛使用的 <code>ES6</code> 转码器，可以将 <code>ES6</code> 代码转为 <code>ES5</code> 代码，从而在现有环境执行。</p><p>这意味着，你可以用 <code>ES6</code> 的方式编写程序，又不用担心现有环境是否支持。下面是一个例子。</p><pre class="hljs"><code><span class="hljs-comment">// 转码前</span>
+input.map(<span class="hljs-function"><span class="hljs-params">item</span> =&gt;</span> item + <span class="hljs-number">1</span>);
+
+<span class="hljs-comment">// 转码后</span>
+input.map(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">item</span>) </span>{
+  <span class="hljs-keyword">return</span> item + <span class="hljs-number">1</span>;
+});
+</code></pre><p>上面的原始代码用了箭头函数，<code>Babel</code> 将其转为普通函数，就能在不支持箭头函数的 <code>JavaScript</code> 环境执行了。</p><p>下面的命令在项目目录中，安装 <code>Babel</code>。</p><pre class="hljs"><code>$ npm install --save-dev @babel/core
+</code></pre><blockquote><p>配置文件<code>.babelrc</code>(低版本&lt;7)</p></blockquote><p><code>Babel 6</code> 的配置文件是<code>.babelrc</code>，存放在项目的根目录下。使用 <code>Babel 6</code>及以下版本 的第一步，就是配置这个文件。</p><p>该文件用来设置转码规则和插件，基本格式如下。</p><pre class="hljs"><code>{
+  <span class="hljs-attr">"presets"</span>: [],
+  <span class="hljs-attr">"plugins"</span>: []
+}
+</code></pre><p><code>presets</code>字段设定转码规则，官方提供以下的规则集，你可以根据需要安装。</p><pre class="hljs"><code><span class="hljs-comment"># 最新转码规则</span>
+$ npm install --save-dev @babel/preset-env
+
+<span class="hljs-comment"># react 转码规则</span>
+$ npm install --save-dev @babel/preset-react
+</code></pre><p>然后，将这些规则加入<code>.babelrc</code>。</p><pre class="hljs"><code>
+  {
+    <span class="hljs-attr">"presets"</span>: [
+      <span class="hljs-string">"@babel/env"</span>,
+      <span class="hljs-string">"@babel/preset-react"</span>
+    ],
+    <span class="hljs-attr">"plugins"</span>: []
+  }
+</code></pre><p>注意，以下所有 <code>Babel 6</code> 工具和模块的使用，都必须先写好<code>.babelrc</code>。</p><blockquote><p>配置文件<code>babel.config.js</code>(高版本&gt;=7)</p></blockquote><p><code>Babel 7</code> 的配置文件是<code>babel.config.js</code>，存放在项目的根目录下。使用 <code>Babel 7</code>及以上版本 的第一步，就是配置这个文件。</p><p>该文件用来设置转码规则和插件，基本格式如下。</p><pre class="hljs"><code><span class="hljs-built_in">module</span>.exports = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">api</span>) </span>{
+  api.cache(<span class="hljs-literal">true</span>);
+
+  <span class="hljs-keyword">const</span> presets = [ ... ];
+  <span class="hljs-keyword">const</span> plugins = [ ... ];
+
+  <span class="hljs-keyword">return</span> {
+    presets,
+    plugins
+  };
+}
+
+</code></pre><p>注意，以下所有 <code>Babel 7</code>及以上版本 工具和模块的使用，都必须先写好<code>babel.config.js</code>。</p><p><a href="https://babeljs.io/docs/en/config-files#project-wide-configuration" target="_blank" rel="noopener">更多配置</a></p><blockquote><p>在Webpack添加配置</p></blockquote><pre class="hljs"><code><span class="hljs-built_in">module</span>: {
+  <span class="hljs-attr">rules</span>: [{
+    <span class="hljs-attr">loader</span>: <span class="hljs-string">"babel-loader"</span>,
+    <span class="hljs-attr">options</span>: {
+      <span class="hljs-attr">rootMode</span>: <span class="hljs-string">"upward"</span>,
+    }
+  }]
+}
+</code></pre><blockquote><p>在package.json添加配置</p></blockquote><pre class="hljs"><code>{
+  <span class="hljs-attr">"name"</span>: <span class="hljs-string">"my-package"</span>,
+  <span class="hljs-attr">"version"</span>: <span class="hljs-string">"1.0.0"</span>,
+  <span class="hljs-attr">"babel"</span>: {
+    <span class="hljs-attr">"presets"</span>: [ ... ],
+    <span class="hljs-attr">"plugins"</span>: [ ... ],
+  }
+}
+</code></pre><hr><h3 id="命令行转换">命令行转换 <a class="markdownIt-Anchor" href="#命令行转换">#</a></h3><p><code>Babel</code> 提供命令行工具<code>@babel/cli</code>，用于命令行转码。</p><p>它的安装命令如下。</p><pre class="hljs"><code>$ npm install --save-dev @babel/cli
+</code></pre><p>基本用法如下</p><pre class="hljs"><code><span class="hljs-comment"># 转码结果输出到标准输出</span>
+$ npx babel example.js
+
+<span class="hljs-comment"># 转码结果写入一个文件</span>
+<span class="hljs-comment"># --out-file 或 -o 参数指定输出文件</span>
+$ npx babel example.js --out-file compiled.js
+<span class="hljs-comment"># 或者</span>
+$ npx babel example.js -o compiled.js
+
+<span class="hljs-comment"># 整个目录转码</span>
+<span class="hljs-comment"># --out-dir 或 -d 参数指定输出目录</span>
+$ npx babel src --out-dir lib
+<span class="hljs-comment"># 或者</span>
+$ npx babel src -d lib
+
+<span class="hljs-comment"># -s 参数生成source map文件</span>
+$ npx babel src -d lib -s
+</code></pre><hr><h3 id="浏览器环境">浏览器环境 <a class="markdownIt-Anchor" href="#浏览器环境">#</a></h3><p><code>Babel</code> 也可以用于浏览器环境，使用<code>[@babel/standalone](https://babeljs.io/docs/en/next/babel-standalone.html)</code>模块提供的浏览器版本，将其插入网页。</p><pre class="hljs"><code>&lt;script src=<span class="hljs-string">"https://unpkg.com/@babel/standalone/babel.min.js"</span>&gt;<span class="xml"><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></span>
+&lt;script type=<span class="hljs-string">"text/babel"</span>&gt;
+<span class="hljs-comment">// Your ES6 code</span>
+&lt;<span class="hljs-regexp">/script&gt;
+</span></code></pre><p>注意，网页实时将 <code>ES6</code> 代码转为 <code>ES5</code>，对性能会有影响。生产环境需要加载已经转码完成的脚本。</p><h3 id="在线转换">在线转换 <a class="markdownIt-Anchor" href="#在线转换">#</a></h3><p><code>Babel</code> 提供一个<a href="https://babeljs.io/repl/" target="_blank" rel="noopener">REPL 在线编译器</a>，可以在线将 <code>ES6</code> 代码转为 <code>ES5</code> 代码。转换后的代码，可以直接作为 <code>ES5</code> 代码插入网页运行。</p><figure><img src="https://user-images.githubusercontent.com/18508817/52532955-658afe00-2d67-11e9-9690-2f14f146533c.png" alt="image"><figcaption>image</figcaption></figure><pre class="hljs"><code>&lt;script&gt;
+<span class="hljs-meta">"use strict"</span>;
+
+(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">var</span> -<span class="hljs-built_in">console</span>;
+
+  <span class="hljs-keyword">var</span> a = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>];
+
+  (-<span class="hljs-built_in">console</span> = <span class="hljs-built_in">console</span>).log.apply(-<span class="hljs-built_in">console</span>, a);
+});
+<span class="xml"><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></span>
+</code></pre><hr><h2 id="babel功能说明">babel功能说明 <a class="markdownIt-Anchor" href="#babel功能说明">#</a></h2><h3 id="babel-api">babel API <a class="markdownIt-Anchor" href="#babel-api">#</a></h3><p>如果某些代码需要调用 <code>Babel</code> 的 <code>API</code> 进行转码，就要使用<a href="https://babeljs.io/docs/en/babel-core#docsNav" target="_blank" rel="noopener">@babel/core</a>模块。</p><figure><img src="https://user-images.githubusercontent.com/18508817/52532840-011b6f00-2d66-11e9-86f0-d7adfc41ef83.png" alt="image"><figcaption>image</figcaption></figure><pre class="hljs"><code>
+<span class="hljs-keyword">var</span> babel = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@babel/core'</span>);
+
+<span class="hljs-comment">// 字符串转码</span>
+babel.transform(<span class="hljs-string">'code();'</span>, options);
+<span class="hljs-comment">// =&gt; { code, map, ast }</span>
+
+<span class="hljs-comment">// 文件转码（异步）</span>
+babel.transformFile(<span class="hljs-string">'filename.js'</span>, options, , <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, result</span>) </span>{
+  result.code;
+  result.map;
+  result.ast;
+});
+
+<span class="hljs-comment">// 文件转码（同步）</span>
+babel.transformFileSync(<span class="hljs-string">'filename.js'</span>, options);
+<span class="hljs-comment">// =&gt; { code, map, ast }</span>
+
+<span class="hljs-comment">// Babel AST转码</span>
+babel.transformFromAst(ast, code, options);
+<span class="hljs-comment">// =&gt; { code, map, ast }</span>
+</code></pre><p>配置对象<code>options</code>，可以参看官方文档<code>http://babeljs.io/docs/usage/options/</code>。</p><p>下面是一个例子。</p><pre class="hljs"><code>
+<span class="hljs-keyword">var</span> es6Code = <span class="hljs-string">'let x = n =&gt; n + 1'</span>;
+<span class="hljs-keyword">var</span> es5Code = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@babel/core'</span>)
+  .transform(es6Code, {
+    <span class="hljs-attr">presets</span>: [<span class="hljs-string">'@babel/env'</span>]
+  })
+  .code;
+
+<span class="hljs-built_in">console</span>.log(es5Code);
+<span class="hljs-comment">// '"use strict";\n\nvar x = function x(n) {\n  return n + 1;\n};'</span>
+</code></pre><p>上面代码中，<code>transform</code>方法的第一个参数是一个<code>字符串</code>，表示需要被转换的 <code>ES6 代码</code>，第二个参数是转换的<code>配置对象</code>。</p><hr><h3 id="babelpolyfill">@babel/polyfill <a class="markdownIt-Anchor" href="#babelpolyfill">#</a></h3><p><code>Babel</code> 默认只转换新的 <code>JavaScript</code> 句法（<code>syntax</code>），而不转换新的 <code>API</code>。</p><p>比如<code>Iterator</code>、<code>Generator</code>、<code>Set</code>、<code>Map</code>、<code>Proxy</code>、<code>Reflect</code>、<code>Symbol</code>、<code>Promise</code>等全局对象，以及一些定义在全局对象上的方法（比如<code>Object.assign</code>）都不会转码。</p><p>举例来说，<code>ES6</code> 在<code>Array</code>对象上新增了<code>Array.from</code>方法。<code>Babel</code> 就不会转码这个方法。</p><p>如果想让这个方法运行，必须使用<code>babel-polyfill</code>，为当前环境提供一个<code>垫片。</code></p><p>安装命令如下。</p><pre class="hljs"><code>$ npm install --save-dev @babel/polyfill
+</code></pre><p>然后，在脚本头部，加入如下一行代码。</p><pre class="hljs"><code><span class="hljs-keyword">import</span> <span class="hljs-string">'@babel/polyfill'</span>;
+<span class="hljs-comment">// 或者</span>
+<span class="hljs-built_in">require</span>(<span class="hljs-string">'@babel/polyfill'</span>);
+</code></pre><p><code>Babel</code> 默认不转码的 API 非常多，详细清单可以查看<code>babel-plugin-transform-runtime</code>模块的<code>[definitions.js](https://github.com/babel/babel/blob/master/packages/babel-plugin-transform-runtime/src/definitions.js)</code>文件。</p><hr><h3 id="babelregister">@babel/register <a class="markdownIt-Anchor" href="#babelregister">#</a></h3><p><code>@babel/register</code>模块改写<code>require</code>命令，为它加上一个<code>钩子</code>。此后，每当使用<code>require</code>加载<code>.js</code>、<code>.jsx</code>、<code>.es</code>和<code>.es6</code>后缀名的文件，就会先用 <code>Babel</code> 进行转码。</p><pre class="hljs"><code>$ npm install --save-dev @babel/register
+</code></pre><p>使用时，必须首先加载<code>@babel/register</code>。</p><pre class="hljs"><code>
+<span class="hljs-comment">// index.js</span>
+<span class="hljs-built_in">require</span>(<span class="hljs-string">'@babel/register'</span>);
+<span class="hljs-built_in">require</span>(<span class="hljs-string">'./es6.js'</span>);
+</code></pre><p>然后，就不需要手动对<code>index.js</code>转码了。</p><pre class="hljs"><code>$ node index.js
+<span class="hljs-number">2</span>
+</code></pre><p>需要注意的是，<code>@babel/register</code>只会对<code>requir</code>e命令加载的文件转码，而不会对当前文件转码。另外，由于它是<code>实时转码</code>，所以只适合在<code>开发环境</code>使用。</p><hr><h3 id="babel-node">babel-node <a class="markdownIt-Anchor" href="#babel-node">#</a></h3><p><code>@babel/node</code>模块的<code>babel-node</code>命令，提供一个支持 <code>ES6</code> 的 <code>REPL</code> 环境。它支持 <code>Node</code> 的 <code>REPL</code> 环境的所有功能，而且可以直接运行 <code>ES6</code> 代码。</p><p>首先，安装这个模块。</p><pre class="hljs"><code>$ npm install --save-dev @babel/node
+</code></pre><p>然后，执行<code>babel-node</code>就进入 <code>REPL</code> 环境。</p><pre class="hljs"><code>$ npx babel-node
+&gt; (x =&gt; x * 2)(1)
+2
+</code></pre><p><code>babel-node</code>命令可以直接运行 <code>ES6</code> 脚本。将上面的代码放入脚本文件<code>es6.js</code>，然后直接运行。</p><pre class="hljs"><code><span class="hljs-comment"># es6.js 的代码</span>
+<span class="hljs-comment"># console.log((x =&gt; x * 2)(1));</span>
+$ npx babel-node es6.js
+2
+</code></pre><hr></div><div dir="ltr" class="level article-bar is-mobile"><div class="level-item has-text-centered"><a title="previous page" class="previouse-article-link" href="../chapters01/index.html"><span class="icon icon-previous" data-icon="previous"></span><span class="link-content">&laquo; Previous</span></a></div><div class="level-item has-text-centered"><a title="font size" class="link-item link-item-size"><span class="icon icon-size" data-icon="size"></span></a></div><div class="level-item has-text-centered"><a title="table of content" class="link-item link-item-toc"><span class="icon icon-toc" data-icon="toc"></span></a></div><div class="level-item has-text-centered"><a title="top" href="#"><span class="icon icon-up" data-icon="up"></span> <span class="link-content">⤊ Top</span></a></div><div class="level-item has-text-centered"><a title="next page" class="next-article-link" href="../chapters01/Traceur.html"><span class="icon icon-next" data-icon="next"></span><span class="link-content">Next &raquo;</span></a></div></div></div><div class="column is-2-widescreen is-hidden"></div></div><div class="columns foot"><div class="column is-3 is-offset-9 build-by">Build by <a href="https://github.com/ruanyf/loppo" target="_blank">Loppo</a> 0.6.14</div></div><div class="book-toc notification is-warning is-hidden"><h3>Table of chapters &nbsp;<span class="title-close"><a class="button is-danger"> Close</a></span></h3><ul class="chapter-area"><li class="chapter-item"><a href="../chapters01/index.html">第一章 ECMAScript 6 简介</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-collapse" data-icon="collapse"></span></a></li><ul class="chapter-level-1 chapter-level-1-current"><li class="chapter-item chapter-item-current"><a href="../chapters01/Babel.html">通过Babel使用ES6</a></li><li class="chapter-item"><a href="../chapters01/Traceur.html">通过Traceur使用ES6</a></li><li class="chapter-item"><a href="../chapters01/base.html">基础前置知识</a></li></ul><li class="chapter-item"><a href="../chapters02/index.html">第二章 let和const命令</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters02/base.html">前置知识了解</a></li><li class="chapter-item"><a href="../chapters02/const.html">const 命令</a></li><li class="chapter-item"><a href="../chapters02/let.html">let 命令</a></li></ul><li class="chapter-item"><a href="../chapters03/index.html">第三章 变量的解构赋值</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters03/base.html">基础数据结构</a></li><li class="chapter-item"><a href="../chapters03/complex.html">复杂数据结构</a></li><li class="chapter-item"><a href="../chapters03/parentheses.html">圆括号问题</a></li><li class="chapter-item"><a href="../chapters03/use.html">用途</a></li></ul><li class="chapter-item"><a href="../chapters04/index.html">第四章 字符串的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters04/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/string-Iterator.html">字符串的遍历器接口</a></li><li class="chapter-item"><a href="../chapters04/tag-template.html">标签模板</a></li><li class="chapter-item"><a href="../chapters04/template-string.html">模板字符串</a></li><li class="chapter-item"><a href="../chapters04/unicode.html">字符的 Unicode 表示法</a></li></ul></ul></div><div class="progress-indicator"></div><!-- SCRIPTS --><script>var LOPPO={current_path:"chapters01/Babel.md",relative_root_path:"../",article_toc:'<ul class="markdownIt-TOC">\n<li><a href="#%E4%B8%8D%E5%90%8C%E7%8E%AF%E5%A2%83%E4%B8%8B%E4%BD%BF%E7%94%A8babel">不同环境下使用babel</a>\n<ul>\n<li><a href="#node%E7%8E%AF%E5%A2%83%E7%9A%84%E7%94%A8%E6%B3%95">node环境的用法</a></li>\n<li><a href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E8%BD%AC%E6%8D%A2">命令行转换</a></li>\n<li><a href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E7%8E%AF%E5%A2%83">浏览器环境</a></li>\n<li><a href="#%E5%9C%A8%E7%BA%BF%E8%BD%AC%E6%8D%A2">在线转换</a></li>\n</ul>\n</li>\n<li><a href="#babel%E5%8A%9F%E8%83%BD%E8%AF%B4%E6%98%8E">babel功能说明</a>\n<ul>\n<li><a href="#babel-api">babel API</a></li>\n<li><a href="#babelpolyfill">@babel/polyfill</a></li>\n<li><a href="#babelregister">@babel/register</a></li>\n<li><a href="#babel-node">babel-node</a></li>\n</ul>\n</li>\n</ul>\n'}</script><script src="../assets/js/app.js"></script></body></html>

@@ -1,0 +1,8 @@
+dir: docs
+output: dist
+site: learn es6
+theme: oceandeep
+customization: false
+themeDir: loppo-theme
+direction: ltr
+id: blog
