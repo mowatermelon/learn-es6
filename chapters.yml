@@ -1,20 +1,20 @@
 - chapters01/: 第一章 ECMAScript 6 简介
+- chapters01/base.md: 基础前置知识
 - chapters01/Babel.md: 通过Babel使用ES6
 - chapters01/Traceur.md: 通过Traceur使用ES6
-- chapters01/base.md: 基础前置知识
 - chapters02/: 第二章 let和const命令
 - chapters02/base.md: 前置知识了解
-- chapters02/const.md: const 命令
 - chapters02/let.md: let 命令
+- chapters02/const.md: const 命令
 - chapters03/: 第三章 变量的解构赋值
 - chapters03/base.md: 基础数据结构
 - chapters03/complex.md: 复杂数据结构
 - chapters03/parentheses.md: 圆括号问题
 - chapters03/use.md: 用途
 - chapters04/: 第四章 字符串的扩展
-- chapters04/instance-function-extend.md: 实例对象方法扩展
+- chapters04/unicode.md: 字符的 Unicode 表示法
 - chapters04/prototype-function-extend.md: 原型对象方法扩展
+- chapters04/instance-function-extend.md: 实例对象方法扩展
+- chapters04/template-string.md: 模板字符串
 - chapters04/string-Iterator.md: 字符串的遍历器接口
 - chapters04/tag-template.md: 标签模板
-- chapters04/template-string.md: 模板字符串
-- chapters04/unicode.md: 字符的 Unicode 表示法
