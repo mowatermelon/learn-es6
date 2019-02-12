@@ -21,8 +21,7 @@ after_script:
   - git config user.email "neefoxmo@gmail.com"
   - git add .
   - git commit -m "Update docs"
-  # - git push --force --quiet "https://${GH_TOKEN}@${MELON_REF}" master:master
-  - git push --force --quiet "https://${MELON_REF}" master:master
+  - git push --force --quiet "https://${GH_TOKEN}@${MELON_REF}" master:master
 # E: Build LifeCycle
 
 branches:
