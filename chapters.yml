@@ -33,4 +33,3 @@
 - chapters05/string-with-regExp.md: String中正则相关方法
 - chapters05/named-group-matching.md: 具名组匹配
 - chapters05/unicode-attribute-class.md: Unicode 属性类
-- chapters05/deconstruct-assignments-and-substitutions.md: 解构赋值和替换
