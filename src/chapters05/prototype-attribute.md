@@ -10,7 +10,7 @@
 
 如果使用了`s`修饰符，将返回`Boolean`类型的`true`，否则将返回`false`。
 
-`s修饰符`表示，特殊字符`.`应另外匹配字符串中的下述行终结符（`line terminator characters`），否则将会失配：
+`s`修饰符表示，特殊字符`.`应另外匹配字符串中的下述行终结符（`line terminator characters`），否则将会失配：
 
 - U+000A 换行符（`\n`）
 - U+000D 回车符（`\r`）
@@ -28,8 +28,9 @@
 ### 举例
 
 ```javascript
-/foo.bar/.test('foo\nbar')
-// false
+((log) => {
+    log(/foo.bar/.test('foo\nbar'));   // false
+})(console.log)
 ```
 
 上面代码中，因为`.`不匹配`\n`，所以`正则表达式`返回`false`。
@@ -37,8 +38,9 @@
 但是，很多时候我们希望匹配的是`任意单个字符`，这时有一种变通的写法。
 
 ```javascript
-/foo[^]bar/.test('foo\nbar')
-// true
+((log) => {
+    log(/foo[^]bar/.test('foo\nbar'));   // true
+})(console.log)
 ```
 
 这种解决方案毕竟不太符合直觉，`ES2018` 引入`s`修饰符，使得`.`可以匹配`任意单个字符`。
@@ -50,13 +52,15 @@
 即开启`dotAll`模式，点（`dot`）代表`一切字符`。
 
 ```javascript
-const re = /foo.bar/s;
-// 另一种写法
-// const re = new RegExp('foo.bar', 's');
+((log) => {
+    const re = /foo.bar/s;
+    // 另一种写法
+    // const re = new RegExp('foo.bar', 's');
 
-re.test('foo\nbar') // true
-re.dotAll // true
-re.flags // 's'
+    log(re.test('foo\nbar')); // true
+    log(re.dotAll); // true
+    log(re.flags); // 's'
+})(console.log)
 ```
 
 ---
@@ -141,7 +145,7 @@ regExpObj.lastIndex = lastIndex;
 
 `lastIndex` 是正则表达式的一个`可读可写`的`整型`属性，用来指定`下一次匹配`的`起始索引`。
 
-只有`正则表达式`使用了表示全局检索的 `g` 标志时，该属性才会起作用。此时应用下面的规则：
+只有`正则表达式`使用了表示全局检索的 `g` 标志时，该`属性`才会起作用，并且`值`被`动态维护`。此时应用下面的规则：
 
 - 如果`lastIndex`大于字符串的长度，则 `regexp.test` 和 `regexp.exec` 将会匹配失败，然后`lastIndex`被设置为 `0`。
 - 如果`lastIndex`等于`字符串`的`长度`，且该`正则表达式`匹配`空字符串`，则该`正则表达式`匹配从`lastIndex`开始的字符串。（then the regular expression matches input starting at lastIndex.）
@@ -346,7 +350,7 @@ regExpObj.lastIndex = lastIndex;
 
 ### tip
 
-目前所有浏览器都支持这个属性获取，`m` 标志意味着一个`多行`输入字符串被看作`多行`。。
+目前所有浏览器都支持这个属性获取，`m` 标志意味着一个`多行`输入字符串被看作`多行`。
 
 例如，使用 `m`，`^` 和 `$` 将会从只匹配`正则字符串`的`开头`或`结尾`，变为匹配`字符串`中`任一行`的`开头`或`结尾`。
 
@@ -425,6 +429,25 @@ regExpObj.lastIndex = lastIndex;
 目前`Chrome`，`Edge`和`Firefox (Gecko)`浏览器支持该属性获取。
 
 当使用带有`y`标识的匹配模式时，`^`断言总是会匹配`输入`的`开始位置`或者（如果是`多行模式`）每一行的`开始位置`。
+
+可以使用 `try { … } catch { … }` 来测试运行时（`run-time`）是否支持 `sticky` 标志。
+
+这种情况下，必须使用 `eval(…)` 表达式或 `RegExp(regex-string, flags-string)` 语法（这是由于 `/regex/flags` 表示法将会在`编译`时刻被处理，因此在 `catch` 语句块处理异常前就会抛出一个`异常`。
+
+```javascript
+((log) => {
+    let supports_sticky;
+    try {
+        RegExp('','y');
+        supports_sticky = true;
+    }catch(e) {
+        supports_sticky = false;
+    }
+    log(supports_sticky); // true
+
+})(console.log)
+
+```
 
 ---
 
