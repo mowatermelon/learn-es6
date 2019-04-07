@@ -9,3 +9,13 @@
 - [通过Babel使用ES6](./Babel.md)
 
 - [通过Traceur使用ES6](./Traceur.md)
+
+- [Strawman 阶段的 proposals](./stage-00.md)
+
+- [Proposal 阶段的 proposals](./stage-01.md)
+
+- [Draft 阶段的 proposals](./stage-02.md)
+
+- [Candidate 阶段的 proposals](./active-proposals.md)
+
+- [Finished 阶段的 proposals](./stage-04.md)

@@ -68,6 +68,8 @@
 
 一种新的语法从提案到变成正式标准，需要经历五个阶段。每个阶段的变动都需要由 `TC39` 委员会批准。
 
+更详细内容，请查看[官方文档说明](https://tc39.github.io/process-document/)。
+
 - Stage 0 - Strawman（展示阶段）
 - Stage 1 - Proposal（征求意见阶段）
 - Stage 2 - Draft（草案阶段）

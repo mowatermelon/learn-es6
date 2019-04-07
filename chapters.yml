@@ -3,6 +3,11 @@
 - chapters01/base.md: 基础前置知识
 - chapters01/Babel.md: 通过Babel使用ES6
 - chapters01/Traceur.md: 通过Traceur使用ES6
+- chapters01/stage-00.md: Strawman 阶段的 proposals
+- chapters01/stage-01.md: Proposal 阶段的 proposals
+- chapters01/stage-02.md: Draft 阶段的 proposals
+- chapters01/active-proposals.md: Candidate 阶段的 proposals
+- chapters01/stage-04.md: Finished 阶段的 proposals
 - chapters02/: 第二章 let和const命令
 - chapters02/base.md: 前置知识了解
 - chapters02/let.md: let 命令
