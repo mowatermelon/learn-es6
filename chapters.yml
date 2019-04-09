@@ -33,3 +33,10 @@
 - chapters05/string-with-regExp.md: String中正则相关方法
 - chapters05/named-group-matching.md: 具名组匹配
 - chapters05/unicode-attribute-class.md: Unicode 属性类
+- chapters06/: 第六章 数值的扩展
+- chapters06/base-notation.md: Number 进制表示法
+- chapters06/prototype-attribute.md: Number 原型属性
+- chapters06/base-function-extend.md: Number 对象方法扩展
+- chapters06/prototype-function-extend.md: Number 原型对象方法扩展
+- chapters06/math-extension.md: math 对象扩展
+- chapters06/exponent-operator.md: 指数运算符
