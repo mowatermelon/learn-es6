@@ -73,6 +73,36 @@
 | `x(?=y)` | 仅匹配被`y`跟随的`x`。<br/> 举个例子，`/Jack(?=Sprat)/`，如果`Jack`后面跟着`sprat`，则匹配之。<br/> `/Jack(?=Sprat|Frost)/` ，如果`Jack`后面跟着`Sprat`或者`Frost`，则匹配之。但是，`Sprat` 和`Frost` 都不会在匹配结果中出现。 |
 | `x(?!y)` | 仅匹配不被`y`跟随的`x`。<br/> 举个例子，`/\d+(?!\.)/` 只会匹配不被点（`.`）跟随的数字。<br/> `/\d+(?!\.)/.exec('3.141')` 匹配`141`，而不是`3.141`                                                                              |
 
+## 特殊值正则转换表
+
+```javascript
+const strString = "hello watermelon";
+const oo = new Object();
+const oString = new String("hello world");
+const oBool = new Boolean(true);
+const oNum = new Number(68);
+const oArray = new Array("demo","melon","water");
+const oDate = new Date();// Sun Apr 14 2019 19:11:03 GMT+0800 (中国标准时间)
+```
+
+| 原始值                     | 使用方法                             | 转化值                                             |
+| :------------------------- | :----------------------------------- | :------------------------------------------------- |
+| true                       | new RegExp(true)                     | /true/                                             |
+| false                      | new RegExp(false)                    | /false/                                            |
+| undefined                  | new RegExp(undefined)                | /(?:)/                                             |
+| null                       | new RegExp(null)                     | /null/                                             |
+| NaN                        | new RegExp(NaN)                      | /NaN/                                              |
+| { name: 'Wu Eva' }         | new RegExp(oo)                       | /[object Object]/                                  |
+| [String: 'hello world']    | new RegExp(oString)                  | /hello world/                                      |
+| [Boolean: true]            | new RegExp(oBool)                    | /true/                                             |
+| [Number: 68]               | new RegExp(oNum)                     | /68/                                               |
+| oDate                      | new RegExp(oDate)                    | /Thu Dec 21 2017 19:39:40 GMT+0800 (中国标准时间)/ |
+| `Number.MAX_VALUE`         | new RegExp(Number.MAX_VALUE)         | /1.7976931348623157e+308/                          |
+| `Number.MIN_VALUE`         | new RegExp(Number.MIN_VALUE)         | /5e-324/                                           |
+| Number.NaN                 | new RegExp(Number.NaN)               | /NaN/                                              |
+| `Number.NEGATIVE_INFINITY` | new RegExp(Number.NEGATIVE_INFINITY) | /-Infinity/                                        |
+| `Number.POSITIVE_INFINITY` | new RegExp(Number.POSITIVE_INFINITY) | /Infinity/                                         |
+
 ## MDN 地址
 
 https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions
