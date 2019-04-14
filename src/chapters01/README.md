@@ -4,7 +4,9 @@
 
 `ECMAScript`是`JavaScript`语言的国际标准，`JavaScript`是`ECMAScript`的实现。
 
-- [基础前置知识](./base.md)
+- [js基础前置知识](./base-js.md)
+
+- [es基础前置知识](./base-es.md)
 
 - [通过Babel使用ES6](./Babel.md)
 
