@@ -1,6 +1,7 @@
     
 - chapters01/: 第一章 ECMAScript 6 简介
-- chapters01/base.md: 基础前置知识
+- chapters01/base-js.md: js基础前置知识
+- chapters01/base-es.md: es基础前置知识
 - chapters01/Babel.md: 通过Babel使用ES6
 - chapters01/Traceur.md: 通过Traceur使用ES6
 - chapters01/stage-00.md: Strawman 阶段的 proposals
