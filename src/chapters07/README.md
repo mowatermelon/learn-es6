@@ -1,0 +1,23 @@
+# 第七章 函数的扩展
+
+- [箭头函数](./arrow-function.md)
+  - 基本说明
+  - 注意事项说明
+  - 使用案例说明
+- [严格模式](./strict-mode.md)
+  - 基本说明
+  - ES6改动说明
+- [函数参数改进](./function-parameter-improvement.md)
+  - 函数参数的默认值
+  - rest 参数
+  - 函数参数的尾逗号
+- [函数的name属性](./the-name-attribute-of-the-function.md)
+  - 基本说明
+  - ES6改动说明
+- [尾调用优化](./tail-call-optimization.md)
+  - 尾调用说明
+  - 尾调用优化开启条件
+  - 尾调用优化原理
+  - 尾递归说明
+  - 尾递归优化案例
+  - Ployfill
