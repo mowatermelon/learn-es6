@@ -4,7 +4,7 @@
 
 `ES6` 允许使用`箭头`（`=>`）定义函数。`箭头函数表达式`的`语法`比函数表达式更`简洁`，并且没有自己的`this`，`arguments`，`super`或 `new.target`。这些`函数表达式`更适用于那些本来需要`匿名函数`的地方，并且它们不能用作`构造函数`。
 
-![how to use arrow](./how-to-use-arrow.png)
+[箭头函数基础分析图][how-to-use-arrow]
 
 ---
 
@@ -245,3 +245,4 @@ var fix = f => (x => f(v => x(x)(v)))
 [Church_encoding]: https://en.wikipedia.org/wiki/Church_encoding
 [combinators]: https://en.wikipedia.org/wiki/Fixed-point_combinator#Strict_fixed_point_combinator
 [λ-calculus]: https://en.wikipedia.org/wiki/Lambda_calculus
+[how-to-use-arrow]: https://github.com/getify/You-Dont-Know-JS/blob/master/es6%20%26%20beyond/fig1.png
