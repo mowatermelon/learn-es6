@@ -34,6 +34,38 @@ singleParam => { statements }
 
 ---
 
+
+### 箭头函数变量作用域
+
+`箭头函数`内定义的`变量`及其`作用域`
+
+```javascript
+(() => {
+  const { log } = console;
+    // 常规写法
+    const greeting_1 = () => {let now = new Date(); return ("Good" + ((now.getHours() > 17) ? " evening." : " day."));}
+    log(greeting_1());          //"Good evening."
+    log(now);    // ReferenceError: now is not defined 标准的let作用域
+
+    // 参数括号内定义的变量是局部变量（默认参数）
+    const greeting_2 = (now=new Date()) => "Good" + (now.getHours() > 17 ? " evening." : " day.");
+    log(greeting_2());          //"Good evening."
+    log(now);    // ReferenceError: now is not defined
+
+    // 对比：函数体内{}不使用var定义的变量是全局变量
+    const greeting_3 = () => {now = new Date(); return ("Good" + ((now.getHours() > 17) ? " evening." : " day."));}
+    log(greeting_3());           //"Good evening."
+    log(now);     // Wed Apr 24 2019 23:02:07 GMT+0800 (中国标准时间)
+
+    // 对比：函数体内{} 用const定义的变量是局部变量
+    const greeting_4 = () => {const now = new Date(); return ("Good" + ((now.getHours() > 17) ? " evening." : " day."));}
+    log(greeting_4()); //"Good evening."
+    log(now);    // ReferenceError: now is not defined
+})()
+```
+
+---
+
 ### 高阶语法
 
 ```javascript
@@ -49,7 +81,7 @@ statements }
 
 // Destructuring within the parameter list is also supported
 // 同样支持参数列表解构
-var f = ([a, b] = [1, 2], {x: c} = {x: a + b}) => a + b + c;
+const f = ([a, b] = [1, 2], {x: c} = {x: a + b}) => a + b + c;
 f(); // 6
 ```
 
@@ -64,11 +96,331 @@ f(); // 6
 
 ---
 
+### 与严格模式的关系
+
+鉴于 `this` 是词法层面上的，`严格模式`中与 `this` 相关的规则都将被忽略。
+
+```javascript
+(() => {
+    const { log } = console;
+    function Person() {
+      this.age = 0;
+      const closure = "123"
+      setInterval(function growUp() {
+        this.age++;
+        log(closure);
+      }, 1000);
+    }
+
+    const p = new Person();
+
+    function PersonX() {
+      'use strict'
+      this.age = 0;
+      const closure = "123"
+      setInterval(()=>{
+        this.age++;
+        log(closure);
+      }, 1000);
+    }
+
+    const px = new PersonX();
+    log(px);// PersonX {age: 0}
+})()
+```
+
+`严格模式`的其他规则依然不变。
+
+---
+
+### call & apply
+
+由于 `箭头函数`没有自己的`this`指针，通过 `call()` 或 `apply()` 方法调用一个`函数`时，只能传递参数（不能绑定`this`），他们的第一个参数会被`忽略`。（这种现象对于`bind`方法同样成立）
+
+```javascript
+(() => {
+    const { log } = console;
+    const adder = {
+      base : 1,
+      add : function(a) {
+        const f = v => v + this.base;
+        return f(a);
+      },
+
+      addThruCall: function(a) {
+        const f = v => v + this.base;
+        const b = {
+          base : 2
+        };
+        return f.call(b, a);
+      }
+    };
+
+    log(adder.add(1));         // 输出 2
+    log(adder.addThruCall(1)); // 仍然输出 2（而不是3）
+})()
+```
+
+---
+
+## 主要解决问题
+
+### 视觉优化
+
+无参数`箭头函数`在视觉上容易分析
+
+```javascript
+(() => {
+    const { log } = console;
+    setTimeout( () => {
+      log('I happen sooner');
+      setTimeout( () => {
+        // deeper code
+        log('I happen later');
+      }, 1);
+    }, 1);
+})()
+```
+
+---
+
+### 更短的函数
+
+```javascript
+(() => {
+    const { log } = console;
+    const elements = [
+      'Hydrogen',
+      'Helium',
+      'Lithium',
+      'Beryllium'
+    ];
+
+    log(elements.map(function(element) { 
+      return element.length; 
+    })); // [8, 6, 7, 9]
+
+    // 上面的普通函数可以改写成如下的箭头函数
+    log(elements.map((element) => {
+      return element.length;
+    })); // [8, 6, 7, 9]
+
+    // 当箭头函数只有一个参数时，可以省略参数的圆括号
+    log(elements.map(element => {
+    return element.length;
+    })); // [8, 6, 7, 9]
+
+    // 当箭头函数的函数体只有一个 `return` 语句时，可以省略 `return` 关键字和方法体的花括号
+    log(elements.map(element => element.length)); // [8, 6, 7, 9]
+
+    // 在这个例子中，因为我们只需要 `length` 属性，所以可以使用参数解构
+    // 需要注意的是字符串 `"length"` 是我们想要获得的属性的名称，而 `lengthFooBArX` 则只是个变量名，
+    // 可以替换成任意合法的变量名
+    log(elements.map(({ "length": lengthFooBArX }) => lengthFooBArX)); // [8, 6, 7, 9]
+})()
+```
+
+---
+
+### 不绑定this
+
+在`箭头函数`出现之前，每个新定义的`函数`都有它自己的 `this`值（在构造函数的情况下是一个`新对象`，在`严格模式`的函数调用中为 `undefined`，如果该函数被作为`对象方法`调用则为`基础对象`等）。`This`被证明是令人厌烦的面向对象风格的编程。
+
+```javascript
+(() => {
+    const { log } = console;
+    function Person() {
+      // Person() 构造函数定义 `this`作为它自己的实例.
+      this.age = 0;
+
+      setInterval(function growUp() {
+        // 在非严格模式, growUp()函数定义 `this`作为全局对象, 
+        // 与在 Person()构造函数中定义的 `this`并不相同.
+        this.age++;
+      }, 1000);
+    }
+
+    const p = new Person();
+    log(p);// Person {age: 0}
+})()
+```
+
+在`ECMAScript 3/5`中，通过将`this`值分配给`封闭`的`变量`，可以解决`this`问题。
+
+```javascript
+(() => {
+    const { log } = console;
+    function Person() {
+      const that = this;
+      that.age = 0;
+
+      setInterval(function growUp() {
+        //  回调引用的是`that`变量, 其值是预期的对象. 
+        that.age++;
+      }, 1000);
+    }
+})()
+```
+
+或者，可以创建`绑定函数`，以便将预先分配的`this`值传递到绑定的`目标函数`（上述示例中的`growUp()`函数）。
+
+`箭头函数`不会创建自己的`this`,它只会从自己的作用域链的上一层继承`this`。因此，在下面的代码中，传递给`setInterval`的函数内的`this`与封闭函数中的`this`值相同：
+
+```javascript
+(() => {
+    const { log } = console;
+    function Person(){
+      this.age = 0;
+
+      setInterval(() => {
+        this.age++; // |this| 正确地指向 p 实例
+      }, 1000);
+    }
+
+    const p = new Person();
+    log(p); // Person {age: 0}
+})()
+```
+
+---
+
+### 不绑定arguments
+
+箭头函数不绑定`Arguments` 对象。因此，在本示例中，`arguments`只是引用了封闭作用域内的`arguments`：
+
+```javascript
+(() => {
+    const { log } = console;
+    const arguments = [1, 2, 3];
+    const arr = () => arguments[0];
+
+    log(arr()); // 1
+
+    function foo(n) {
+      const f = () => arguments[0] + n; // 隐式绑定 foo 函数的 arguments 对象. arguments[0] 是 n
+      return f();
+    }
+
+    log(foo(1)); // 2
+})()
+```
+
+在大多数情况下，使用`剩余参数`是相较使用`arguments`对象的更好选择。
+
+```javascript
+(() => {
+    const { log } = console;
+    function foo(arg) {
+      const f = (...args) => args[0];
+      return f(arg);
+    }
+    log(foo(1)); // undefined
+
+    function foo(arg1,arg2) {
+        const f = (...args) => args[1];
+        return f(arg1,arg2);
+    }
+    log(foo(1,2));  //2
+})()
+```
+
+---
+
 ## 注意事项说明
 
-### 返回值为对象
+### 方法函数
 
-由于`大括号`被解释为`代码块`，所以如果`箭头函数`直接返回一个对象，必须在`对象`外面加上括号，否则会报错。
+`箭头函数表达式`对`非方法函数`是最合适的。如果试着把它们作为`方法`时发生了什么。
+
+```javascript
+(() => {
+    'use strict';
+    const { log } = console;
+    const obj = {
+      i: 10,
+      b: () => log(this.i, this),
+      c: function() {
+        log(this.i,this)
+      }
+    }
+    log(obj.b());
+    // undefined Window {postMessage: ƒ, blur: ƒ, focus: ƒ, close: ƒ, frames: Window, …}
+    // undefined
+    log(obj.c());
+    // 10 {i: 10, b: ƒ, c: ƒ}
+    // undefined
+})()
+```
+
+`箭头函数`没有定义`this`绑定。
+
+---
+
+> Object.defineProperty()
+
+涉及`Object.defineProperty()`的示例
+
+```javascript
+(() => {
+    'use strict';
+    const { log } = console;
+    const obj = {
+      a: 10
+    };
+
+    Object.defineProperty(obj, "b", {
+      get: () => {
+        log(this.a, typeof this.a, this);
+        return this.a+10; // NaN
+        // 代表全局对象 'Window', 因此 'this.a' 返回 'undefined'
+      }
+    });
+
+    log(obj.b); // undefined   "undefined"   Window {postMessage: ƒ, blur: ƒ, focus: ƒ, close: ƒ, frames: Window, …}
+})()
+```
+
+---
+
+### new 操作符
+
+箭头函数不能用作构造器，和 new一起用会抛出错误。
+
+```javascript
+(() => {
+    const { log } = console;
+    const Foo = () => {};
+    const foo = new Foo(); // TypeError: Foo is not a constructor
+})()
+```
+
+---
+
+### prototype 属性
+
+`箭头函数`没有`prototype`属性。
+
+```javascript
+(() => {
+    const { log } = console;
+    const Foo = () => {};
+    log(Foo.prototype); // undefined
+})()
+```
+
+---
+
+### yield
+
+`yield` 关键字通常不能在`箭头函数`中使用（除非是嵌套在允许使用的函数内）。因此，`箭头函数`不能用作`生成器`。
+
+---
+
+### 返回值为对象字面量
+
+记住用`params => {object:literal}`这种简单的语法返回`对象字面量`是行不通的。
+
+由于`大括号`被解释为`代码块`，所以如果`箭头函数`直接返回一个对象，必须在`对象字面量`外面加上括号，否则会报错。
 
 ```javascript
 (() => {
@@ -87,9 +439,9 @@ f(); // 6
 })()
 ```
 
-上面代码`getTempItem_1`中，原始意图是返回一个对象`{ id: id }`，但是由于引擎认为大括号是代码块，所以执行了一行语句`id: id`。
+上面代码`getTempItem_1`中，原始意图是返回一个对象`{ id: id }`，但是由于`引擎`认为`大括号`是`代码块`，所以执行了一行语句`id: id`。
 
-这时，`id`可以被解释为语句的标签，因此实际执行的语句是`id`;，然后函数就结束了，没有返回值。
+这时，`id`可以被解释为`语句`的`标签`，因此实际执行的`语句`是`id`;，然后`函数`就结束了，没有返回值。
 
 ---
 
@@ -105,6 +457,59 @@ f(); // 6
 ```
 
 ---
+
+### 换行
+
+`箭头函数`在`参数`和`箭头`之间不能换行。
+
+```javascript
+(() => {
+  const func = ()
+            => 1;
+  // SyntaxError: expected expression, got '=>'
+})()
+```
+
+---
+
+### 解析顺序
+
+虽然`箭头函数`中的`箭头`不是`运算符`，但`箭头函数`具有与`常规函数`不同的特殊[运算符优先级][Operator-Precedence]解析规则。
+
+```javascript
+(() => {
+    const { log } = console;
+    let callback;
+
+    callback = callback || function() {}; // ok
+
+    callback = callback || () => {};
+    // SyntaxError: invalid arrow-function arguments
+
+    callback = callback || (() => {});    // ok
+})()
+```
+
+---
+
+### 函数体
+
+`箭头函数`可以有一个`简写体`或常见的`块体`。
+
+在一个`简写体`中，只需要一个`表达式`，并附加一个`隐式`的`返回值`。在块体中，必须使用明确的`return`语句。
+
+```javascript
+(() => {
+  var func = x => x * x;
+  // 简写函数 省略return
+
+  var func = (x, y) => { return x + y; };
+  //常规编写 明确的返回值
+})()
+```
+
+---
+
 
 ## 使用案例说明
 
@@ -241,8 +646,131 @@ var fix = f => (x => f(v => x(x)(v)))
 
 ---
 
+### Promise
+
+更简明的`Promise`链
+
+```javascript
+(() => {
+  promise.then(a => {
+    // ...
+  }).then(b => {
+    // ...
+  });
+})()
+```
+
+---
+
+### array相关
+
+方便数组`reduce`,`filter`,和`map`;
+
+```javascript
+(() => {
+    const { log } = console;
+    // Easy array filtering, mapping, ...
+
+    const arr = [5, 6, 13, 0, 1, 18, 23];
+
+    const sum = arr.reduce((a, b) => a + b);  
+    log(sum); // 66
+
+    const even = arr.filter(v => v % 2 == 0); 
+    log(even); // [6, 0, 18]
+
+    const double = arr.map(v => v * 2);
+    log(double); // [10, 12, 26, 0, 2, 36, 46]
+})()
+```
+
+---
+
+### IIFE
+
+```javascript
+(() => {
+    const { log } = console;
+    // 空的箭头函数返回 undefined
+    const empty = () => {};
+
+    log((() => 'foobar')());// foobar
+    // (这是一个立即执行函数表达式,可参阅 'IIFE'术语表)
+})()
+```
+
+---
+
+### 三元运算符
+
+`箭头函数`也可以使用条件（`三元`）`运算符`
+
+```javascript
+(() => {
+    const { log } = console;
+    const simple = a => a > 15 ? 15 : a;
+    log(simple(16)); // 15
+    log(simple(10)); // 10
+
+    let max = (a, b) => a > b ? a : b;
+    log(max(4, 5));// 5
+})()
+```
+
+---
+
+### 闭包
+
+`箭头函数`也可以使用`闭包`
+
+```javascript
+(() => {
+  const { log } = console;
+  // 标准的闭包函数
+  function Add_1(){
+        let i = 0;
+        return function b(){
+                return (++i);
+        };
+  };
+
+  const v_1 = Add_1();
+  log(v_1());    //1
+  log(v_1());    //2
+
+
+  //箭头函数体的闭包（ i=0 是默认参数）
+  const Add_2 = (i=0) => {return (() => (++i) )};
+  const v_2 = Add_2();
+  log(v_2());           //1
+  log(v_2());           //2
+
+  //因为仅有一个返回，return 及括号（）也可以省略
+  const Add_3 = (i=0)=> ()=> ++i;
+
+  const v_3 = Add_3();
+  log(v_3());    //1
+  log(v_3());    //2
+})()
+```
+
+---
+
+### 箭头函数递归
+
+```javascript
+(() => {
+    const { log } = console;
+    const fact = (x) => ( x==0 ?  1 : x*fact(x-1) );
+    log(fact(5));       // 120
+})()
+```
+
+---
+
 [arrow function]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
 [Church_encoding]: https://en.wikipedia.org/wiki/Church_encoding
 [combinators]: https://en.wikipedia.org/wiki/Fixed-point_combinator#Strict_fixed_point_combinator
 [λ-calculus]: https://en.wikipedia.org/wiki/Lambda_calculus
 [how-to-use-arrow]: https://github.com/getify/You-Dont-Know-JS/blob/master/es6%20%26%20beyond/fig1.png
+[Operator-Precedence]: https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Operator_Precedence
