@@ -2,7 +2,7 @@ dir: src
 output: docs
 site: learn es6
 theme: oceandeep
-customization: false
+customization: true
 themeDir: loppo-theme
 direction: ltr
 id: blog
