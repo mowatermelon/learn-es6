@@ -112,23 +112,3 @@
 > async generator 函数声明
 
 ---
-
-- [*] 普通型语句
-    语句块
-    空语句
-    if语句
-    switch语句
-    循环语句
-    return语句
-    break语句
-    continue语句
-    with语句
-    throw语句
-    try语句
-    debugger语句
-- [*] 声明型语句
-    var声明
-    let声明
-    const声明
-    Class声明
-    函数声明
