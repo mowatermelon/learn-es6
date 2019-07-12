@@ -13,6 +13,7 @@
 - chapters02/base.md: 前置知识了解
 - chapters02/let.md: let 命令
 - chapters02/const.md: const 命令
+- chapters02/statement-details.md: 语句进阶说明 
 - chapters03/: 第三章 变量的解构赋值
 - chapters03/base.md: 基础数据结构
 - chapters03/complex.md: 复杂数据结构
