@@ -439,7 +439,7 @@ let a = 2;
 
 ### const声明
 
-这里具体就不细讲了，需要看详细内容，请查看[第二章](./const.html)。
+这里具体就不细讲了，需要看详细内容，请查看[第三章](./const.html)。
 
 ```javascript
 const a = 2;
