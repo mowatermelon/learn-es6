@@ -48,6 +48,7 @@
 - chapters07/function-parameter-improvement.md: 函数参数改进
 - chapters07/the-name-attribute-of-the-function.md: 函数的name属性
 - chapters07/tail-call-optimization.md: 尾调用优化
+- chapters08/: 第八章 数组的扩展
 - chapters08/extension-operator.md: 扩展运算符
 - chapters08/prototype-function-extend.md: 原型对象方法扩展
 - chapters08/instance-function-extend.md: 实例对象方法扩展
