@@ -52,6 +52,5 @@
 - chapters08/extension-operator.md: 扩展运算符
 - chapters08/prototype-function-extend.md: 原型对象方法扩展
 - chapters08/instance-function-extend.md: 实例对象方法扩展
-- chapters08/array-traversal-extension.md: 数组遍历扩展
 - chapters08/empty-space-processing-of-array.md: 数组的空位处理
 - chapters08/pipeline-optimization-of-arrays.md: 数组的管道运算优化
