@@ -3,25 +3,46 @@
 - [扩展运算符](./extension-operator.md)
   - 基本说明
   - 使用案例
+    - 函数调用
+    - 与普通参数结合
+    - 结合表达式
+  - 注意事项
+    - 空数组
+    - 圆括号
 - [原型对象方法扩展](./prototype-function-extend.md)
   - Array.from()
+    - 基础语法
+    - 参数说明
+    - 返回值说明
+    - 详细说明
+    - 与扩展运算符区别
+    - 案例
+    - Polyfill
   - Array.of()
+    - 基础语法
+    - 参数说明
+    - 返回值说明
+    - 详细描述
+    - 案例
+    - polyfill
 - [实例对象方法扩展](./instance-function-extend.md)
-  - 内部数据拷贝
   - 内部数据寻找
     - find()
     - findIndex()
     - includes()
   - 内部数据填充
+    - copyWithin()
+    - fill()
   - 内部数据展平
-    - flat()
-    - flatMap()
+     - flat()
+     - flatMap()
   - 遍历判断
     - some()
     - every()
-- [数组遍历扩展](./array-traversal-extension.md)
-  - entries()
-  - keys()
-  - values()
+    - reduce()
+    - reduceRight()
+    - entries()
+    - keys()
+    - values()
 - [数组的空位处理](./empty-space-processing-of-array.md)
 - [数组的管道运算优化](./pipeline-optimization-of-arrays.md)
