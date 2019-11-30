@@ -125,7 +125,7 @@ for (let i of arr) {
 
 ---
 
-### 遍历实例方法
+### 遍历方法处理空位
 
 `entries()`、`keys()`、`values()`、`find()`和`findIndex()`会将`空位`处理成`undefined`。
 
