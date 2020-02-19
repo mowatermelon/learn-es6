@@ -1,0 +1,54 @@
+# 第九章 ts学习
+
+- [ts历史](./history.md)
+- [ts优势](./ts-good.md)
+- [基础类型学习](./learn-primitive-type.md)
+  - 布尔值(Boolean)
+  - 数字(Number)
+  - 字符串(String)
+  - 标记(Symbol)
+    - 基础说明
+    - 静态属性说明
+  - 泛型(Any)
+  - 空值(Void)
+  - Null(Null) 和 Undefined (Undefined)
+  - 非存在类型(Never)
+- [衍生类型之Enum](./Enum.md)
+  - 基础介绍
+  - 基础枚举
+    - 数字枚举
+    - 字符串枚举
+    - 反向映射
+    - const枚举
+  - 复杂枚举
+    - 常量枚举
+    - 文字枚举
+    - 计算枚举
+    - 异构枚举
+    - 联合枚举
+    - 环境枚举
+- [衍生类型之interface](./interface.md)
+- 基础说明
+  - 接口可索引类型
+  - 接口扩展
+  - 类与接口继承
+  - 静态和实例差异
+  - 类私有属性继承
+- 作用说明
+  - 形参类型校验
+  - 可选属性
+  - 只读属性
+  - 模糊属性检测
+  - 函数类型约束
+  - 第三方交互
+- [衍生类型之Class](./Class.md)
+  - 基础介绍
+  - 声明
+    - new
+    - constructor
+    - this
+    - 属性声明
+    - 方法声明
+    - 相关修饰符
+    - getter&setter
+    - 抽象类声明

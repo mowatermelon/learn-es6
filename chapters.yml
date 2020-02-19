@@ -54,3 +54,10 @@
 - chapters08/instance-function-extend.md: 实例对象方法扩展
 - chapters08/empty-space-processing-of-array.md: 数组的空位处理
 - chapters08/pipeline-optimization-of-arrays.md: 数组的管道运算优化
+- chapters09/: 第九章 ts学习
+- chapters09/history.md: ts历史
+- chapters09/ts-good.md: ts优势
+- chapters09/learn-primitive-type.md: 基础类型学习
+- chapters09/Enum.md: 衍生类型之Enum
+- chapters09/interface.md: 衍生类型之interface
+- chapters09/Class.md: 衍生类型之Class
