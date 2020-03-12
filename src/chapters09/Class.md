@@ -198,7 +198,7 @@ log(hello.greet());// Hello, watermelon!
 
 ### 相关修饰符
 
-请注意下述四个修饰符，在`Class`中`属性`和`方法`声明中都可以同理使用。
+请注意下述五个修饰符，在`Class`中`属性`和`方法`声明中都可以同理使用。
 
 > 静态修饰符---static
 
@@ -246,7 +246,7 @@ class Greeter {
     }
 }
 
-const hello = new Greeter('watermelon');// Hey, watermelon! 
+const hello = new Greeter('watermelon');// Hey, watermelon!
 hello.greet();// Hello, melon!
 log(hello.greeting);// melon
 
@@ -455,7 +455,7 @@ class Greeter {
     }
 }
 
-const hello = new Greeter('watermelon');// Hey, watermelon! 
+const hello = new Greeter('watermelon');// Hey, watermelon!
 hello.greet();// Hello, melon!
 log(hello.greeting);// melon
 ```
@@ -488,7 +488,7 @@ class Greeter {
 }
 
 const hello = new Greeter();
-log(hello.greeting);// now is getting greeting attr 
+log(hello.greeting);// now is getting greeting attr
 // melon
 
 hello.greeting = 'watermelon!!!!!!!!!!!!!!!!!!!!!!!';// greet has a max length of 10
@@ -527,38 +527,256 @@ abstract class Melon {
 }
 
 const hello = new Greeter();
-log(hello.greeting);// now is getting greeting attr 
+log(hello.greeting);// now is getting greeting attr
 // melon
 
 hello.greeting = 'watermelon!!!!!!!!!!!!!!!!!!!!!!!';// greet has a max length of 10
 
 ```
 
-抽象类中标记为抽象的方法不包含实现，必须在派生类中实现。抽象方法与接口方法具有相似的语法。两者都定义了方法的签名，而没有包括方法主体。但是，抽象方法必须包含abstract关键字，并且可以选择包含访问修饰符。
+抽象类中标记为抽象的方法不包含实现，必须在派生类中实现。抽象方法与接口方法具有相似的语法。两者都定义了方法的签名，而没有包括方法主体。但是，抽象方法必须包含`abstract`关键字，并且可以选择包含访问修饰符。
 
 ---
 
-> 抽象类和接口对比
+## 抽象类和接口对比
 
-- 相同点：
+### 基础说明
 
-1、都是抽象类型。
-2、都可以有实现方法；
-3、都可以不需要实现类或者继承者去实现所有方法。
-4、抽象类和接口都不能直接实例化，如果要实例化，抽象类变量必须指向实现所有抽象方法的子类对象，接口变量必须指向实现所有接口方法的类对象。
-5、抽象类里的抽象方法必须全部被子类所实现，如果子类不能全部实现父类抽象方法，那么该子类只能是抽象类。同样，一个类实现接口的时候，如不能全部实现接口方法，那么该类也只能为抽象类。（以前是）
+> 接口和抽象类声明的区别
 
-- 不同点：
+```typescript
+interface iDemo {
+    name: string;
+    age: number;
+    hello(name: string): string;
+}
 
-1、抽象类不可以多重继承，接口可以（接口和抽象类相比，最大的区别就在于子类上，接口的子类可以同时实现多个接口，但抽象类的子类只能实现单根继）。
-2、抽象类要被子类继承，接口要被类实现。
-3、接口里定义的变量只能是公共的静态的常量，抽象类中的变量是普通变量
-4、抽象方法只能申明，不能实现，接口是设计的结果 ，抽象类是重构的结果
+abstract class aDemo {
+    #name: string = 'melon';
+    abstract hello(name: string): string;
+    greet():string{
+        return 'hello~~~~~~~';
+    }
+    get sex(): string {
+        return 'women'
+    }
+    set sex(value) {
+        const DEFALUT_VALUE_ARR: string[] = ['man', 'woman'];
+        DEFALUT_VALUE_ARR.indexOf(value) > -1 && (this.sex = value);
+    }
+}
 
-- 总结
+const test01:iDemo = {name:'111',age:11,hello:()=> 'hello'};
 
-抽象类里可以没有抽象方法
-如果一个类里有抽象方法，那么这个类只能是抽象类
-抽象方法要被实现，所以不能是静态的，也不能是私有的。
+const test02:aDemo = {sex:'woman',hello:()=> 'hello',greet:()=> 'greet'};
+// Property '#name' is missing in type '{ sex: string; hello: () => string; greet: () => string; }' but required in type 'aDemo'.
+
+const test03:aDemo = {'name':'melon',sex:'woman',hello:()=> 'hello',greet:()=> 'greet'};
+// Type '{ name: string; sex: string; hello: () => string; greet: () => string; }' is not assignable to type 'aDemo'.
+//   Object literal may only specify known properties, and ''name'' does not exist in type 'aDemo'.
+
+const test04:aDemo = {'#name':'melon',sex:'woman',hello:()=> 'hello',greet:()=> 'greet'};
+// Type '{ '#name': string; sex: string; hello: () => string; greet: () => string; }' is not assignable to type 'aDemo'.
+//   Object literal may only specify known properties, and ''#name'' does not exist in type 'aDemo'.
+
+// Cannot create an instance of an abstract class.
+const test05:aDemo = new aDemo();
+
+// 'iDemo' only refers to a type, but is being used as a value here.
+const test06:aDemo = new iDemo();
+```
+
+可以看到
+
+- `接口`中只能声明字段(`name`,`age`)，而`抽象类`中可以声明具有访问器的属性(`sex`)。
+- `接口`中字段的声明不能使用(`public`,`private(#)`,`static`,`readonly`和`protected`),而`抽象类`中声明属性是可以使用修饰符的。
+- `接口`中声明方法是完全不可以包括具体实现，但是`抽象类`中抽象方法不可以包括具体实现，但是普通方法还是可以写具体实现的。
+- `接口`和 `抽象类`都是不可以直接被实例化的
+- `接口`和 `抽象类`在用于变量的类型声明之后，变量的赋值中需要包括`接口`和 `抽象类`的所有属性和方法。
+
+---
+
+> 接口和抽象类的多重继承区别
+
+```typescript
+interface test01 {
+}
+interface test02 {
+}
+class test03 {
+
+}
+class test04 {
+
+}
+
+abstract class aDemo {
+}
+class iGreeter1 implements test01,test02 {
+}
+
+// Classes can only extend a single class.
+class oGreeter1 extends test03,test04 {
+}
+// Classes can only extend a single class.
+class oGreeter2 extends aDemo,test01 {
+}
+
+```
+
+`implements`支持多重继承接口，`extends`只支持单类继承。
+
+---
+
+> 接口和抽象类继承属性的区别
+
+```typescript
+
+interface iDemo {
+    name: string;
+    age: number;
+}
+
+abstract class aDemo {
+    #name: string = 'melon';
+    abstract sex:string = 'women';
+
+}
+class iGreeter implements iDemo {
+    // Class 'iGreeter' incorrectly implements interface 'iDemo'.
+    // Type 'iGreeter' is missing the following properties from type 'iDemo': name, age
+    hello(name: string, age: string): string {
+        return `hello ${age} ${name || this.name} `;
+        // Property 'name' does not exist on type 'iGreeter'.
+    }
+}
+class oGreeter extends aDemo {
+    // Non-abstract class 'oGreeter' does not implement inherited abstract member 'sex' from class 'aDemo'.
+    hello(name: string, age: string): string {
+        return `hello ${age} ${name || this.name} `;
+        //Property 'name' does not exist on type 'oGreeter'. Did you mean '#name'?
+    }
+    greet():string{
+        return `hello ${this.sex} ${name || this.#name} `;
+        //Property '#name' is not accessible outside class 'aDemo' because it has a private identifier.
+    }
+}
+```
+
+可以看到
+
+- 类继承`接口`，`接口`中的字段一定要在类中声明的，否则这边就会报错，说明`missing the following properties`。
+- 类继承`抽象类`，`抽象类`中声明的普通属性，类中可以不用强制声明，但是在`抽象类`中声明的抽象属性，类中必须要进行声明。
+- 类在继承`接口`和`抽象类`中属性的时候，类型声明都需要和原有保持一致，否则就会报错`not assignable to the same property in base type`。
+- 类在继承`抽象类`的时候，如果没有按照规范实现属性声明，但是在类方法中访问对应的抽象属性，不会报错，但是如果是继承`接口`，未按照`接口`字段继承配置，在类方法中访问对应的属性，是会抛出错误的。
+
+---
+
+> 接口和抽象类声明方法的区别
+
+```typescript
+const { log } = console;
+interface iDemo {
+    hello(name: string): string;
+    greet(name: string):void;
+}
+class iGreeter1 implements iDemo {
+    //Class 'iGreeter1' incorrectly implements interface 'iDemo'.
+    //Type 'iGreeter1' is missing the following properties from type 'iDemo': hello, greet
+    helloEx(name: string, age: string) {
+    }
+    greetEx():string{
+        return `hello melon~~~`;
+    }
+}
+class iGreeter2 implements iDemo {
+    // Property 'hello' in type 'iGreeter' is not assignable to the same property in base type 'iDemo'.
+    // Type '(name: string, age: string) => void' is not assignable to type '(name: string) => string'.
+    hello(name: string, age: string) {
+    }
+    greetEx():string{
+        return `hello ${this.greet()} melon~~~`;
+    }
+}
+class iGreeter3 implements iDemo {
+    hello(name: string): string{
+        return `hello ${name}`;
+    }
+    greet():string{
+        return `hello melon~~~`;
+    }
+}
+```
+
+可以看到类在继承`接口`的时候
+
+- `接口`中的方法不必要全部都实现，但是如果一个方法都不实现，这边会报错。
+- `接口`中的方法如果规定了形参个数和类型，类在继承实现的时候，需要严格按照规范实现，否则会报错。
+- `接口`中的方法如果未规定返回值类型，或者规定的返回类型为`void`，则在继承实现的时候，可以修改形参个数，类型和返回值类型。
+
+```typescript
+const { log } = console;
+abstract class aDemo {
+    abstract hello(name: string): string;
+    greet(name: string):void{
+        log(`hello`);
+    }
+
+}
+class oGreeter1 extends aDemo {
+    // Non-abstract class 'oGreeter' does not implement inherited abstract member 'hello' from class 'aDemo'.
+    helloEx(name: string, age: string){
+    }
+    greetEx():string{
+        return `hello ${this.greet()} melon~~~`;
+    }
+}
+class oGreeter2 extends aDemo {
+    // Property 'hello' in type 'oGreeter' is not assignable to the same property in base type 'aDemo'.
+    // Type '(name: string, age: string) => void' is not assignable to type '(name: string) => string'.
+    hello(name: string, age: string){
+    }
+    greetEx():string{
+        return `hello ${this.greet()} melon~~~`;
+    }
+}
+class oGreeter3 extends aDemo {
+    hello(name: string): string{
+        return `hello ${name}`;
+    }
+    greet():string{
+        return `hello melon~~~`;
+    }
+}
+```
+
+可以看到类在继承`抽象类`的时候
+
+- `抽象类`中的方法不必要全部都实现，但是抽象方法必须实现，否则这边会报错。
+- `抽象类`中的方法如果规定了形参个数和类型，类在继承实现的时候，需要严格按照规范实现，否则会报错。
+- `抽象类`中的方法如果未规定返回值类型，或者规定的返回类型为`void`，则在继承实现的时候，可以修改形参个数，类型和返回值类型。
+- `抽象类`里可以没有`抽象方法`
+- 如果一个类里有`抽象方法`，那么这个类只能是`抽象类`
+- `抽象方法`要被实现，所以不能是静态的，也不能是私有的。
+
+---
+
+### 总结
+
+> 相同点：
+
+- 都是抽象类型。
+- 都可以有实现方法。
+- 都可以不需要实现类或者继承者去实现所有方法。
+- `抽象类`和`接口`都不能直接通过`new`关键词来进行实例化。
+- 如果变量类型来进行实例化，变量必须实现所有`接口`或者`抽象类`的属性和方法。
+- 在继承`接口`和`抽象类`方法时，除了规定了返回值为`void`的方法可以进行自定义实现，其他继承的方法必须按照规范实现。
+
+> 不同点：
+
+- `接口`中只能声明没有访问器的字段，`抽象类`中可以声明有访问器的属性。
+- `接口`中字段声明不可以使用相关`修饰符`，抽象类中属性声明可以，并且属性还可以赋予默认值。
+- `接口`中的方法在继承的时候不会强制显示必须都要实现，但是`抽象类`中的抽象方法在继承的时候，必须都要实现。
+- `抽象类`不可以多重继承，`接口`可以。
 
 ---
