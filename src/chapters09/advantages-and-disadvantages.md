@@ -39,3 +39,9 @@ TypeScript is a typed superset of JavaScript that compiles to plain JavaScript. 
 - 类型使您可以定义软件组件之间的接口，并深入了解现有JavaScript库的行为。
 
 - TypeScript支持最新和不断发展的JavaScript功能，包括ECMAScript 2015中的功能以及未来的提案（例如异步功能和装饰器），以帮助构建可靠的组件。
+
+---
+
+# 缺点
+
+---

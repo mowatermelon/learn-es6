@@ -1,7 +1,7 @@
 # 第九章 ts学习
 
 - [ts历史](./history.md)
-- [ts优势](./ts-good.md)
+- [ts优势与劣势](./advantages-and-disadvantages.md)
 - [基础类型学习](./learn-primitive-type.md)
   - 布尔值(Boolean)
   - 数字(Number)
@@ -13,6 +13,14 @@
   - 空值(Void)
   - Null(Null) 和 Undefined (Undefined)
   - 非存在类型(Never)
+- [衍生类型基础学习](./learn-derivative-type.md)
+  - 数组(Array)
+  - 元组(Tuple)
+  - 枚举(enums)
+  - 接口(interface)
+  - 类(Class)
+  - 方法(function)
+  - 命名空间(namespace)
 - [衍生类型之Enum](./Enum.md)
   - 基础介绍
   - 基础枚举
@@ -52,3 +60,11 @@
     - 相关修饰符
     - getter&setter
     - 抽象类声明
+- [ts 高级工具用法](./ts-util.md)
+  - 装饰器
+  - mixins
+  - 类型断言
+  - 类型校验
+  - 泛型
+  - 高级类型
+  - Utility Types
