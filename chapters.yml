@@ -56,8 +56,42 @@
 - chapters08/pipeline-optimization-of-arrays.md: 数组的管道运算优化
 - chapters09/: 第九章 ts学习
 - chapters09/history.md: ts历史
-- chapters09/ts-good.md: ts优势
+- chapters09/advantages-and-disadvantages.md: ts优势与劣势
 - chapters09/learn-primitive-type.md: 基础类型学习
+- chapters09/learn-derivative-type.md: 衍生类型基础学习
 - chapters09/Enum.md: 衍生类型之Enum
 - chapters09/interface.md: 衍生类型之interface
 - chapters09/Class.md: 衍生类型之Class
+- chapters09/ts-util.md: ts 高级工具用法
+- chapters10/: 第十章 react学习
+- chapters10/history.md: react历史
+- chapters10/version-management.md: react版本管理
+- chapters10/advantages-and-disadvantages.md: react优势与劣势
+- chapters10/base.md: react基础语法
+- chapters10/common-package.md: react常用组件包
+- chapters10/family-bucket.md: react全家桶
+- chapters10/ecosphere.md: react的生态圈
+- chapters10/substitute-product.md: react和替代产品类比
+- chapters11/: 第十一章 webpack学习
+- chapters11/history.md: webpack历史
+- chapters11/version-management.md: webpack版本管理
+- chapters11/advantages-and-disadvantages.md: webpack优势与劣势
+- chapters11/base-config.md: webpack项目基础配置
+- chapters11/common-package.md: webpack常用组件包
+- chapters11/ecosphere.md: webpack的生态圈
+- chapters11/substitute-product.md: webpack和替代产品类比
+- chapters12/: 第十二章 微信小程序学习
+- chapters12/history.md: 微信小程序历史
+- chapters12/version-management.md: 微信小程序版本管理
+- chapters12/advantages-and-disadvantages.md: 微信小程序优势与劣势
+- chapters12/base.md: 微信小程序基础学习
+- chapters12/common-ui-package.md: 微信小程序常用UI库
+- chapters12/ecosphere.md: 微信小程序的生态圈
+- chapters12/cross-platform.md: 微信小程序跨平台
+- chapters12/substitute-product.md: 微信小程序和替代产品类比
+- chapters13/: 第十三章 web安全方案
+- chapters13/common-web-risks.md: 常见web风险
+- chapters13/monitoring-system.md: 前端监控体系
+- chapters13/performance-optimization.md: 前端性能优化
+- chapters13/security-prevention-and-control.md: 前端安全防控
+- chapters13/test-system.md: 前端测试体系
