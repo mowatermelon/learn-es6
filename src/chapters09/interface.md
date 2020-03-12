@@ -24,7 +24,7 @@ const myStr: string = myArray[0];
 log(myStr);// Bob
 ```
 
-上面，我们有一个`StringArray`带有索引签名的接口。该索引签名指出，当添加 `StringArray`对象中索引名类型为`number`的属性时，这个时候对应的属性值应该为一个字符串`string`。
+上面，我们有一个`StringArray`带有索引签名的接口。该索引签名指出，当添加 `StringArray`对象中索引名类型为`number`的字段时，这个时候对应的字段值应该为一个字符串`string`。
 
 ---
 
@@ -58,7 +58,7 @@ interface NotOkay {
 
 ---
 
-> 尽管`字符串索引签名`是描述“字典”模式的强大方法，但它们还强制所有属性与其返回类型匹配。
+> 尽管`字符串索引签名`是描述“字典”模式的强大方法，但它们还强制所有字段与其返回类型匹配。
 
 这是因为字符串索引声明该字符串`obj.property`也可以作为`obj["property"]`。
 
@@ -72,7 +72,7 @@ interface NumberDictionary {
 }
 ```
 
-但是，如果索引签名是属性类型的`并集`，则可以接受不同`类型`的`属性`。
+但是，如果索引签名是字段类型的`并集`，则可以接受不同`类型`的`字段`。
 
 ```typescript
 interface NumberOrStringDictionary {
@@ -154,7 +154,7 @@ log(square);// {color: "blue", sideLength: 10, penWidth: 5}
 
 ### 类与接口继承
 
-> 基础实现属性接口继承
+> 基础实现字段接口继承
 
 在`TypeScript`中，还可以使用`C＃`和`Java`等语言中接口的最常见用法之一，即`显式强制类满足特定协定`。
 
@@ -173,7 +173,7 @@ class Clock implements ClockInterface{
 }
 ```
 
-注意，接口中声明了公共类的属性，在类继承的时候一定要做对应属性声明，否则这边会抛出相关错误。
+注意，接口中声明了公共类的字段，在类继承的时候一定要做对应字段声明，否则这边会抛出相关错误。
 
 ---
 
@@ -196,9 +196,9 @@ class Clock implements ClockInterface {
 }
 ```
 
-`接口`描述了类的公共`属性`和`方法`，而不是公共和私有中的所有`属性`和`方法`。
+`接口`描述了类的公共`字段`和`方法`，而不是公共和私有中的所有`字段`和`方法`。
 
-即如果是特定子类中才需要进行实例的`属性`和`方法`，应该放到具体的子类中进行相关实现，而不是在`公共接口`中实现。
+即如果是特定子类中才需要进行实例的`字段`和`方法`，应该放到具体的子类中进行相关实现，而不是在`公共接口`中实现。
 
 这主要是禁止使用它们来检查`类`是否还具有针对该类实例的`私有类`的`特定类型`。
 
@@ -225,7 +225,7 @@ class Clock implements ClockConstructor {
 
 这是因为当类实现`接口`时，仅检查该类的`实例侧`。由于`构造函数`位于`静态端`，因此它不包含在此检查中。
 
-即类在实现接口的时候，只检测是否有实现可继承的实例属性和实例方法，而构造函数属于类的静态方法，不属于检测访问内，即不可用于继承，所以这边不可以做正确继承。
+即类在实现接口的时候，只检测是否有实现可继承的实例字段和实例方法，而构造函数属于类的静态方法，不属于检测访问内，即不可用于继承，所以这边不可以做正确继承。
 
 ---
 
@@ -335,7 +335,7 @@ log((new Clock(7,33)).tick())// beep beep,the time is 7:33
 
 ---
 
-### 类私有属性继承
+### 类私有字段继承
 
 首先要注意`类与类`，`接口和类`和`接口与接口`之间的继承是通过`extends`关键词，类与接口的继承是通过`implements`关键词。
 
@@ -345,7 +345,7 @@ log((new Clock(7,33)).tick())// beep beep,the time is 7:33
 
 `接口`甚至继承基类的`私有成员`和`受保护成员`。这意味着，当您创建一个扩展带有`私有`或`受保护成员`的`类`的`接口`时，该接`口`类型只能由该`类`或其`子类`实现。
 
-当具有较大的继承`层次`结构，但要指定您的代码仅适用于具有某些属性的子类时，这很有用。`子类`除了从`基类`继承外不必关联。
+当具有较大的继承`层次`结构，但要指定您的代码仅适用于具有某些字段的子类时，这很有用。`子类`除了从`基类`继承外不必关联。
 
 ```typescript
 const { log } = console;
@@ -405,9 +405,9 @@ log(oImage.select());// that's state is undefined,that's type is Image
 log(oLocation.select());// that's state is undefined,that's type is Location
 ```
 
-`private`属性和方法，只能在声明的类内部进行访问和修改，后续继承的子类和子接口都无法通过`字面量`的形式访问。
+`private`字段和方法，只能在声明的类内部进行访问和修改，后续继承的子类和子接口都无法通过`字面量`的形式访问。
 
-在以上示例中，`SelectableControl`接口继承了`Control`类，包括私有`state`属性和`getState`方法。
+在以上示例中，`SelectableControl`接口继承了`Control`类，包括私有`state`字段和`getState`方法。
 
 由于`state`是私有成员，因此只有`Control`的后代，才能实现`SelectableControl`。
 
@@ -434,9 +434,9 @@ printLabel(testObj);
 //   Property 'label' is missing in type '{ size: number; }' but required in type '{ label: string; }'.
 ```
 
-类型检查器检查对的调用`printLabel`。该`printLabel`函数具有一个`参数`，该参数要求传入的对象具有一个名为`label` 值类型为`string`的属性。
+类型检查器检查对的调用`printLabel`。该`printLabel`函数具有一个`参数`，该参数要求传入的对象具有一个名为`label` 值类型为`string`的字段。
 
-请注意，我们的对象实际上具有比此更多的属性，但是编译器仅检查是否至少存在所需的属性并与所需的类型匹配。
+请注意，我们的对象实际上具有比此更多的字段，但是编译器仅检查是否至少存在所需的字段并与所需的类型匹配。
 
 ```typescript
 const { log } = console;
@@ -455,21 +455,21 @@ printLabel(testObj);
 
 ```
 
-接口`LabeledValue`是一个名称，我们现在可以在前面的示例中使用它来描述需求。它仍然表示具有一个称为`label` 的单个属性`string`。
+接口`LabeledValue`是一个名称，我们现在可以在前面的示例中使用它来描述需求。它仍然表示具有一个称为`label` 的单个字段`string`。
 
 注意，我们不必明确地说要传递给该对象，可以像使用其他语言一样实现此接口`printLabel`。在这里，只有`类型`很重要。
 
 如果我们传递给该函数的对象满足列出的要求，则允许它进行传递。
 
-值得指出的是，类型检查器不需要这些属性以任何`顺序`出现，而仅要求接口存在的属性具有必需的`类型`。
+值得指出的是，类型检查器不需要这些字段以任何`顺序`出现，而仅要求接口存在的字段具有必需的`类型`。
 
 ---
 
-### 可选属性
+### 可选字段
 
-并非接口的所有属性都是必需的。有些在某些条件下存在或根本不存在。
+并非接口的所有字段都是必需的。有些在某些条件下存在或根本不存在。
 
-具有可选属性的接口与其他接口的编写方式相似，每个可选属性，在声明中属性名称的末尾用`?`表示。
+具有可选字段的接口与其他接口的编写方式相似，每个可选字段，在声明中字段名称的末尾用`?`表示。
 
 ```typescript
 const { log } = console;
@@ -493,11 +493,11 @@ const mySquare = createSquare({color: "black"});
 log(mySquare);// {color: "black", area: 100}
 ```
 
-> 基础属性拼写检测
+> 基础字段拼写检测
 
-可选属性的优点在于，您可以描述这些可能的可用属性，同时仍然可以防止使用不属于接口的`属性`。
+可选字段的优点在于，您可以描述这些可能的可用字段，同时仍然可以防止使用不属于接口的`字段`。
 
-例如，如果我们在中错误键入了`color`属性的名称`createSquare`，则会收到一条错误消息，通知我们：
+例如，如果我们在中错误键入了`color`字段的名称`createSquare`，则会收到一条错误消息，通知我们：
 
 ```typescript
 const { log } = console;
@@ -523,9 +523,9 @@ const mySquare = createSquare({ clor: "black" });
 //   Object literal may only specify known properties, but 'clor' does not exist in type 'SquareConfig'. Did you mean to write 'color'?
 ```
 
-### 只读属性
+### 只读字段
 
-某些属性仅在首次创建对象时才可修改。您可以通过将`readonly`属性名称放在前面来指定此名称。
+某些字段仅在首次创建对象时才可修改。您可以通过将`readonly`字段名称放在前面来指定此名称。
 
 ```typescript
 interface Point {
@@ -534,7 +534,7 @@ interface Point {
 }
 ```
 
-您可以`Point`通过分配对象文字来构造一个。转让后，`x`和`y`属性都不能更改。
+您可以`Point`通过分配对象文字来构造一个。转让后，`x`和`y`字段都不能更改。
 
 ```typescript
 interface Point {
@@ -576,17 +576,17 @@ log(a);// [1, 2, 3, 4]
 
 > `readonly` vs `const`
 
-记住在确认是使用`readonly`还是`const`时，最简单的方法询问是否在`变量`或`属性`上使用它。使用`变量`就是`const`，而使用`属性`就是`readonly`。
+记住在确认是使用`readonly`还是`const`时，最简单的方法询问是否在`变量`或`字段`上使用它。使用`变量`就是`const`，而使用`字段`就是`readonly`。
 
 ---
 
-### 模糊属性检测
+### 模糊字段检测
 
 > `字符串索引`签名
 
-如果确定对象可以具有某些以特殊方式使用的`额外属性`，则更好的方法可能是添加`字符串索引`签名。
+如果确定对象可以具有某些以特殊方式使用的`额外字段`，则更好的方法可能是添加`字符串索引`签名。
 
-如果`SquareConfig`可以具有上述类型的`color`和`width`属性，但也可以具有任意数量的`其他属性`，那么我们可以这样定义它：
+如果`SquareConfig`可以具有上述类型的`color`和`width`字段，但也可以具有任意数量的`其他字段`，那么我们可以这样定义它：
 
 ```typescript
 const { log } = console;
@@ -610,13 +610,13 @@ const mySquare = createSquare({ clor: "black" });
 log(mySquare);// {color: "black", area: 100}
 ```
 
-上面代码声明了一个`SquareConfig`可以具有任意数量的`属性`，只要它们不是`color`或者`width`，它们的类型就没有关系。
+上面代码声明了一个`SquareConfig`可以具有任意数量的`字段`，只要它们不是`color`或者`width`，它们的类型就没有关系。
 
 ---
 
 > 重新赋值变量
 
-解决这些检查的最后一种方法（可能有点令人惊讶）是将对象分配给另一个变量：由于`squareOptions`不会进行过多的属性检查，因此编译器不会报误。
+解决这些检查的最后一种方法（可能有点令人惊讶）是将对象分配给另一个变量：由于`squareOptions`不会进行过多的字段检查，因此编译器不会报误。
 
 ```typescript
 
@@ -640,9 +640,9 @@ const mySquare = createSquare(squareOptions);
 log(mySquare);// {color: "white", area: 10000}
 ```
 
-因为在上面示例中变量已经包含了`width`属性，即只要您在`squareOptions`和`SquareConfig`之间具有相同的属性，上述变通办法就会起作用。
+因为在上面示例中变量已经包含了`width`字段，即只要您在`squareOptions`和`SquareConfig`之间具有相同的字段，上述变通办法就会起作用。
 
-但是，如果变量没有任何公共对象`属性`，它将失败。例如：
+但是，如果变量没有任何公共对象`字段`，它将失败。例如：
 
 ```typescript
 interface SquareConfig {
@@ -671,9 +671,9 @@ const mySquare = createSquare(squareOptions);
 
 请记住，对于上述简单代码，您可能不应该试图`绕开`这些检查。对于具有方法和保持状态的更复杂的`对象常量`，您可能需要牢记这些技术，
 
-但是大多数`多余的属性错误`，实际上也是一种`错误`。这意味着，如果遇到有很多类似属性的属性检查问题，则可能需要修改一些类型声明。
+但是大多数`多余的字段错误`，实际上也是一种`错误`。这意味着，如果遇到有很多类似字段的字段检查问题，则可能需要修改一些类型声明。
 
-在这种情况下，如果可以将同时具有`color`或`colour`属性的对象传递给`createSquare`，则应该修正的定义`SquareConfig`以反映这一点。
+在这种情况下，如果可以将同时具有`color`或`colour`字段的对象传递给`createSquare`，则应该修正的定义`SquareConfig`以反映这一点。
 
 
 ---
@@ -777,7 +777,7 @@ mySearch = function(src, sub) {
 
 由于`JavaScript`具有动态和灵活的特性，因此有时可能会遇到一个`对象`，该`对象`可以作为某些`类型`的组合使用。
 
-下述的示例是一个既具有`功能`又具有`对象特性`的`对象`，还具有`其他属性`。
+下述的示例是一个既具有`功能`又具有`对象特性`的`对象`，还具有`其他字段`。
 
 ```typescript
 const { log } = console;
