@@ -103,6 +103,55 @@ TypeScript支持`数字`的和基于`字符串`的`枚举`。
 
 ## 联合类型(union types)
 
+### Param Types
+
+> 基础说明
+
+联合类型描述的值可以是几种类型之一。我们使用竖线（|）分隔每种类型，因此`number` | `string` | `boolean`值的类型也可以是`a number`，`a string`或`a boolean`。
+
+```typescript
+/**
+ * Takes a string and adds "padding" to the left.
+ * If 'padding' is a string, then 'padding' is appended to the left side.
+ * If 'padding' is a number, then that number of spaces is added to the left side.
+ */
+function padLeft(value: string, padding: string | number) {
+  // ...
+}
+
+const indentedString = padLeft("Hello world", true); // errors during compilation
+```
+
+---
+
+> 注意事项
+
+如果我们拥有一个具有`联合类型`的值，则我们只能访问该联合中所有类型都`通用`的成员。
+
+```typescript
+interface Bird {
+  fly();
+  layEggs();
+}
+
+interface Fish {
+  swim();
+  layEggs();
+}
+
+function getSmallPet(): Fish | Bird {
+  // ...
+}
+
+const pet = getSmallPet();
+pet.layEggs(); // okay
+pet.swim(); // errors
+```
+
+如果值具有类型`A | B`，我们只能肯定地知道它具有`A` 和 `B`都具有的相同成员。在此示例中，`Bird`有一个名为的成员`fly`。我们无法确定类型为的变量是否`Bird | Fish`具有`fly`方法。如果变量`Fish`在运行时确实为`a` ，则调用`pet.fly()`将失败。
+
+---
+
 ### String Literal Types
 
 字符串文字类型(String Literal Types)与联合类型(union types)，类型保护和类型别名很好地结合在一起，将这些功能一起使用，就获得类似于字符串的枚举行为。
@@ -132,6 +181,8 @@ button.animate(0, 0, "uneasy"); // Argument of type '"uneasy"' is not assignable
 
 ### Numeric Literal Types
 
+也可以指定一个返回值是多个具体数字中的一种。
+
 ```typescript
 type rollNumber = 1 | 2 | 3 | 4 | 5 | 6;
 function rollDice(): rollNumber {
@@ -139,6 +190,52 @@ function rollDice(): rollNumber {
   return '222';// Type '"222"' is not assignable to type 'rollNumber'.
 }
 ```
+
+---
+
+## 交叉类型(Intersection Types)
+
+`交叉类型`与`联合类型`紧密相关，但是使用方式却大不相同。
+
+`交叉类型`将多种类型组合为一种。这样可以将现有类型加在一起，以获得具有所需所有功能的单个类型。
+
+例如，`Person & Serializable & Loggable`是所有`Person` 和 `Serializable` 和 的类型`Loggable`。这意味着此类型的对象将具有所有三种类型的所有成员。
+
+```typescript
+function extend<First, Second>(first: First, second: Second): First & Second {
+  const result: Partial<First & Second> = {};
+  for (const prop in first) {
+    if (first.hasOwnProperty(prop)) {
+      (result as First)[prop] = first[prop];
+    }
+  }
+  for (const prop in second) {
+    if (second.hasOwnProperty(prop)) {
+      (result as Second)[prop] = second[prop];
+    }
+  }
+  return result as First & Second;
+}
+
+class Person {
+  constructor(public name: string) {}
+}
+
+interface Loggable {
+  log(name: string): void;
+}
+
+class ConsoleLogger implements Loggable {
+  log(name) {
+    console.log(`Hello, I'm ${name}.`);
+  }
+}
+
+const jim = extend(new Person("Jim"), ConsoleLogger.prototype);
+jim.log(jim.name);
+```
+
+这是一个简单的示例，显示了如何创建一个`mixin`。
 
 ---
 
