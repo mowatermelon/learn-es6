@@ -5,7 +5,7 @@
 
 ### 数组基础介绍
 
-`TypeScript`像`JavaScript`一样可以操作数组元素。 
+`TypeScript`像`JavaScript`一样可以操作数组元素。
 
 有两种方式可以定义数组。
 
@@ -98,6 +98,47 @@ TypeScript支持`数字`的和基于`字符串`的`枚举`。
 ### 枚举详细内容
 
 [详细内容请看](./衍生类型学习-Enum.md)
+
+---
+
+## 联合类型(union types)
+
+### String Literal Types
+
+字符串文字类型(String Literal Types)与联合类型(union types)，类型保护和类型别名很好地结合在一起，将这些功能一起使用，就获得类似于字符串的枚举行为。
+
+```typescript
+type Easing = "ease-in" | "ease-out" | "ease-in-out";
+class UIElement {
+  animate(dx: number, dy: number, easing: Easing) {
+    if (easing === "ease-in") {
+      // ...
+    } else if (easing === "ease-out") {
+    } else if (easing === "ease-in-out") {
+    } else {
+      // error! should not pass null or undefined.
+    }
+  }
+}
+
+const button = new UIElement();
+button.animate(0, 0, "ease-in");
+button.animate(0, 0, "uneasy"); // Argument of type '"uneasy"' is not assignable to parameter of type 'Easing'.
+```
+
+可以传递三个允许的字符串中的任何一个，传递其他字符串会抛出错误。
+
+---
+
+### Numeric Literal Types
+
+```typescript
+type rollNumber = 1 | 2 | 3 | 4 | 5 | 6;
+function rollDice(): rollNumber {
+  // ...
+  return '222';// Type '"222"' is not assignable to type 'rollNumber'.
+}
+```
 
 ---
 
@@ -607,6 +648,8 @@ function buildName(firstName = "Will", lastName: string) {
 
 ### 函数重载
 
+> 基础案例
+
 如果当前函数没有指定返回类型，这边在做函数赋值的时候，可以再以显式声明的写法指明返回值。
 
 ```typescript
@@ -702,6 +745,22 @@ alert("card: " + pickedCard2.card + " of " + pickedCard2.suit);
 请注意，该`function pickCard(x): any`片段不是`重载列表`的一部分，这是具体的函数声明部分。
 
 `pickCard`函数的`重载列表`，`x`只支持`对象`和`数字`形式，使用其他任何参数类型进行调用都会导致错误。
+
+---
+
+> 基于String Literal Types的方法重载
+
+可以使用相同的方式使用字符串文字类型来区分重载，当传递参数值为某个具体值，也可以具体指定返回类型。
+
+```typescript
+
+function createElement(tagName: "img"): HTMLImageElement;
+function createElement(tagName: "input"): HTMLInputElement;
+// ... more overloads ...
+function createElement(tagName: string): Element {
+  // ... code goes here ...
+}
+```
 
 ---
 
