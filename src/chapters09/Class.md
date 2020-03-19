@@ -121,7 +121,7 @@ log(`Hello, ${hello.greeting}!`);// Hello, watermelon!
 
 > 特殊声明
 
-使用`TypeScript 3.8`，`TypeScript`支持JavaScript中`专用字段`的新语法
+使用`TypeScript 3.8`，`TypeScript`支持JavaScript中`专用字段`的新语法，更多可以查看[private-methods][private-methods]和[class-fields][class-fields]，目前主要支持了`private-methods`写法，不支持`class-fields`写法，即可以在属性上添加`#`用于私有化属性简写，不能在方法上添加`#`修饰符。
 
 ```typescript
 const { log } = console;
@@ -130,6 +130,9 @@ class Greeter {
     greet() {
       return `Hello, ${this.#greeting}!`;
     }
+    #hello(){
+        return `Hello, ${this.#greeting}!`;
+    }// A method cannot be named with a private identifier.
 }
 const hello = new Greeter();
 log(hello.greet());// Hello, watermelon!
@@ -780,3 +783,7 @@ class oGreeter3 extends aDemo {
 - `抽象类`不可以多重继承，`接口`可以。
 
 ---
+
+[private-methods]: https://github.com/tc39/proposal-private-methods
+
+[class-fields]: https://github.com/tc39/proposal-class-fields
