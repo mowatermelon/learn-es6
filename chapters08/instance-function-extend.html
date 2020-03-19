@@ -1,0 +1,1071 @@
+<!DOCTYPE html><html><head><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta charset="utf-8"><title>实例对象方法扩展 - learn es6</title><meta name="description" content=""><meta name="author" content=""><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1"><link rel="stylesheet" href="../assets/css/bulma.min.css"><link rel="stylesheet" href="../assets/css/app.css"><!--[if lt IE 9]>
+<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]--><link rel="shortcut icon" href=""></head><body dir="ltr"><nav class="columns navbar"><div class="column logo is-3 is-offset-1"><a class="is-brand" href="../index.html">learn es6</a></div></nav><div class="columns content"><div class="column is-2-desktop is-3-widescreen is-hidden-touch"></div><div class="column article-container is-11-tablet is-8-desktop is-6-widescreen"><div class="breadcrumb-area"><a href="../index.html" class="breadcrumb-item">Home</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters08/index.html" class="breadcrumb-item">第八章 数组的扩展</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters08/instance-function-extend.html" class="breadcrumb-item">实例对象方法扩展</a></div><h1 class="article-title">实例对象方法扩展</h1><div class="article"><h2 id="内部数据寻找">内部数据寻找 <a class="markdownIt-Anchor" href="#内部数据寻找">#</a></h2><h3 id="find"><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/find" target="_blank" rel="noopener">find()</a> <a class="markdownIt-Anchor" href="#find">#</a></h3><h4 id="基础语法">基础语法 <a class="markdownIt-Anchor" href="#基础语法">#</a></h4><pre class="hljs"><code>arr.find(callback(element[, index[, array]])[, thisArg])
+</code></pre><hr><h4 id="参数说明">参数说明 <a class="markdownIt-Anchor" href="#参数说明">#</a></h4><blockquote><p>callback</p></blockquote><p>在数组每一项上执行的函数，接收 3 个参数：</p><ul><li>element</li></ul><p>当前遍历到的元素。</p><hr><ul><li>index</li></ul><p>当前遍历到的索引。</p><hr><ul><li>array</li></ul><p>数组本身。</p><hr><blockquote><p>thisArg 可选</p></blockquote><p>可选，指定 <code>callback</code> 的 <code>this</code> 参数。</p><hr><h4 id="返回值说明">返回值说明 <a class="markdownIt-Anchor" href="#返回值说明">#</a></h4><p>当某个元素通过 <code>callback</code> 的测试时，即可返回数组中的对应值，否则返回 <code>undefined</code>。</p><hr><h4 id="详细说明">详细说明 <a class="markdownIt-Anchor" href="#详细说明">#</a></h4><p><code>find()</code> 方法返回数组中满足提供的测试函数的第一个元素的值。否则返回 <code>undefined</code>。<br>另请参见 <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex" target="_blank" rel="noopener"><code>findIndex()</code></a> 方法，它返回数组中找到的元素的<code>索引</code>，而不是<code>其值</code>。</p><p>如果你需要找到一个元素的位置或者一个元素是否存在于数组中，使用<code>Array.prototype.indexOf()</code> 或 <code>Array.prototype.includes()</code>。</p><p><code>find</code> 方法对数组中的每一项元素执行一次 <code>callback</code> 函数，直至有一个 <code>callback</code> 返回 <code>true</code>。</p><p>当找到了这样一个元素后，该方法会<code>立即</code>返回这个元素的值，否则返回 <code>undefined</code>。</p><p>注意 <code>callback</code> 函数会为数组中的每个索引调用即从 <code>0</code> 到 <code>length - 1</code>，而不仅仅是那些被赋值的索引，这意味着对于<code>稀疏数组</code>来说，该方法的效率要低于那些只遍历有值的索引的方法。</p><p><code>callback</code> 函数带有3个参数：<code>当前元素的值</code>、<code>当前元素的索引</code>，以及<code>数组本身</code>。</p><p>如果提供了 <code>thisArg</code> 参数，那么它将作为每次 <code>callback</code> 函数执行时的上下文对象，否则上下文对象为 <code>undefined</code>。</p><p><code>find</code> 方法不会改变数组。</p><p>在第一次调用 <code>callback</code> 函数时会确定元素的索引范围，因此在 <code>find</code> 方法开始执行之后添加到数组的新元素将不会被 <code>callback</code> 函数访问到。</p><p>如果数组中一个尚未被<code>callback</code>函数访问到的元素的值被<code>callback</code>函数所改变，那么当<code>callback</code>函数访问到它时，它的值是将是根据它在数组中的索引所访问到的当前值。</p><p><code>被删除</code>的<code>元素</code>仍旧会被访问到。</p><hr><h4 id="案例">案例 <a class="markdownIt-Anchor" href="#案例">#</a></h4><blockquote><p>用对象的属性查找数组里的对象</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">const</span> inventory = [
+    {<span class="hljs-attr">name</span>: <span class="hljs-string">'apples'</span>, <span class="hljs-attr">quantity</span>: <span class="hljs-number">2</span>},
+    {<span class="hljs-attr">name</span>: <span class="hljs-string">'bananas'</span>, <span class="hljs-attr">quantity</span>: <span class="hljs-number">0</span>},
+    {<span class="hljs-attr">name</span>: <span class="hljs-string">'cherries'</span>, <span class="hljs-attr">quantity</span>: <span class="hljs-number">5</span>}
+];
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">findCherries</span>(<span class="hljs-params">fruit</span>) </span>{
+    <span class="hljs-keyword">return</span> fruit.name === <span class="hljs-string">'cherries'</span>;
+}
+
+<span class="hljs-built_in">console</span>.log(inventory.find(findCherries)); <span class="hljs-comment">// { name: 'cherries', quantity: 5 }</span>
+</code></pre><hr><blockquote><p>寻找数组中的质数</p></blockquote><p>下面的例子展示了如何从一个数组中寻找质数（如果找不到质数则返回<code>undefined</code>）</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isPrime</span>(<span class="hljs-params">element, index, array</span>) </span>{
+  <span class="hljs-keyword">var</span> start = <span class="hljs-number">2</span>;
+  <span class="hljs-keyword">while</span> (start &lt;= <span class="hljs-built_in">Math</span>.sqrt(element)) {
+    <span class="hljs-keyword">if</span> (element % start++ &lt; <span class="hljs-number">1</span>) {
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+    }
+  }
+  <span class="hljs-keyword">return</span> element &gt; <span class="hljs-number">1</span>;
+}
+
+<span class="hljs-built_in">console</span>.log([<span class="hljs-number">4</span>, <span class="hljs-number">6</span>, <span class="hljs-number">8</span>, <span class="hljs-number">12</span>].find(isPrime)); <span class="hljs-comment">// undefined, not found</span>
+<span class="hljs-built_in">console</span>.log([<span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">8</span>, <span class="hljs-number">12</span>].find(isPrime)); <span class="hljs-comment">// 5</span>
+</code></pre><hr><blockquote><p>当在回调中删除数组中的一个值时，当访问到这个位置时，其传入的值时 <code>undefined</code>：</p></blockquote><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span>=&gt;</span>{
+  <span class="hljs-keyword">const</span> {log} =<span class="hljs-built_in">console</span>;
+<span class="hljs-comment">// Declare array with no element at index 2, 3 and 4</span>
+<span class="hljs-keyword">var</span> a = [<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,,,,<span class="hljs-number">5</span>,<span class="hljs-number">6</span>];
+
+<span class="hljs-comment">// Shows all indexes, not just those that have been assigned values</span>
+a.find(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">value, index</span>) </span>{
+  log(<span class="hljs-string">'Visited index '</span> + index + <span class="hljs-string">' with value '</span> + value);
+});
+
+<span class="hljs-comment">// Visited index 0 with value 0</span>
+<span class="hljs-comment">// Visited index 1 with value 1</span>
+<span class="hljs-comment">// Visited index 2 with value undefined</span>
+<span class="hljs-comment">// Visited index 3 with value undefined</span>
+<span class="hljs-comment">// Visited index 4 with value undefined</span>
+<span class="hljs-comment">// Visited index 5 with value 5</span>
+<span class="hljs-comment">// Visited index 6 with value 6</span>
+
+<span class="hljs-comment">// Shows all indexes, including deleted</span>
+a.find(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">value, index</span>) </span>{
+
+  <span class="hljs-comment">// Delete element 5 on first iteration</span>
+  <span class="hljs-keyword">if</span> (index == <span class="hljs-number">0</span>) {
+    log(<span class="hljs-string">'Deleting a[5] with value '</span> + a[<span class="hljs-number">5</span>]);
+    <span class="hljs-keyword">delete</span> a[<span class="hljs-number">5</span>];  <span class="hljs-comment">// 注：这里只是将a[5]设置为undefined</span>
+    log(<span class="hljs-string">'Deleting a[6] with value '</span> + a[<span class="hljs-number">6</span>]);
+    a.pop(<span class="hljs-number">1</span>)<span class="hljs-comment">// 用a.pop()删除最后一项，依然会遍历到被删的那一项</span>
+  }
+  <span class="hljs-comment">// Element 5 is still visited even though deleted</span>
+  log(<span class="hljs-string">'Visited index '</span> + index + <span class="hljs-string">' with value '</span> + value);
+});
+<span class="hljs-comment">// Deleting a[5] with value 5</span>
+<span class="hljs-comment">// Visited index 0 with value 0</span>
+<span class="hljs-comment">// Visited index 1 with value 1</span>
+<span class="hljs-comment">// Visited index 2 with value undefined</span>
+<span class="hljs-comment">// Visited index 3 with value undefined</span>
+<span class="hljs-comment">// Visited index 4 with value undefined</span>
+<span class="hljs-comment">// Visited index 5 with value undefined</span>
+<span class="hljs-comment">// Visited index 6 with value undefined</span>
+})()
+</code></pre><hr><h4 id="polyfill">Polyfill <a class="markdownIt-Anchor" href="#polyfill">#</a></h4><p>如果您需要兼容不支持<code>Object.defineProperty</code>的<code>JavaScript</code>引擎，那么最好不要对<code>Array.prototype</code>方法进行 <code>polyfill</code> ，因为您无法使其成为不可枚举的。</p><pre class="hljs"><code><span class="hljs-comment">// https://tc39.github.io/ecma262/#sec-array.prototype.find</span>
+<span class="hljs-keyword">if</span> (!<span class="hljs-built_in">Array</span>.prototype.find) {
+  <span class="hljs-built_in">Object</span>.defineProperty(<span class="hljs-built_in">Array</span>.prototype, <span class="hljs-string">'find'</span>, {
+    <span class="hljs-attr">value</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">predicate</span>) </span>{
+     <span class="hljs-comment">// 1. Let O be ? ToObject(this value).</span>
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span> == <span class="hljs-literal">null</span>) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">'"this" is null or not defined'</span>);
+      }
+
+      <span class="hljs-keyword">var</span> o = <span class="hljs-built_in">Object</span>(<span class="hljs-keyword">this</span>);
+
+      <span class="hljs-comment">// 2. Let len be ? ToLength(? Get(O, "length")).</span>
+      <span class="hljs-keyword">var</span> len = o.length &gt;&gt;&gt; <span class="hljs-number">0</span>;
+
+      <span class="hljs-comment">// 3. If IsCallable(predicate) is false, throw a TypeError exception.</span>
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> predicate !== <span class="hljs-string">'function'</span>) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">'predicate must be a function'</span>);
+      }
+
+      <span class="hljs-comment">// 4. If thisArg was supplied, let T be thisArg; else let T be undefined.</span>
+      <span class="hljs-keyword">var</span> thisArg = <span class="hljs-built_in">arguments</span>[<span class="hljs-number">1</span>];
+
+      <span class="hljs-comment">// 5. Let k be 0.</span>
+      <span class="hljs-keyword">var</span> k = <span class="hljs-number">0</span>;
+
+      <span class="hljs-comment">// 6. Repeat, while k &lt; len</span>
+      <span class="hljs-keyword">while</span> (k &lt; len) {
+        <span class="hljs-comment">// a. Let Pk be ! ToString(k).</span>
+        <span class="hljs-comment">// b. Let kValue be ? Get(O, Pk).</span>
+        <span class="hljs-comment">// c. Let testResult be ToBoolean(? Call(predicate, T, « kValue, k, O »)).</span>
+        <span class="hljs-comment">// d. If testResult is true, return kValue.</span>
+        <span class="hljs-keyword">var</span> kValue = o[k];
+        <span class="hljs-keyword">if</span> (predicate.call(thisArg, kValue, k, o)) {
+          <span class="hljs-keyword">return</span> kValue;
+        }
+        <span class="hljs-comment">// e. Increase k by 1.</span>
+        k++;
+      }
+
+      <span class="hljs-comment">// 7. Return undefined.</span>
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
+    }
+  });
+}
+</code></pre><hr><h3 id="findindex"><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex" target="_blank" rel="noopener">findIndex()</a> <a class="markdownIt-Anchor" href="#findindex">#</a></h3><h4 id="基础语法-1">基础语法 <a class="markdownIt-Anchor" href="#基础语法-1">#</a></h4><pre class="hljs"><code>arr.findIndex(callback(element[, index[, array]])[, thisArg])
+</code></pre><hr><h4 id="参数说明-1">参数说明 <a class="markdownIt-Anchor" href="#参数说明-1">#</a></h4><blockquote><p>callback</p></blockquote><p>在数组每一项上执行的函数，接收 3 个参数：</p><ul><li>element</li></ul><p>当前遍历到的元素。</p><hr><ul><li>index</li></ul><p>当前遍历到的索引。</p><hr><ul><li>array</li></ul><p>数组本身。</p><hr><blockquote><p>thisArg 可选</p></blockquote><p>可选，指定 <code>callback</code> 的 <code>this</code> 参数。</p><hr><h4 id="返回值说明-1">返回值说明 <a class="markdownIt-Anchor" href="#返回值说明-1">#</a></h4><p>当某个元素通过 <code>callback</code> 的测试时，返回数组中满足提供的测试函数的第一个元素的<code>索引</code>。否则返回<code>-1</code>。</p><hr><h4 id="详细说明-1">详细说明 <a class="markdownIt-Anchor" href="#详细说明-1">#</a></h4><p><code>findIndex()</code>方法返回数组中满足提供的测试函数的第一个元素的<code>索引</code>。否则返回<code>-1</code>。</p><p>另请参见 <code>find()</code> 方法，它返回数组中找到的元素的<code>值</code>，而不是其<code>索引</code>。</p><p><code>findIndex</code>方法对数组中的每个数组索引<code>0..length-1</code>（包括）执行一次<code>callback</code>函数，直到找到一个<code>callback</code>函数返回真实值（强制为true）的值。如果找到这样的元素，<code>findIndex</code>会立即返回该元素的索引。如果回调从不返回真值，或者数组的<code>length</code>为<code>0</code>，则<code>findIndex</code>返回<code>-1</code>。 与某些其他数组方法（如<code>Array#some</code>）不同，在<code>稀疏数组</code>中，即使对于数组中不存在的条目的索引也会调用回调函数。</p><p>回调函数调用时有三个参数：<code>元素的值</code>，<code>元素的索引</code>，以及<code>被遍历的数组</code>。</p><p>如果一个 <code>thisArg</code> 参数被提供给 <code>findIndex</code>, 它将会被当作<code>this</code>使用在每次回调函数被调用的时候。如果没有被提供，将会使用<code>undefined</code>。</p><p><code>findIndex</code>不会修改所调用的数组。</p><p>在第一次调用<code>callback</code>函数时会确定元素的索引范围，因此在<code>findIndex</code>方法开始执行之后添加到数组的新元素将不会被<code>callback</code>函数访问到。</p><p>如果数组中一个尚未被<code>callback</code>函数访问到的元素的值被<code>callback</code>函数所改变，那么当<code>callback</code>函数访问到它时，它的值是将是根据它在数组中的索引所访问到的<code>当前值</code>。</p><p>被<code>删除</code>的元素仍然会被访问到。</p><hr><h4 id="案例-1">案例 <a class="markdownIt-Anchor" href="#案例-1">#</a></h4><blockquote><p>查找数组中首个质数元素的索引</p></blockquote><p>以下示例查找数组中<code>素数</code>的元素的索引（如果不存在<code>素数</code>，则返回<code>-1</code>）。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isPrime</span>(<span class="hljs-params">element, index, array</span>) </span>{
+  <span class="hljs-keyword">var</span> start = <span class="hljs-number">2</span>;
+  <span class="hljs-keyword">while</span> (start &lt;= <span class="hljs-built_in">Math</span>.sqrt(element)) {
+    <span class="hljs-keyword">if</span> (element % start++ &lt; <span class="hljs-number">1</span>) {
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+    }
+  }
+  <span class="hljs-keyword">return</span> element &gt; <span class="hljs-number">1</span>;
+}
+
+<span class="hljs-built_in">console</span>.log([<span class="hljs-number">4</span>, <span class="hljs-number">6</span>, <span class="hljs-number">8</span>, <span class="hljs-number">12</span>].findIndex(isPrime)); <span class="hljs-comment">// -1, not found</span>
+<span class="hljs-built_in">console</span>.log([<span class="hljs-number">4</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">12</span>].findIndex(isPrime)); <span class="hljs-comment">// 2</span>
+</code></pre><hr><h4 id="polyfill-1">Polyfill <a class="markdownIt-Anchor" href="#polyfill-1">#</a></h4><p>如果您需要兼容不支持<code>Object.defineProperty</code>的<code>JavaScript</code>引擎，那么最好不要对<code>Array.prototype</code>方法进行 <code>polyfill</code> ，因为您无法使其成为不可枚举的。</p><pre class="hljs"><code><span class="hljs-comment">// https://tc39.github.io/ecma262/#sec-array.prototype.findIndex</span>
+<span class="hljs-keyword">if</span> (!<span class="hljs-built_in">Array</span>.prototype.findIndex) {
+  <span class="hljs-built_in">Object</span>.defineProperty(<span class="hljs-built_in">Array</span>.prototype, <span class="hljs-string">'findIndex'</span>, {
+    <span class="hljs-attr">value</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">predicate</span>) </span>{
+     <span class="hljs-comment">// 1. Let O be ? ToObject(this value).</span>
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span> == <span class="hljs-literal">null</span>) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">'"this" is null or not defined'</span>);
+      }
+
+      <span class="hljs-keyword">var</span> o = <span class="hljs-built_in">Object</span>(<span class="hljs-keyword">this</span>);
+
+      <span class="hljs-comment">// 2. Let len be ? ToLength(? Get(O, "length")).</span>
+      <span class="hljs-keyword">var</span> len = o.length &gt;&gt;&gt; <span class="hljs-number">0</span>;
+
+      <span class="hljs-comment">// 3. If IsCallable(predicate) is false, throw a TypeError exception.</span>
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> predicate !== <span class="hljs-string">'function'</span>) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">'predicate must be a function'</span>);
+      }
+
+      <span class="hljs-comment">// 4. If thisArg was supplied, let T be thisArg; else let T be undefined.</span>
+      <span class="hljs-keyword">var</span> thisArg = <span class="hljs-built_in">arguments</span>[<span class="hljs-number">1</span>];
+
+      <span class="hljs-comment">// 5. Let k be 0.</span>
+      <span class="hljs-keyword">var</span> k = <span class="hljs-number">0</span>;
+
+      <span class="hljs-comment">// 6. Repeat, while k &lt; len</span>
+      <span class="hljs-keyword">while</span> (k &lt; len) {
+        <span class="hljs-comment">// a. Let Pk be ! ToString(k).</span>
+        <span class="hljs-comment">// b. Let kValue be ? Get(O, Pk).</span>
+        <span class="hljs-comment">// c. Let testResult be ToBoolean(? Call(predicate, T, « kValue, k, O »)).</span>
+        <span class="hljs-comment">// d. If testResult is true, return k.</span>
+        <span class="hljs-keyword">var</span> kValue = o[k];
+        <span class="hljs-keyword">if</span> (predicate.call(thisArg, kValue, k, o)) {
+          <span class="hljs-keyword">return</span> k;
+        }
+        <span class="hljs-comment">// e. Increase k by 1.</span>
+        k++;
+      }
+
+      <span class="hljs-comment">// 7. Return -1.</span>
+      <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;
+    }
+  });
+}
+</code></pre><hr><h3 id="includes"><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/includes" target="_blank" rel="noopener">includes()</a> <a class="markdownIt-Anchor" href="#includes">#</a></h3><h4 id="基础语法-2">基础语法 <a class="markdownIt-Anchor" href="#基础语法-2">#</a></h4><pre class="hljs"><code>arr.includes(valueToFind[, fromIndex])
+</code></pre><hr><h4 id="参数说明-2">参数说明 <a class="markdownIt-Anchor" href="#参数说明-2">#</a></h4><blockquote><p>valueToFind</p></blockquote><p>需要查找的元素值，使用 <code>includes()</code>比较字符串和字符时是区分大小写。</p><blockquote><p>fromIndex</p></blockquote><p>可选参数，从<code>fromIndex</code> 索引处开始查找 <code>valueToFind</code>。如果为负值，则按升序从 <code>array.length</code> + <code>fromIndex</code> 的索引开始搜 （即使从末尾开始往前跳 <code>fromIndex</code> 的绝对值个索引，然后往后搜寻）。默认为 <code>0</code>。</p><hr><h4 id="返回值说明-2">返回值说明 <a class="markdownIt-Anchor" href="#返回值说明-2">#</a></h4><p>返回一个布尔值 <code>Boolean</code> ，如果在数组中找到了<code>valueToFind</code>值（如果传入了 <code>fromIndex</code> ，表示在 <code>fromIndex</code> 指定的索引范围中找到了<code>valueToFind</code>值）则返回 <code>true</code> 。</p><p><code>0</code>的值都被认为是相等的，不管符号是什么(也就是说，<code>-0</code>被认为同时等于<code>0</code>和<code>+0</code>)，但是<code>false</code>不被认为等于<code>0</code>。</p><p>从技术上讲，<code>include()</code>使用<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Equality_comparisons_and_sameness#Same-value-zero_equality" target="_blank" rel="noopener"><code>sameValueZero</code></a>算法来确定是否找到了给定的元素。</p><hr><h4 id="详细说明-2">详细说明 <a class="markdownIt-Anchor" href="#详细说明-2">#</a></h4><p><code>includes()</code> 方法用来判断一个数组是否包含一个指定的值，根据情况，如果包含则返回 <code>true</code>，否则返回<code>false</code>。</p><p>注意：<code>对象数组</code>不能使用<code>includes</code>方法来检测。</p><hr><h4 id="案例-2">案例 <a class="markdownIt-Anchor" href="#案例-2">#</a></h4><blockquote><p>基础使用</p></blockquote><pre class="hljs"><code>[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>].includes(<span class="hljs-number">2</span>);     <span class="hljs-comment">// true</span>
+[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>].includes(<span class="hljs-number">4</span>);     <span class="hljs-comment">// false</span>
+[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>].includes(<span class="hljs-number">3</span>, <span class="hljs-number">3</span>);  <span class="hljs-comment">// false</span>
+[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>].includes(<span class="hljs-number">3</span>, <span class="hljs-number">-1</span>); <span class="hljs-comment">// true</span>
+[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-literal">NaN</span>].includes(<span class="hljs-literal">NaN</span>); <span class="hljs-comment">// true</span>
+</code></pre><hr><blockquote><p>fromIndex 大于等于数组长度</p></blockquote><p>如果 <code>fromIndex</code> 大于等于数组的长度，则会返回 <code>false</code>，且该数组不会被搜索。</p><pre class="hljs"><code><span class="hljs-keyword">var</span> arr = [<span class="hljs-string">'a'</span>, <span class="hljs-string">'b'</span>, <span class="hljs-string">'c'</span>];
+
+arr.includes(<span class="hljs-string">'c'</span>, <span class="hljs-number">3</span>);   <span class="hljs-comment">// false</span>
+arr.includes(<span class="hljs-string">'c'</span>, <span class="hljs-number">100</span>); <span class="hljs-comment">// false</span>
+</code></pre><hr><blockquote><p>计算出的索引小于 0</p></blockquote><p>如果 <code>fromIndex</code> 为负值，计算出的索引将作为开始搜索<code>searchElement</code>的位置。如果计算出的索引小于 <code>0</code>，则整个数组都会被搜索。</p><pre class="hljs"><code><span class="hljs-comment">// array length is 3</span>
+<span class="hljs-comment">// fromIndex is -100</span>
+<span class="hljs-comment">// computed index is 3 + (-100) = -97</span>
+
+<span class="hljs-keyword">var</span> arr = [<span class="hljs-string">'a'</span>, <span class="hljs-string">'b'</span>, <span class="hljs-string">'c'</span>];
+
+arr.includes(<span class="hljs-string">'a'</span>, <span class="hljs-number">-100</span>); <span class="hljs-comment">// true</span>
+arr.includes(<span class="hljs-string">'b'</span>, <span class="hljs-number">-100</span>); <span class="hljs-comment">// true</span>
+arr.includes(<span class="hljs-string">'c'</span>, <span class="hljs-number">-100</span>); <span class="hljs-comment">// true</span>
+arr.includes(<span class="hljs-string">'a'</span>, <span class="hljs-number">-2</span>); <span class="hljs-comment">// false</span>
+</code></pre><hr><blockquote><p>作为通用方法的 <code>includes()</code></p></blockquote><p><code>includes()</code> 方法有意设计为通用方法。它不要求<code>this</code>值是数组对象，所以它可以被用于其他类型的对象 (比如<code>类数组</code>对象)。下面的例子展示了 在函数的 <code>arguments</code> 对象上调用的 <code>includes()</code> 方法。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-built_in">console</span>.log([].includes.call(<span class="hljs-built_in">arguments</span>, <span class="hljs-string">'a'</span>)); <span class="hljs-comment">// true</span>
+  <span class="hljs-built_in">console</span>.log([].includes.call(<span class="hljs-built_in">arguments</span>, <span class="hljs-string">'d'</span>)); <span class="hljs-comment">// false</span>
+})(<span class="hljs-string">'a'</span>,<span class="hljs-string">'b'</span>,<span class="hljs-string">'c'</span>);
+</code></pre><hr><h4 id="polyfill-2">Polyfill <a class="markdownIt-Anchor" href="#polyfill-2">#</a></h4><p>如果你需要支持那些不支持<code>Object.defineProperty</code>的废弃<code>JavaScript 引擎</code>，你最好不要 polyfill <code>Array.prototype</code> 方法，因为你不能使它们不可枚举。</p><p><code>polyfill</code> 没有实现 对于 <code>NaN</code> 的检测。</p><pre class="hljs"><code><span class="hljs-comment">// https://tc39.github.io/ecma262/#sec-array.prototype.includes</span>
+<span class="hljs-keyword">if</span> (!<span class="hljs-built_in">Array</span>.prototype.includes) {
+  <span class="hljs-built_in">Object</span>.defineProperty(<span class="hljs-built_in">Array</span>.prototype, <span class="hljs-string">'includes'</span>, {
+    <span class="hljs-attr">value</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">valueToFind, fromIndex</span>) </span>{
+
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span> == <span class="hljs-literal">null</span>) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">'"this" is null or not defined'</span>);
+      }
+
+      <span class="hljs-comment">// 1. Let O be ? ToObject(this value).</span>
+      <span class="hljs-keyword">var</span> o = <span class="hljs-built_in">Object</span>(<span class="hljs-keyword">this</span>);
+
+      <span class="hljs-comment">// 2. Let len be ? ToLength(? Get(O, "length")).</span>
+      <span class="hljs-keyword">var</span> len = o.length &gt;&gt;&gt; <span class="hljs-number">0</span>;
+
+      <span class="hljs-comment">// 3. If len is 0, return false.</span>
+      <span class="hljs-keyword">if</span> (len === <span class="hljs-number">0</span>) {
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+      }
+
+      <span class="hljs-comment">// 4. Let n be ? ToInteger(fromIndex).</span>
+      <span class="hljs-comment">//    (If fromIndex is undefined, this step produces the value 0.)</span>
+      <span class="hljs-keyword">var</span> n = fromIndex | <span class="hljs-number">0</span>;
+
+      <span class="hljs-comment">// 5. If n ≥ 0, then</span>
+      <span class="hljs-comment">//  a. Let k be n.</span>
+      <span class="hljs-comment">// 6. Else n &lt; 0,</span>
+      <span class="hljs-comment">//  a. Let k be len + n.</span>
+      <span class="hljs-comment">//  b. If k &lt; 0, let k be 0.</span>
+      <span class="hljs-keyword">var</span> k = <span class="hljs-built_in">Math</span>.max(n &gt;= <span class="hljs-number">0</span> ? n : len - <span class="hljs-built_in">Math</span>.abs(n), <span class="hljs-number">0</span>);
+
+      <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sameValueZero</span>(<span class="hljs-params">x, y</span>) </span>{
+        <span class="hljs-keyword">return</span> x === y || (<span class="hljs-keyword">typeof</span> x === <span class="hljs-string">'number'</span> &amp;&amp; <span class="hljs-keyword">typeof</span> y === <span class="hljs-string">'number'</span> &amp;&amp; <span class="hljs-built_in">isNaN</span>(x) &amp;&amp; <span class="hljs-built_in">isNaN</span>(y));
+      }
+
+      <span class="hljs-comment">// 7. Repeat, while k &lt; len</span>
+      <span class="hljs-keyword">while</span> (k &lt; len) {
+        <span class="hljs-comment">// a. Let elementK be the result of ? Get(O, ! ToString(k)).</span>
+        <span class="hljs-comment">// b. If SameValueZero(valueToFind, elementK) is true, return true.</span>
+        <span class="hljs-keyword">if</span> (sameValueZero(o[k], valueToFind)) {
+          <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+        }
+        <span class="hljs-comment">// c. Increase k by 1. </span>
+        k++;
+      }
+
+      <span class="hljs-comment">// 8. Return false</span>
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+    }
+  });
+}
+</code></pre><hr><h2 id="内部数据填充">内部数据填充 <a class="markdownIt-Anchor" href="#内部数据填充">#</a></h2><h3 id="copywithin"><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/copyWithin" target="_blank" rel="noopener">copyWithin()</a> <a class="markdownIt-Anchor" href="#copywithin">#</a></h3><h4 id="基础语法-3">基础语法 <a class="markdownIt-Anchor" href="#基础语法-3">#</a></h4><pre class="hljs"><code>arr.copyWithin(target[, start[, end]])
+</code></pre><hr><h4 id="参数说明-3">参数说明 <a class="markdownIt-Anchor" href="#参数说明-3">#</a></h4><blockquote><p>target</p></blockquote><p><code>0</code> 为基底的索引，复制序列到该位置。如果是负数，<code>target</code> 将从末尾开始计算。<br>如果 <code>target</code> 大于等于 <code>arr.length</code>，将会不发生拷贝。如果 <code>target</code> 在 <code>start</code> 之后，复制的序列将被修改以符合 <code>arr.length</code>。</p><blockquote><p>start</p></blockquote><p><code>0</code> 为基底的索引，开始复制元素的起始位置。如果是负数，<code>start</code> 将从末尾开始计算。<br>如果 <code>start</code> 被忽略，<code>copyWithin</code> 将会从<code>0</code>开始复制。</p><blockquote><p>end</p></blockquote><p><code>0</code> 为基底的索引，开始复制元素的结束位置。<code>copyWithin</code> 将会拷贝到该位置，但不包括 <code>end</code> 这个位置的元素。如果是负数， <code>end</code> 将从末尾开始计算。<br>如果 <code>end</code> 被忽略，<code>copyWithin</code> 将会复制到 <code>arr.length</code>。</p><hr><h4 id="返回值说明-3">返回值说明 <a class="markdownIt-Anchor" href="#返回值说明-3">#</a></h4><p>改变了的数组。</p><hr><h4 id="详细说明-3">详细说明 <a class="markdownIt-Anchor" href="#详细说明-3">#</a></h4><p><code>copyWithin()</code> 方法<code>浅复制</code>数组的一部分到同一数组中的另一个位置，并返回它，而不修改其大小。</p><p>参数<code>target</code>,<code>start</code>和<code>end</code> 必须为整数。</p><p>如果<code>start</code>为负，则其指定的索引位置等同于<code>length+start</code>，<code>length</code>为数组的长度。<code>end</code>也是如此。</p><p><code>copyWithin</code>方法不要求其<code>this</code>值必须是一个数组对象；除此之外，<code>copyWithin</code>是一个可变方法，它可以改变<code>this</code>对象本身，并且返回它，而不仅仅是它的拷贝。</p><p><code>copyWithin</code> 就像 <code>C</code> 和 <code>C++</code> 的 <code>memcpy</code> 函数一样，且它是用来移动 <code>Array</code> 或者 <code>TypedArray</code> 数据的一个高性能的方法。复制以及粘贴序列这两者是为一体的操作;即使复制和粘贴区域重叠，粘贴的序列也会有拷贝来的值。</p><p><code>copyWithin</code> 函数是设计为通用的，其不要求其 <code>this</code> 值必须是一个数组对象。</p><p><code>The copyWithin</code> 是一个可变方法，它不会改变 <code>this</code> 的 <code>length</code>，但是会改变 <code>this</code> 本身的内容，且需要时会创建新的属性。</p><hr><h4 id="案例-3">案例 <a class="markdownIt-Anchor" href="#案例-3">#</a></h4><pre class="hljs"><code><span class="hljs-keyword">var</span> array1 = [<span class="hljs-string">'a'</span>, <span class="hljs-string">'b'</span>, <span class="hljs-string">'c'</span>, <span class="hljs-string">'d'</span>, <span class="hljs-string">'e'</span>];
+
+<span class="hljs-comment">// copy to index 0 the element at index 2 (c)</span>
+<span class="hljs-comment">// ['a', 'b', 'c', 'd', 'e'] ==&gt; ["c", "b", "c", "d", "e"]</span>
+<span class="hljs-built_in">console</span>.log(array1.copyWithin(<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>));
+
+<span class="hljs-comment">// copy to index 0 the element between index 2 and index 3 (c,d) </span>
+<span class="hljs-comment">// ["c", "b", "c", "d", "e"] ==&gt; ["c", "d", "c", "d", "e"]</span>
+<span class="hljs-built_in">console</span>.log(array1.copyWithin(<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>));
+
+<span class="hljs-comment">// copy to index 0 the element between index 2 and index 4 (c,d,e)</span>
+<span class="hljs-comment">// ["c", "d", "c", "d", "e"] ==&gt; ["c", "d", "e", "d", "e"]</span>
+<span class="hljs-built_in">console</span>.log(array1.copyWithin(<span class="hljs-number">0</span>, <span class="hljs-number">2</span>));
+
+<span class="hljs-comment">// copy to index 1 the element at index 2 (e)</span>
+<span class="hljs-comment">// ["c", "d", "e", "d", "e"] ==&gt; ["c", "e", "e", "d", "e"]</span>
+<span class="hljs-built_in">console</span>.log(array1.copyWithin(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>));
+
+<span class="hljs-comment">// copy to index 1 the element between index 2 and index 3 (e,d) </span>
+<span class="hljs-comment">// ["c", "e", "e", "d", "e"] ==&gt; ["c", "e", "d", "d", "e"]</span>
+<span class="hljs-built_in">console</span>.log(array1.copyWithin(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>));
+
+<span class="hljs-comment">// copy to index 1 the element between index 2 and index 4 (d,d,e) </span>
+<span class="hljs-comment">// ["c", "e", "d", "d", "e"] ==&gt; ["c", "d", "d", "e", "e"]</span>
+<span class="hljs-built_in">console</span>.log(array1.copyWithin(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>));
+
+<span class="hljs-comment">// copy to index 0 the element at index 3 (e)</span>
+<span class="hljs-comment">// ["c", "d", "d", "e", "e"] ==&gt; ["e", "d", "d", "e", "e"]</span>
+<span class="hljs-built_in">console</span>.log(array1.copyWithin(<span class="hljs-number">0</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>));
+
+<span class="hljs-comment">// copy to index 2 the element at index 3 (e)</span>
+<span class="hljs-comment">// ["e", "d", "d", "e", "e"] ==&gt; ["e", "d", "e", "e", "e"]</span>
+<span class="hljs-built_in">console</span>.log(array1.copyWithin(<span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>));
+
+[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>].copyWithin(<span class="hljs-number">-2</span>);
+<span class="hljs-comment">// [1, 2, 3, 1, 2]</span>
+
+[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>].copyWithin(<span class="hljs-number">0</span>, <span class="hljs-number">3</span>);
+<span class="hljs-comment">// [4, 5, 3, 4, 5]</span>
+
+[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>].copyWithin(<span class="hljs-number">0</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>);
+<span class="hljs-comment">// [4, 2, 3, 4, 5]</span>
+
+[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>].copyWithin(<span class="hljs-number">-2</span>, <span class="hljs-number">-3</span>, <span class="hljs-number">-1</span>);
+<span class="hljs-comment">// [1, 2, 3, 3, 4]</span>
+
+[].copyWithin.call({<span class="hljs-attr">length</span>: <span class="hljs-number">5</span>, <span class="hljs-number">3</span>: <span class="hljs-number">1</span>}, <span class="hljs-number">0</span>, <span class="hljs-number">3</span>);
+<span class="hljs-comment">// {0: 1, 3: 1, length: 5}</span>
+
+<span class="hljs-comment">// ES2015 Typed Arrays are subclasses of Array</span>
+<span class="hljs-keyword">var</span> i32a = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Int32Array</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>]);
+
+i32a.copyWithin(<span class="hljs-number">0</span>, <span class="hljs-number">2</span>);
+<span class="hljs-comment">// Int32Array [3, 4, 5, 4, 5]</span>
+
+<span class="hljs-comment">// On platforms that are not yet ES2015 compliant: </span>
+[].copyWithin.call(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Int32Array</span>([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>]), <span class="hljs-number">0</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>);
+<span class="hljs-comment">// Int32Array [4, 2, 3, 4, 5]</span>
+</code></pre><hr><h4 id="polyfill-3">Polyfill <a class="markdownIt-Anchor" href="#polyfill-3">#</a></h4><pre class="hljs"><code><span class="hljs-keyword">if</span> (!<span class="hljs-built_in">Array</span>.prototype.copyWithin) {
+  <span class="hljs-built_in">Array</span>.prototype.copyWithin = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">target, start<span class="hljs-regexp">/*, end*/</span></span>) </span>{
+    <span class="hljs-comment">// Steps 1-2.</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span> == <span class="hljs-literal">null</span>) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">'this is null or not defined'</span>);
+    }
+
+    <span class="hljs-keyword">var</span> O = <span class="hljs-built_in">Object</span>(<span class="hljs-keyword">this</span>);
+
+    <span class="hljs-comment">// Steps 3-5.</span>
+    <span class="hljs-keyword">var</span> len = O.length &gt;&gt;&gt; <span class="hljs-number">0</span>;
+
+    <span class="hljs-comment">// Steps 6-8.</span>
+    <span class="hljs-keyword">var</span> relativeTarget = target &gt;&gt; <span class="hljs-number">0</span>;
+
+    <span class="hljs-keyword">var</span> to = relativeTarget &lt; <span class="hljs-number">0</span> ?
+      <span class="hljs-built_in">Math</span>.max(len + relativeTarget, <span class="hljs-number">0</span>) :
+      <span class="hljs-built_in">Math</span>.min(relativeTarget, len);
+
+    <span class="hljs-comment">// Steps 9-11.</span>
+    <span class="hljs-keyword">var</span> relativeStart = start &gt;&gt; <span class="hljs-number">0</span>;
+
+    <span class="hljs-keyword">var</span> <span class="hljs-keyword">from</span> = relativeStart &lt; <span class="hljs-number">0</span> ?
+      <span class="hljs-built_in">Math</span>.max(len + relativeStart, <span class="hljs-number">0</span>) :
+      <span class="hljs-built_in">Math</span>.min(relativeStart, len);
+
+    <span class="hljs-comment">// Steps 12-14.</span>
+    <span class="hljs-keyword">var</span> end = <span class="hljs-built_in">arguments</span>[<span class="hljs-number">2</span>];
+    <span class="hljs-keyword">var</span> relativeEnd = end === <span class="hljs-literal">undefined</span> ? len : end &gt;&gt; <span class="hljs-number">0</span>;
+
+    <span class="hljs-keyword">var</span> final = relativeEnd &lt; <span class="hljs-number">0</span> ?
+      <span class="hljs-built_in">Math</span>.max(len + relativeEnd, <span class="hljs-number">0</span>) :
+      <span class="hljs-built_in">Math</span>.min(relativeEnd, len);
+
+    <span class="hljs-comment">// Step 15.</span>
+    <span class="hljs-keyword">var</span> count = <span class="hljs-built_in">Math</span>.min(final - <span class="hljs-keyword">from</span>, len - to);
+
+    <span class="hljs-comment">// Steps 16-17.</span>
+    <span class="hljs-keyword">var</span> direction = <span class="hljs-number">1</span>;
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">from</span> &lt; to &amp;&amp; to &lt; (<span class="hljs-keyword">from</span> + count)) {
+      direction = <span class="hljs-number">-1</span>;
+      <span class="hljs-keyword">from</span> += count - <span class="hljs-number">1</span>;
+      to += count - <span class="hljs-number">1</span>;
+    }
+
+    <span class="hljs-comment">// Step 18.</span>
+    <span class="hljs-keyword">while</span> (count &gt; <span class="hljs-number">0</span>) {
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">from</span> <span class="hljs-keyword">in</span> O) {
+        O[to] = O[<span class="hljs-keyword">from</span>];
+      } <span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">delete</span> O[to];
+      }
+
+      <span class="hljs-keyword">from</span> += direction;
+      to += direction;
+      count--;
+    }
+
+    <span class="hljs-comment">// Step 19.</span>
+    <span class="hljs-keyword">return</span> O;
+  };
+}
+</code></pre><hr><h3 id="fill"><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/fill" target="_blank" rel="noopener">fill()</a> <a class="markdownIt-Anchor" href="#fill">#</a></h3><h4 id="基础语法-4">基础语法 <a class="markdownIt-Anchor" href="#基础语法-4">#</a></h4><pre class="hljs"><code>arr.fill(value[, start[, end]])
+</code></pre><hr><h4 id="参数说明-4">参数说明 <a class="markdownIt-Anchor" href="#参数说明-4">#</a></h4><blockquote><p>value</p></blockquote><p>用来填充数组元素的值。</p><hr><blockquote><p>start</p></blockquote><p>可选参数，起始索引，默认值为<code>0</code>。</p><hr><blockquote><p>end</p></blockquote><p>可选参数，终止索引，默认值为 <code>this.length</code>。</p><hr><h4 id="返回值说明-4">返回值说明 <a class="markdownIt-Anchor" href="#返回值说明-4">#</a></h4><p>修改后的数组。</p><hr><h4 id="详细说明-4">详细说明 <a class="markdownIt-Anchor" href="#详细说明-4">#</a></h4><p><code>fill()</code> 方法用一个固定值填充一个数组中从<code>起始索引</code>到<code>终止索引</code>内的全部元素。不包括<code>终止索引</code>。</p><p><code>fill</code> 方法接受三个参数 <code>value</code>, <code>start</code> 以及 <code>end</code>. <code>start</code> 和 <code>end</code> 参数是可选的, 其默认值分别为 <code>0</code> 和 <code>this</code> 对象的 <code>length</code> 属性值。</p><p>如果 <code>start</code> 是个负数, 则开始索引会被自动计算成为 <code>length+start</code>, 其中 <code>length</code> 是 <code>this</code> 对象的 <code>length</code> 属性值。</p><p>如果 <code>end</code> 是个负数, 则结束索引会被自动计算成为 <code>length+end</code>。</p><p><code>fill</code> 方法故意被设计成通用方法, 该方法不要求 <code>this</code> 是数组对象。</p><p><code>fill</code> 方法是个可变方法, 它会改变调用它的 <code>this</code> 对象本身, 然后返回它, 而并不是返回一个副本。</p><p>当一个对象被传递给 <code>fill</code>方法的时候, 填充数组的是这个对象的引用。</p><hr><h4 id="案例-4">案例 <a class="markdownIt-Anchor" href="#案例-4">#</a></h4><pre class="hljs"><code>[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>].fill(<span class="hljs-number">4</span>);               <span class="hljs-comment">// [4, 4, 4]</span>
+[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>].fill(<span class="hljs-number">4</span>, <span class="hljs-number">1</span>);            <span class="hljs-comment">// [1, 4, 4]</span>
+[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>].fill(<span class="hljs-number">4</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>);         <span class="hljs-comment">// [1, 4, 3]</span>
+[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>].fill(<span class="hljs-number">4</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>);         <span class="hljs-comment">// [1, 2, 3]</span>
+[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>].fill(<span class="hljs-number">4</span>, <span class="hljs-number">3</span>, <span class="hljs-number">3</span>);         <span class="hljs-comment">// [1, 2, 3]</span>
+[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>].fill(<span class="hljs-number">4</span>, <span class="hljs-number">-3</span>, <span class="hljs-number">-2</span>);       <span class="hljs-comment">// [4, 2, 3]</span>
+[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>].fill(<span class="hljs-number">4</span>, <span class="hljs-literal">NaN</span>, <span class="hljs-literal">NaN</span>);     <span class="hljs-comment">// [1, 2, 3]</span>
+[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>].fill(<span class="hljs-number">4</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>);         <span class="hljs-comment">// [1, 2, 3]</span>
+<span class="hljs-built_in">Array</span>(<span class="hljs-number">3</span>).fill(<span class="hljs-number">4</span>);                <span class="hljs-comment">// [4, 4, 4]</span>
+[].fill.call({ <span class="hljs-attr">length</span>: <span class="hljs-number">3</span> }, <span class="hljs-number">4</span>);  <span class="hljs-comment">// {0: 4, 1: 4, 2: 4, length: 3}</span>
+
+<span class="hljs-comment">// Objects by reference.</span>
+<span class="hljs-keyword">var</span> arr = <span class="hljs-built_in">Array</span>(<span class="hljs-number">3</span>).fill({}) <span class="hljs-comment">// [{}, {}, {}];</span>
+arr[<span class="hljs-number">0</span>].hi = <span class="hljs-string">"hi"</span>; <span class="hljs-comment">// [{ hi: "hi" }, { hi: "hi" }, { hi: "hi" }]</span>
+</code></pre><hr><h4 id="polyfill-4">Polyfill <a class="markdownIt-Anchor" href="#polyfill-4">#</a></h4><pre class="hljs"><code><span class="hljs-keyword">if</span> (!<span class="hljs-built_in">Array</span>.prototype.fill) {
+  <span class="hljs-built_in">Object</span>.defineProperty(<span class="hljs-built_in">Array</span>.prototype, <span class="hljs-string">'fill'</span>, {
+    <span class="hljs-attr">value</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">value</span>) </span>{
+
+      <span class="hljs-comment">// Steps 1-2.</span>
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span> == <span class="hljs-literal">null</span>) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">'this is null or not defined'</span>);
+      }
+
+      <span class="hljs-keyword">var</span> O = <span class="hljs-built_in">Object</span>(<span class="hljs-keyword">this</span>);
+
+      <span class="hljs-comment">// Steps 3-5.</span>
+      <span class="hljs-keyword">var</span> len = O.length &gt;&gt;&gt; <span class="hljs-number">0</span>;
+
+      <span class="hljs-comment">// Steps 6-7.</span>
+      <span class="hljs-keyword">var</span> start = <span class="hljs-built_in">arguments</span>[<span class="hljs-number">1</span>];
+      <span class="hljs-keyword">var</span> relativeStart = start &gt;&gt; <span class="hljs-number">0</span>;
+
+      <span class="hljs-comment">// Step 8.</span>
+      <span class="hljs-keyword">var</span> k = relativeStart &lt; <span class="hljs-number">0</span> ?
+        <span class="hljs-built_in">Math</span>.max(len + relativeStart, <span class="hljs-number">0</span>) :
+        <span class="hljs-built_in">Math</span>.min(relativeStart, len);
+
+      <span class="hljs-comment">// Steps 9-10.</span>
+      <span class="hljs-keyword">var</span> end = <span class="hljs-built_in">arguments</span>[<span class="hljs-number">2</span>];
+      <span class="hljs-keyword">var</span> relativeEnd = end === <span class="hljs-literal">undefined</span> ?
+        len : end &gt;&gt; <span class="hljs-number">0</span>;
+
+      <span class="hljs-comment">// Step 11.</span>
+      <span class="hljs-keyword">var</span> final = relativeEnd &lt; <span class="hljs-number">0</span> ?
+        <span class="hljs-built_in">Math</span>.max(len + relativeEnd, <span class="hljs-number">0</span>) :
+        <span class="hljs-built_in">Math</span>.min(relativeEnd, len);
+
+      <span class="hljs-comment">// Step 12.</span>
+      <span class="hljs-keyword">while</span> (k &lt; final) {
+        O[k] = value;
+        k++;
+      }
+
+      <span class="hljs-comment">// Step 13.</span>
+      <span class="hljs-keyword">return</span> O;
+    }
+  });
+}
+</code></pre><p>如果你确实需要维护已过时的不支持 <code>Object.defineProperty</code> 的 <code>JavaScript</code> 引擎，那么最好完全不向 <code>Array.prototype</code> 添加方法，因为你不能使它不可枚举。</p><hr><h2 id="内部数据展平">内部数据展平 <a class="markdownIt-Anchor" href="#内部数据展平">#</a></h2><h3 id="flat"><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/flat" target="_blank" rel="noopener">flat()</a> <a class="markdownIt-Anchor" href="#flat">#</a></h3><h4 id="基础语法-5">基础语法 <a class="markdownIt-Anchor" href="#基础语法-5">#</a></h4><pre class="hljs"><code><span class="hljs-keyword">var</span> newArray = arr.flat(depth)
+</code></pre><hr><h4 id="参数说明-5">参数说明 <a class="markdownIt-Anchor" href="#参数说明-5">#</a></h4><blockquote><p>depth</p></blockquote><p>指定要提取<code>嵌套数组</code>的结构深度，默认值为 <code>1</code>。</p><hr><h4 id="返回值说明-5">返回值说明 <a class="markdownIt-Anchor" href="#返回值说明-5">#</a></h4><p>一个包含将<code>数组</code>与<code>子数组</code>中所有元素的<code>新数组</code>。</p><hr><h4 id="详细说明-5">详细说明 <a class="markdownIt-Anchor" href="#详细说明-5">#</a></h4><p><code>flat()</code> 方法会按照一个可指定的<code>深度递归</code>遍历数组，并将所有元素与遍历到的<code>子数组</code>中的元素合并为一个<code>新数组</code>返回。</p><hr><h4 id="案例-5">案例 <a class="markdownIt-Anchor" href="#案例-5">#</a></h4><blockquote><p>扁平化嵌套数组</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">var</span> arr1 = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, [<span class="hljs-number">3</span>, <span class="hljs-number">4</span>]];
+arr1.flat();
+<span class="hljs-comment">// [1, 2, 3, 4]</span>
+
+<span class="hljs-keyword">var</span> arr2 = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, [<span class="hljs-number">3</span>, <span class="hljs-number">4</span>, [<span class="hljs-number">5</span>, <span class="hljs-number">6</span>]]];
+arr2.flat();
+<span class="hljs-comment">// [1, 2, 3, 4, [5, 6]]</span>
+
+<span class="hljs-keyword">var</span> arr3 = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, [<span class="hljs-number">3</span>, <span class="hljs-number">4</span>, [<span class="hljs-number">5</span>, <span class="hljs-number">6</span>]]];
+arr3.flat(<span class="hljs-number">2</span>);
+<span class="hljs-comment">// [1, 2, 3, 4, 5, 6]</span>
+
+<span class="hljs-comment">//使用 Infinity 作为深度，展开任意深度的嵌套数组</span>
+arr3.flat(<span class="hljs-literal">Infinity</span>);
+<span class="hljs-comment">// [1, 2, 3, 4, 5, 6]</span>
+</code></pre><blockquote><p>扁平化与空项</p></blockquote><p><code>flat()</code> 方法会移除数组中的<code>空项</code>，但是不会剔除<code>''</code>, <code>undefined</code>, 和<code>null</code>。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span>=&gt;</span>{
+  <span class="hljs-keyword">const</span> {log} = <span class="hljs-built_in">console</span>;
+  <span class="hljs-keyword">var</span> arr4 = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, , <span class="hljs-string">''</span>, <span class="hljs-literal">undefined</span>, <span class="hljs-literal">null</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>];
+  log(arr4.flat());<span class="hljs-comment">// [1, 2, "", undefined, null, 4, 5]</span>
+})()
+</code></pre><hr><h4 id="替代方案">替代方案 <a class="markdownIt-Anchor" href="#替代方案">#</a></h4><p>使用 <code>reduce</code> 与 <code>concat</code>模拟<code>flat</code></p><pre class="hljs"><code><span class="hljs-keyword">var</span> arr1 = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, [<span class="hljs-number">3</span>, <span class="hljs-number">4</span>]];
+arr1.flat();
+
+<span class="hljs-comment">// 反嵌套一层数组</span>
+arr1.reduce(<span class="hljs-function">(<span class="hljs-params">acc, val</span>) =&gt;</span> acc.concat(val), []);<span class="hljs-comment">// [1, 2, 3, 4]</span>
+
+<span class="hljs-comment">// 或使用 ...</span>
+<span class="hljs-keyword">const</span> flatSingle = <span class="hljs-function"><span class="hljs-params">arr</span> =&gt;</span> [].concat(...arr);
+
+<span class="hljs-comment">// 使用 reduce、concat 和递归无限反嵌套多层嵌套的数组</span>
+<span class="hljs-keyword">var</span> arr1 = [<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>, [<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>]]];
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">flattenDeep</span>(<span class="hljs-params">arr1</span>) </span>{
+   <span class="hljs-keyword">return</span> arr1.reduce(<span class="hljs-function">(<span class="hljs-params">acc, val</span>) =&gt;</span> <span class="hljs-built_in">Array</span>.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val), []);
+}
+flattenDeep(arr1);
+<span class="hljs-comment">// [1, 2, 3, 1, 2, 3, 4, 2, 3, 4]</span>
+
+<span class="hljs-comment">// 不使用递归，使用 stack 无限反嵌套多层嵌套数组</span>
+<span class="hljs-keyword">var</span> arr1 = [<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,[<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>, [<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>]]];
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">flatten</span>(<span class="hljs-params">input</span>) </span>{
+  <span class="hljs-keyword">const</span> stack = [...input];
+  <span class="hljs-keyword">const</span> res = [];
+  <span class="hljs-keyword">while</span> (stack.length) {
+    <span class="hljs-comment">// 使用 pop 从 stack 中取出并移除值</span>
+    <span class="hljs-keyword">const</span> next = stack.pop();
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">Array</span>.isArray(next)) {
+      <span class="hljs-comment">// 使用 push 送回内层数组中的元素，不会改动原始输入 original input</span>
+      stack.push(...next);
+    } <span class="hljs-keyword">else</span> {
+      res.push(next);
+    }
+  }
+  <span class="hljs-comment">// 使用 reverse 恢复原数组的顺序</span>
+  <span class="hljs-keyword">return</span> res.reverse();
+}
+flatten(arr1);<span class="hljs-comment">// [1, 2, 3, 1, 2, 3, 4, 2, 3, 4]</span>
+</code></pre><hr><h3 id="flatmap"><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/flatMap" target="_blank" rel="noopener">flatMap()</a> <a class="markdownIt-Anchor" href="#flatmap">#</a></h3><h4 id="基础语法-6">基础语法 <a class="markdownIt-Anchor" href="#基础语法-6">#</a></h4><pre class="hljs"><code><span class="hljs-keyword">var</span> new_array = arr.flatMap(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">callback</span>(<span class="hljs-params">currentValue[, index[, array]]</span>) </span>{
+    <span class="hljs-comment">// 返回新数组的元素</span>
+}[, thisArg])
+</code></pre><hr><h4 id="参数说明-6">参数说明 <a class="markdownIt-Anchor" href="#参数说明-6">#</a></h4><blockquote><p>callback</p></blockquote><p>在数组每一项上执行的函数，接收 3 个参数：</p><ul><li>currentValue</li></ul><p>当前正在数组中处理的元素</p><hr><ul><li>index</li></ul><p>当前遍历到的索引。</p><hr><ul><li>array</li></ul><p>数组本身。</p><hr><blockquote><p>thisArg 可选</p></blockquote><p>可选，指定 <code>callback</code> 的 <code>this</code> 参数。</p><hr><h4 id="返回值说明-6">返回值说明 <a class="markdownIt-Anchor" href="#返回值说明-6">#</a></h4><p>一个新的数组，其中每个元素都是回调函数的结果，并且结构深度 <code>depth</code> 值为<code>1</code>。</p><hr><h4 id="详细说明-6">详细说明 <a class="markdownIt-Anchor" href="#详细说明-6">#</a></h4><p><code>flatMap()</code> 方法首先使用映射函数映射每个元素，然后将结果压缩成一个新数组。</p><p>它与 <code>map</code> 和 深度值<code>1</code>的 <code>flat</code> 几乎相同，但 <code>flatMap</code> 通常在合并成一种方法的效率稍微高一些。</p><p>有关回调函数的详细描述，请参见 <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/map" target="_blank" rel="noopener">Array.prototype.map()</a> 。 <code>flatMap</code> 方法与 <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/map" target="_blank" rel="noopener"><code>map</code></a> 方法和深度<code>depth</code>为<code>1</code>的 <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/flat" target="_blank" rel="noopener"><code>flat</code></a> 几乎相同.</p><hr><h4 id="案例-6">案例 <a class="markdownIt-Anchor" href="#案例-6">#</a></h4><blockquote><p><code>Map</code> 与 <code>flatMap</code></p></blockquote><pre class="hljs"><code><span class="hljs-keyword">var</span> arr1 = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>];
+
+arr1.map(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> [x * <span class="hljs-number">2</span>]);
+<span class="hljs-comment">// [[2], [4], [6], [8]]</span>
+
+arr1.flatMap(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> [x * <span class="hljs-number">2</span>]);
+<span class="hljs-comment">// [2, 4, 6, 8]</span>
+
+<span class="hljs-comment">// 只会将 flatMap 中的函数返回的数组 “压平” 一层</span>
+arr1.flatMap(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> [[x * <span class="hljs-number">2</span>]]);
+<span class="hljs-comment">// [[2], [4], [6], [8]]</span>
+
+</code></pre><hr><blockquote><p><code>flat</code> 与 <code>flatMap</code></p></blockquote><p><code>flatMap</code>方法对原数组的每个成员执行一个函数（相当于执行<code>Array.prototype.map()</code>），然后对返回值组成的数组执行<code>flat()</code>方法。该方法返回一个新数组，不改变原数组。</p><pre class="hljs"><code><span class="hljs-comment">// 相当于 [[2, 4, 4], [3, 6, 9], [4, 8, 16]].flat()</span>
+[<span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>].flatMap(<span class="hljs-function">(<span class="hljs-params">x</span>) =&gt;</span> [x, x * <span class="hljs-number">2</span>, x * x])
+<span class="hljs-comment">//  [2, 4, 4, 3, 6, 9, 4, 8, 16]</span>
+</code></pre><hr><blockquote><p>包含几句话的数组拆分成单个汉字组成的新数组</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">let</span> arr = [<span class="hljs-string">"今天天气不错"</span>, <span class="hljs-string">""</span>, <span class="hljs-string">"早上好"</span>]
+
+arr.map(<span class="hljs-function"><span class="hljs-params">s</span> =&gt;</span> s.split(<span class="hljs-string">""</span>))
+<span class="hljs-comment">// [["今", "天", "天", "气", "不", "错"],[""],["早", "上", "好"]]</span>
+
+arr.flatMap(<span class="hljs-function"><span class="hljs-params">s</span> =&gt;</span> s.split(<span class="hljs-string">''</span>));
+<span class="hljs-comment">// 相当于 [["今", "天", "天", "气", "不", "错", [], ["早", "上", "好"]].flat()</span>
+<span class="hljs-comment">// ["今", "天", "天", "气", "不", "错", "早", "上", "好"]</span>
+</code></pre><hr><h4 id="替代方案-1">替代方案 <a class="markdownIt-Anchor" href="#替代方案-1">#</a></h4><p>归纳（<code>reduce</code>） 与 合并（<code>concat</code>）节</p><pre class="hljs"><code><span class="hljs-keyword">var</span> arr1 = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>];
+
+arr1.flatMap(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> [x * <span class="hljs-number">2</span>]);
+<span class="hljs-comment">// 等价于</span>
+arr1.reduce(<span class="hljs-function">(<span class="hljs-params">acc, x</span>) =&gt;</span> acc.concat([x * <span class="hljs-number">2</span>]), []);
+<span class="hljs-comment">// [2, 4, 6, 8]</span>
+</code></pre><hr><h2 id="遍历判断">遍历判断 <a class="markdownIt-Anchor" href="#遍历判断">#</a></h2><h3 id="some"><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/some" target="_blank" rel="noopener">some()</a> <a class="markdownIt-Anchor" href="#some">#</a></h3><h4 id="基础语法-7">基础语法 <a class="markdownIt-Anchor" href="#基础语法-7">#</a></h4><pre class="hljs"><code>arr.some(callback(element[, index[, array]])[, thisArg])
+</code></pre><hr><h4 id="参数说明-7">参数说明 <a class="markdownIt-Anchor" href="#参数说明-7">#</a></h4><blockquote><p>callback</p></blockquote><p>在数组每一项上执行的函数，接收 3 个参数：</p><ul><li>element</li></ul><p>当前遍历到的元素。</p><hr><ul><li>index</li></ul><p>当前遍历到的索引。</p><hr><ul><li>array</li></ul><p>数组本身。</p><hr><blockquote><p>thisArg 可选</p></blockquote><p>可选，指定 <code>callback</code> 的 <code>this</code> 参数。</p><hr><h4 id="返回值说明-7">返回值说明 <a class="markdownIt-Anchor" href="#返回值说明-7">#</a></h4><p>如果回调函数返回至少一个数组元素的<code>truthy</code>值，则返回<code>true</code>；否则为<code>false</code>。</p><p>注意：对于空数组上的任何条件，此方法返回<code>false</code>。</p><hr><h4 id="详细说明-7">详细说明 <a class="markdownIt-Anchor" href="#详细说明-7">#</a></h4><p><code>some()</code> 方法测试是否至少有一个元素可以通过被提供的函数方法。该方法返回一个<code>Boolean</code>类型的值。</p><p><code>some()</code> 为数组中的每一个元素执行一次 <code>callback</code> 函数，直到找到一个使得 <code>callback</code> 返回一个<code>真值</code>（即可转换为布尔值 <code>true</code> 的值）。</p><p>如果找到了这样一个值，<code>some()</code> 将会立即返回 <code>true</code>。</p><p>否则，<code>some()</code> 返回 <code>false</code>。<code>callback</code> 只会在那些<code>有值</code>的索引上被调用，不会在那些被删除或从来未被赋值的索引上调用。</p><p><code>callback</code> 被调用时传入三个参数：元素的<code>值</code>，元素的<code>索引</code>，被遍历的<code>数组</code>。</p><p>将会把它传给被调用的 <code>callback</code>，作为 <code>this</code> 值。否则，在非严格模式下将会是全局对象，严格模式下是 <code>undefined</code>。</p><p><code>some()</code> 被调用时不会改变数组。</p><p><code>some()</code> 遍历的元素的范围在第一次调用 <code>callback</code>. 时就已经确定了。</p><p>在调用 <code>some()</code> 后被添加到数组中的值不会被 <code>callback</code> 访问到。</p><p>如果数组中存在且还未被访问到的元素被 <code>callback</code> 改变了，则其传递给 <code>callback</code> 的值是 <code>some()</code> 访问到它那一刻的值。</p><hr><h4 id="案例-7">案例 <a class="markdownIt-Anchor" href="#案例-7">#</a></h4><blockquote><p>测试数组元素的值</p></blockquote><p>下面的例子检测在数组中是否有元素大于 <code>10</code>。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isBiggerThan10</span>(<span class="hljs-params">element, index, array</span>) </span>{
+  <span class="hljs-keyword">return</span> element &gt; <span class="hljs-number">10</span>;
+}
+
+[<span class="hljs-number">2</span>, <span class="hljs-number">5</span>, <span class="hljs-number">8</span>, <span class="hljs-number">1</span>, <span class="hljs-number">4</span>].some(isBiggerThan10);  <span class="hljs-comment">// false</span>
+[<span class="hljs-number">12</span>, <span class="hljs-number">5</span>, <span class="hljs-number">8</span>, <span class="hljs-number">1</span>, <span class="hljs-number">4</span>].some(isBiggerThan10); <span class="hljs-comment">// true</span>
+
+<span class="hljs-comment">// 箭头函数 可以通过更简洁的语法实现相同的用例.</span>
+[<span class="hljs-number">2</span>, <span class="hljs-number">5</span>, <span class="hljs-number">8</span>, <span class="hljs-number">1</span>, <span class="hljs-number">4</span>].some(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x &gt; <span class="hljs-number">10</span>);  <span class="hljs-comment">// false</span>
+[<span class="hljs-number">12</span>, <span class="hljs-number">5</span>, <span class="hljs-number">8</span>, <span class="hljs-number">1</span>, <span class="hljs-number">4</span>].some(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x &gt; <span class="hljs-number">10</span>); <span class="hljs-comment">// true</span>
+</code></pre><hr><blockquote><p>判断数组元素中是否存在某个值</p></blockquote><p>此例中为模仿 <code>includes()</code> 方法, 若元素在数组中存在, 则回调函数返回值为 <code>true</code> :</p><pre class="hljs"><code><span class="hljs-keyword">var</span> fruits = [<span class="hljs-string">'apple'</span>, <span class="hljs-string">'banana'</span>, <span class="hljs-string">'mango'</span>, <span class="hljs-string">'guava'</span>];
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">checkAvailability</span>(<span class="hljs-params">arr, val</span>) </span>{
+  <span class="hljs-keyword">return</span> arr.some(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">arrVal</span>) </span>{
+    <span class="hljs-keyword">return</span> val === arrVal;
+  });
+}
+
+checkAvailability(fruits, <span class="hljs-string">'kela'</span>);   <span class="hljs-comment">// false</span>
+checkAvailability(fruits, <span class="hljs-string">'banana'</span>); <span class="hljs-comment">// true</span>
+</code></pre><hr><blockquote><p>使用箭头函数判断数组元素中是否存在某个值</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">var</span> fruits = [<span class="hljs-string">'apple'</span>, <span class="hljs-string">'banana'</span>, <span class="hljs-string">'mango'</span>, <span class="hljs-string">'guava'</span>];
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">checkAvailability</span>(<span class="hljs-params">arr, val</span>) </span>{
+  <span class="hljs-keyword">return</span> arr.some(<span class="hljs-function"><span class="hljs-params">arrVal</span> =&gt;</span> val === arrVal);
+}
+
+checkAvailability(fruits, <span class="hljs-string">'kela'</span>);   <span class="hljs-comment">// false</span>
+checkAvailability(fruits, <span class="hljs-string">'banana'</span>); <span class="hljs-comment">// true</span>
+</code></pre><hr><blockquote><p>将任意值转换为布尔类型</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">var</span> TRUTHY_VALUES = [<span class="hljs-literal">true</span>, <span class="hljs-string">'true'</span>, <span class="hljs-number">1</span>];
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getBoolean</span>(<span class="hljs-params">value</span>) </span>{
+  <span class="hljs-string">'use strict'</span>;
+
+  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> value === <span class="hljs-string">'string'</span>) {
+    value = value.toLowerCase().trim();
+  }
+
+  <span class="hljs-keyword">return</span> TRUTHY_VALUES.some(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">t</span>) </span>{
+    <span class="hljs-keyword">return</span> t === value;
+  });
+}
+
+getBoolean(<span class="hljs-literal">false</span>);   <span class="hljs-comment">// false</span>
+getBoolean(<span class="hljs-string">'false'</span>); <span class="hljs-comment">// false</span>
+getBoolean(<span class="hljs-number">1</span>);       <span class="hljs-comment">// true</span>
+getBoolean(<span class="hljs-string">'true'</span>);  <span class="hljs-comment">// true</span>
+</code></pre><hr><h4 id="polyfill-5">Polyfill <a class="markdownIt-Anchor" href="#polyfill-5">#</a></h4><p>在第 5 版时，<code>some()</code> 被添加进 <code>ECMA-262</code> 标准；这样导致某些实现环境可能不支持它。</p><p>你可以把下面的代码插入到脚本的开头来解决此问题，从而允许在那些没有原生支持它的实现环境中使用它。该算法是 <code>ECMA-262</code> 第 5 版中指定的算法，假定 <code>Object</code> 和 <code>TypeError</code> 拥有他们的初始值，且 <code>fun.call</code> 等价于 <code>Function.prototype.call</code>。</p><pre class="hljs"><code><span class="hljs-comment">// Production steps of ECMA-262, Edition 5, 15.4.4.17</span>
+<span class="hljs-comment">// Reference: http://es5.github.io/#x15.4.4.17</span>
+<span class="hljs-keyword">if</span> (!<span class="hljs-built_in">Array</span>.prototype.some) {
+  <span class="hljs-built_in">Array</span>.prototype.some = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">fun<span class="hljs-regexp">/*, thisArg*/</span></span>) </span>{
+    <span class="hljs-string">'use strict'</span>;
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span> == <span class="hljs-literal">null</span>) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">'Array.prototype.some called on null or undefined'</span>);
+    }
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> fun !== <span class="hljs-string">'function'</span>) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>();
+    }
+
+    <span class="hljs-keyword">var</span> t = <span class="hljs-built_in">Object</span>(<span class="hljs-keyword">this</span>);
+    <span class="hljs-keyword">var</span> len = t.length &gt;&gt;&gt; <span class="hljs-number">0</span>;
+
+    <span class="hljs-keyword">var</span> thisArg = <span class="hljs-built_in">arguments</span>.length &gt;= <span class="hljs-number">2</span> ? <span class="hljs-built_in">arguments</span>[<span class="hljs-number">1</span>] : <span class="hljs-keyword">void</span> <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; len; i++) {
+      <span class="hljs-keyword">if</span> (i <span class="hljs-keyword">in</span> t &amp;&amp; fun.call(thisArg, t[i], i, t)) {
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+      }
+    }
+
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+  };
+}
+</code></pre><hr><h3 id="every"><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/every" target="_blank" rel="noopener">every()</a> <a class="markdownIt-Anchor" href="#every">#</a></h3><h4 id="基础语法-8">基础语法 <a class="markdownIt-Anchor" href="#基础语法-8">#</a></h4><pre class="hljs"><code>arr.some(callback(element[, index[, array]])[, thisArg])
+</code></pre><hr><h4 id="参数说明-8">参数说明 <a class="markdownIt-Anchor" href="#参数说明-8">#</a></h4><blockquote><p>callback</p></blockquote><p>在数组每一项上执行的函数，接收 3 个参数：</p><ul><li>element</li></ul><p>当前遍历到的元素。</p><hr><ul><li>index</li></ul><p>当前遍历到的索引。</p><hr><ul><li>array</li></ul><p>数组本身。</p><hr><blockquote><p>thisArg 可选</p></blockquote><p>可选，指定 <code>callback</code> 的 <code>this</code> 参数。</p><hr><h4 id="返回值说明-8">返回值说明 <a class="markdownIt-Anchor" href="#返回值说明-8">#</a></h4><p>如果回调函数的每一次返回都为 <code>truthy</code> 值，返回 <code>true</code> ，否则返回 <code>false</code>。</p><p>若收到一个空数组，此方法在一切情况下都会返回 <code>true</code>。</p><p><code>every</code> 和数学中的<code>所有</code>类似，当所有的元素都符合条件才会返回<code>true</code>。正因如此，若传入一个<code>空数组</code>，无论如何都会返回 <code>true</code>。（这种情况属于<code>无条件正确</code>：正因为一个<code>空集合</code>没有<code>元素</code>，所以它其中的所有<code>元素</code>都符合给定的条件。)</p><hr><h4 id="详细说明-8">详细说明 <a class="markdownIt-Anchor" href="#详细说明-8">#</a></h4><p><code>every()</code> 方法测试一个数组内的所有元素是否都能通过某个指定函数的测试。它返回一个布尔值。</p><p><code>every</code> 方法为数组中的每个元素执行一次 <code>callback</code> 函数，直到它找到一个会使 <code>callback</code> 返回 <code>falsy</code> 的元素。</p><p>如果发现了一个这样的元素，<code>every</code> 方法将会立即返回 <code>false</code>。否则，<code>callback</code> 为每一个元素返回 <code>true</code>，<code>every</code> 就会返回 <code>true</code>。<code>callback</code> 只会为那些已经被赋值的索引调用。</p><p>不会为那些被删除或从未被赋值的索引调用。</p><p><code>callback</code> 在被调用时可传入三个参数：<code>元素值</code>，元素的<code>索引</code>，<code>原数组</code>。</p><p>如果为 <code>every</code> 提供一个 <code>thisArg</code> 参数，则该参数为调用 <code>callback</code> 时的 <code>this</code> 值。如果省略该参数，则 <code>callback</code> 被调用时的 <code>this</code> 值，在非严格模式下为全局对象，在严格模式下传入 <code>undefined</code>。详见 <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/this" target="_blank" rel="noopener">this</a> 条目。</p><p><code>every</code> 不会改变原数组。</p><p><code>every</code> 遍历的元素范围在第一次调用 <code>callback</code> 之前就已确定了。在调用 <code>every</code> 之后添加到数组中的元素不会被 <code>callback</code> 访问到。</p><p>如果数组中存在的元素被更改，则他们传入 <code>callback</code> 的值是 <code>every</code> 访问到他们那一刻的值。</p><p>那些被删除的元素或从来未被赋值的元素将不会被访问到。</p><hr><h4 id="案例-8">案例 <a class="markdownIt-Anchor" href="#案例-8">#</a></h4><blockquote><p>检测所有数组元素的大小</p></blockquote><p>下例检测数组中的所有元素是否都大于 10。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isBigEnough</span>(<span class="hljs-params">element, index, array</span>) </span>{
+  <span class="hljs-keyword">return</span> element &gt;= <span class="hljs-number">10</span>;
+}
+[<span class="hljs-number">12</span>, <span class="hljs-number">5</span>, <span class="hljs-number">8</span>, <span class="hljs-number">130</span>, <span class="hljs-number">44</span>].every(isBigEnough);   <span class="hljs-comment">// false</span>
+[<span class="hljs-number">12</span>, <span class="hljs-number">54</span>, <span class="hljs-number">18</span>, <span class="hljs-number">130</span>, <span class="hljs-number">44</span>].every(isBigEnough); <span class="hljs-comment">// true</span>
+</code></pre><blockquote><p>使用箭头函数</p></blockquote><p>箭头函数为上面的检测过程提供了更简短的语法。</p><pre class="hljs"><code>[<span class="hljs-number">12</span>, <span class="hljs-number">5</span>, <span class="hljs-number">8</span>, <span class="hljs-number">130</span>, <span class="hljs-number">44</span>].every(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x &gt;= <span class="hljs-number">10</span>); <span class="hljs-comment">// false</span>
+[<span class="hljs-number">12</span>, <span class="hljs-number">54</span>, <span class="hljs-number">18</span>, <span class="hljs-number">130</span>, <span class="hljs-number">44</span>].every(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x &gt;= <span class="hljs-number">10</span>); <span class="hljs-comment">// true</span>
+</code></pre><hr><h4 id="polyfill-6">Polyfill <a class="markdownIt-Anchor" href="#polyfill-6">#</a></h4><p>在 <code>ECMA-262</code> 第 5 版时，<code>every</code> 被添加进 <code>ECMA-262</code> 标准；因此，在某些实现环境中，它尚未被支持。你可以把下面的代码放到脚本的开头来解决此问题，该代码允许在那些没有原生支持 <code>every</code> 的实现环境中使用它。该算法是 <code>ECMA-262</code> 第 5 版中指定的算法，它假定 <code>Object</code> 和 <code>TypeError</code> 拥有它们的初始值，且 fun.call 等价于 <code>Function.prototype.call</code>。</p><pre class="hljs"><code><span class="hljs-keyword">if</span> (!<span class="hljs-built_in">Array</span>.prototype.every) {
+  <span class="hljs-built_in">Array</span>.prototype.every = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">callbackfn, thisArg</span>) </span>{
+    <span class="hljs-string">'use strict'</span>;
+    <span class="hljs-keyword">var</span> T, k;
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span> == <span class="hljs-literal">null</span>) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">'this is null or not defined'</span>);
+    }
+
+    <span class="hljs-comment">// 1. Let O be the result of calling ToObject passing the this </span>
+    <span class="hljs-comment">//    value as the argument.</span>
+    <span class="hljs-keyword">var</span> O = <span class="hljs-built_in">Object</span>(<span class="hljs-keyword">this</span>);
+
+    <span class="hljs-comment">// 2. Let lenValue be the result of calling the Get internal method</span>
+    <span class="hljs-comment">//    of O with the argument "length".</span>
+    <span class="hljs-comment">// 3. Let len be ToUint32(lenValue).</span>
+    <span class="hljs-keyword">var</span> len = O.length &gt;&gt;&gt; <span class="hljs-number">0</span>;
+
+    <span class="hljs-comment">// 4. If IsCallable(callbackfn) is false, throw a TypeError exception.</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> callbackfn !== <span class="hljs-string">'function'</span>) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>();
+    }
+
+    <span class="hljs-comment">// 5. If thisArg was supplied, let T be thisArg; else let T be undefined.</span>
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">arguments</span>.length &gt; <span class="hljs-number">1</span>) {
+      T = thisArg;
+    }
+
+    <span class="hljs-comment">// 6. Let k be 0.</span>
+    k = <span class="hljs-number">0</span>;
+
+    <span class="hljs-comment">// 7. Repeat, while k &lt; len</span>
+    <span class="hljs-keyword">while</span> (k &lt; len) {
+
+      <span class="hljs-keyword">var</span> kValue;
+
+      <span class="hljs-comment">// a. Let Pk be ToString(k).</span>
+      <span class="hljs-comment">//   This is implicit for LHS operands of the in operator</span>
+      <span class="hljs-comment">// b. Let kPresent be the result of calling the HasProperty internal </span>
+      <span class="hljs-comment">//    method of O with argument Pk.</span>
+      <span class="hljs-comment">//   This step can be combined with c</span>
+      <span class="hljs-comment">// c. If kPresent is true, then</span>
+      <span class="hljs-keyword">if</span> (k <span class="hljs-keyword">in</span> O) {
+
+        <span class="hljs-comment">// i. Let kValue be the result of calling the Get internal method</span>
+        <span class="hljs-comment">//    of O with argument Pk.</span>
+        kValue = O[k];
+
+        <span class="hljs-comment">// ii. Let testResult be the result of calling the Call internal method</span>
+        <span class="hljs-comment">//     of callbackfn with T as the this value and argument list</span>
+        <span class="hljs-comment">//     containing kValue, k, and O.</span>
+        <span class="hljs-keyword">var</span> testResult = callbackfn.call(T, kValue, k, O);
+
+        <span class="hljs-comment">// iii. If ToBoolean(testResult) is false, return false.</span>
+        <span class="hljs-keyword">if</span> (!testResult) {
+          <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+        }
+      }
+      k++;
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+  };
+}
+</code></pre><hr><h3 id="reduce"><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce" target="_blank" rel="noopener">reduce()</a> <a class="markdownIt-Anchor" href="#reduce">#</a></h3><h4 id="基础语法-9">基础语法 <a class="markdownIt-Anchor" href="#基础语法-9">#</a></h4><pre class="hljs"><code>arr.reduce(callback[initialValue])
+</code></pre><hr><h4 id="参数说明-9">参数说明 <a class="markdownIt-Anchor" href="#参数说明-9">#</a></h4><blockquote><p>callback</p></blockquote><p>执行数组中每个值的函数，包含四个参数：</p><ul><li><p>accumulator</p><p>累计器累计回调的返回值; 它是上一次调用回调时返回的累积值，或<code>initialValue</code>（见于下方）。</p></li><li><p>currentValue</p><p>数组中正在处理的元素。</p></li><li><p>currentIndex 可选</p><p>数组中正在处理的当前元素的索引。 如果提供了<code>initialValue</code>，则起始索引号为<code>0</code>，否则为<code>1</code>。</p></li><li><p>array 可选</p><p>调用<code>reduce()</code>的数组</p></li></ul><blockquote><p><code>initialValue</code> 可选</p></blockquote><p>作为第一次调用 <code>callback</code>函数时的第一个参数的值。 如果没有提供初始值，则将使用数组中的第一个元素。 在没有初始值的空数组上调用 <code>reduce</code> 将报错。</p><hr><h4 id="返回值说明-9">返回值说明 <a class="markdownIt-Anchor" href="#返回值说明-9">#</a></h4><p>函数累计处理的结果</p><hr><h4 id="详细说明-9">详细说明 <a class="markdownIt-Anchor" href="#详细说明-9">#</a></h4><p><code>reduce()</code> 方法对数组中的每个元素执行一个由您提供的<code>reducer</code>函数(<code>升序执行</code>)，将其结果汇总为单个返回值。</p><p><code>reduce</code>为数组中的每一个元素依次执行<code>callback</code>函数，不包括数组中<code>被删除</code>或<code>从未被赋值</code>的元素。</p><p><code>reducer</code> 函数接收<code>4</code>个参数:</p><ul><li>accumulator (acc) (累计器)</li><li>Current Value (cur) (当前值)</li><li>Current Index (idx) (当前索引)</li><li>Source Array (src) (源数组)</li></ul><p><code>reducer</code> 函数的<code>返回值</code>分配给<code>累计器</code>，该返回值在数组的每个<code>迭代</code>中被记住，并最后成为最终的<code>单个</code>结果值。</p><p>回调函数第一次执行时，<code>accumulator</code> 和<code>currentValue</code>的取值有两种情况：如果调用<code>reduce()</code>时提供了<code>initialValue</code>，<code>accumulator</code>取值为<code>initialValue</code>，<code>currentValue</code>取数组中的第一个值；如果没有提供 <code>initialValue</code>，那么<code>accumulator</code>取数组中的第一个值，<code>currentValue</code>取数组中的第二个值。</p><p>注意：如果没有提供<code>initialValue</code>，reduce 会从索引1的地方开始执行 callback 方法，跳过第一个索引。如果提供<code>initialValue</code>，从索引0开始。</p><p>如果数组为空且没有提供<code>initialValue</code>，会抛出TypeError 。如果数组仅有一个元素（无论位置如何）并且没有提供<code>initialValue</code>， 或者有提供<code>initialValue</code>但是数组为空，那么此唯一值将被返回并且callback不会被执行。</p><p>提供初始值通常更安全，正如下面的例子，如果没有提供<code>initialValue</code>，则可能有三种输出：</p><pre class="hljs"><code><span class="hljs-keyword">var</span> maxCallback = <span class="hljs-function">(<span class="hljs-params"> acc, cur </span>) =&gt;</span> <span class="hljs-built_in">Math</span>.max( acc.x, cur.x );
+<span class="hljs-keyword">var</span> maxCallback2 = <span class="hljs-function">(<span class="hljs-params"> max, cur </span>) =&gt;</span> <span class="hljs-built_in">Math</span>.max( max, cur );
+
+<span class="hljs-comment">// reduce() 没有初始值</span>
+[ { <span class="hljs-attr">x</span>: <span class="hljs-number">22</span> }, { <span class="hljs-attr">x</span>: <span class="hljs-number">42</span> } ].reduce( maxCallback ); <span class="hljs-comment">// 42</span>
+[ { <span class="hljs-attr">x</span>: <span class="hljs-number">22</span> }            ].reduce( maxCallback ); <span class="hljs-comment">// { x: 22 }</span>
+[                      ].reduce( maxCallback ); <span class="hljs-comment">// TypeError</span>
+
+<span class="hljs-comment">// map/reduce; 这是更好的方案，即使传入空数组或更大数组也可正常执行</span>
+[ { <span class="hljs-attr">x</span>: <span class="hljs-number">22</span> }, { <span class="hljs-attr">x</span>: <span class="hljs-number">42</span> } ].map( <span class="hljs-function"><span class="hljs-params">el</span> =&gt;</span> el.x )
+                        .reduce( maxCallback2, -<span class="hljs-literal">Infinity</span> );
+</code></pre><hr><h4 id="运行说明">运行说明 <a class="markdownIt-Anchor" href="#运行说明">#</a></h4><p>假如运行下段<code>reduce()</code>代码：</p><pre class="hljs"><code>[<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>].reduce(<span class="hljs-function">(<span class="hljs-params">prev, curr</span>) =&gt;</span> prev + curr );
+</code></pre><p><code>callback</code> 被调用四次，每次调用的参数和返回值如下表：</p><table><thead><tr><th style="text-align:left">callback</th><th style="text-align:left">accumulator</th><th style="text-align:left">currentValue</th><th style="text-align:left">currentIndex</th><th style="text-align:left">array</th><th style="text-align:left">return value</th></tr></thead><tbody><tr><td style="text-align:left">first call</td><td style="text-align:left">0</td><td style="text-align:left">1</td><td style="text-align:left">1</td><td style="text-align:left">[0, 1, 2, 3, 4]</td><td style="text-align:left">1</td></tr><tr><td style="text-align:left">second call</td><td style="text-align:left">1</td><td style="text-align:left">2</td><td style="text-align:left">2</td><td style="text-align:left">[0, 1, 2, 3, 4]</td><td style="text-align:left">3</td></tr><tr><td style="text-align:left">third call</td><td style="text-align:left">3</td><td style="text-align:left">3</td><td style="text-align:left">3</td><td style="text-align:left">[0, 1, 2, 3, 4]</td><td style="text-align:left">6</td></tr><tr><td style="text-align:left">fourth call</td><td style="text-align:left">6</td><td style="text-align:left">4</td><td style="text-align:left">4</td><td style="text-align:left">[0, 1, 2, 3, 4]</td><td style="text-align:left">10</td></tr></tbody></table><p>由<code>reduce</code>返回的值将是上次回调调用的值<code>（10）</code>。</p><p>如果你打算提供一个初始值作为<code>reduce()</code>方法的第二个参数，以下是运行过程及结果：</p><pre class="hljs"><code>[<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>].reduce(<span class="hljs-function">(<span class="hljs-params">accumulator, currentValue, currentIndex, array</span>) =&gt;</span> { <span class="hljs-keyword">return</span> accumulator + currentValue; }, <span class="hljs-number">10</span> );
+</code></pre><table><thead><tr><th style="text-align:left">callback</th><th style="text-align:left">accumulator</th><th style="text-align:left">currentValue</th><th style="text-align:left">currentIndex</th><th style="text-align:left">array</th><th style="text-align:left">return value</th></tr></thead><tbody><tr><td style="text-align:left">first call</td><td style="text-align:left">10</td><td style="text-align:left">0</td><td style="text-align:left">0</td><td style="text-align:left">[0, 1, 2, 3, 4]</td><td style="text-align:left">10</td></tr><tr><td style="text-align:left">second call</td><td style="text-align:left">10</td><td style="text-align:left">1</td><td style="text-align:left">1</td><td style="text-align:left">[0, 1, 2, 3, 4]</td><td style="text-align:left">11</td></tr><tr><td style="text-align:left">third call</td><td style="text-align:left">11</td><td style="text-align:left">2</td><td style="text-align:left">2</td><td style="text-align:left">[0, 1, 2, 3, 4]</td><td style="text-align:left">13</td></tr><tr><td style="text-align:left">fourth call</td><td style="text-align:left">13</td><td style="text-align:left">3</td><td style="text-align:left">3</td><td style="text-align:left">[0, 1, 2, 3, 4]</td><td style="text-align:left">16</td></tr><tr><td style="text-align:left">fifth call</td><td style="text-align:left">16</td><td style="text-align:left">4</td><td style="text-align:left">4</td><td style="text-align:left">[0, 1, 2, 3, 4]</td><td style="text-align:left">20</td></tr></tbody></table><p>这种情况下<code>reduce()</code>返回的值是<code>20</code>。</p><hr><h4 id="案例-9">案例 <a class="markdownIt-Anchor" href="#案例-9">#</a></h4><blockquote><p>数组里所有值的和</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">var</span> total = [ <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span> ].reduce(
+    <span class="hljs-function">(<span class="hljs-params"> acc, cur </span>) =&gt;</span> acc + cur,
+  <span class="hljs-number">0</span>
+);
+<span class="hljs-comment">// 和为 6</span>
+</code></pre><hr><blockquote><p>累加对象数组里的值</p></blockquote><p>要累加对象数组中包含的值，必须提供初始值，以便各个<code>item</code>正确通过你的函数。</p><pre class="hljs"><code><span class="hljs-keyword">var</span> initialValue = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">var</span> sum = [{<span class="hljs-attr">x</span>: <span class="hljs-number">1</span>}, {<span class="hljs-attr">x</span>:<span class="hljs-number">2</span>}, {<span class="hljs-attr">x</span>:<span class="hljs-number">3</span>}].reduce(
+    <span class="hljs-function">(<span class="hljs-params">accumulator, currentValue</span>) =&gt;</span> accumulator + currentValue.x
+    ,initialValue
+);
+
+<span class="hljs-built_in">console</span>.log(sum) <span class="hljs-comment">// logs 6</span>
+</code></pre><hr><blockquote><p>将二维数组转化为一维</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">var</span> flattened = [[<span class="hljs-number">0</span>, <span class="hljs-number">1</span>], [<span class="hljs-number">2</span>, <span class="hljs-number">3</span>], [<span class="hljs-number">4</span>, <span class="hljs-number">5</span>]].reduce(
+ <span class="hljs-function">(<span class="hljs-params"> acc, cur </span>) =&gt;</span> acc.concat(cur),
+ []
+);
+<span class="hljs-comment">// flattened is [0, 1, 2, 3, 4, 5]</span>
+</code></pre><hr><blockquote><p>计算数组中每个元素出现的次数</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">var</span> names = [<span class="hljs-string">'Alice'</span>, <span class="hljs-string">'Bob'</span>, <span class="hljs-string">'Tiff'</span>, <span class="hljs-string">'Bruce'</span>, <span class="hljs-string">'Alice'</span>];
+
+<span class="hljs-keyword">var</span> countedNames = names.reduce(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">allNames, name</span>) </span>{ 
+  <span class="hljs-keyword">if</span> (name <span class="hljs-keyword">in</span> allNames) {
+    allNames[name]++;
+  }
+  <span class="hljs-keyword">else</span> {
+    allNames[name] = <span class="hljs-number">1</span>;
+  }
+  <span class="hljs-keyword">return</span> allNames;
+}, {});
+<span class="hljs-comment">// countedNames is:</span>
+<span class="hljs-comment">// { 'Alice': 2, 'Bob': 1, 'Tiff': 1, 'Bruce': 1 }</span>
+</code></pre><hr><blockquote><p>按属性对<code>object</code>分类</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">var</span> people = [
+  { <span class="hljs-attr">name</span>: <span class="hljs-string">'Alice'</span>, <span class="hljs-attr">age</span>: <span class="hljs-number">21</span> },
+  { <span class="hljs-attr">name</span>: <span class="hljs-string">'Max'</span>, <span class="hljs-attr">age</span>: <span class="hljs-number">20</span> },
+  { <span class="hljs-attr">name</span>: <span class="hljs-string">'Jane'</span>, <span class="hljs-attr">age</span>: <span class="hljs-number">20</span> }
+];
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">groupBy</span>(<span class="hljs-params">objectArray, property</span>) </span>{
+  <span class="hljs-keyword">return</span> objectArray.reduce(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">acc, obj</span>) </span>{
+    <span class="hljs-keyword">var</span> key = obj[property];
+    <span class="hljs-keyword">if</span> (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(obj);
+    <span class="hljs-keyword">return</span> acc;
+  }, {});
+}
+
+<span class="hljs-keyword">var</span> groupedPeople = groupBy(people, <span class="hljs-string">'age'</span>);
+<span class="hljs-comment">// groupedPeople is:</span>
+<span class="hljs-comment">// {</span>
+<span class="hljs-comment">//   20: [</span>
+<span class="hljs-comment">//     { name: 'Max', age: 20 },</span>
+<span class="hljs-comment">//     { name: 'Jane', age: 20 }</span>
+<span class="hljs-comment">//   ],</span>
+<span class="hljs-comment">//   21: [{ name: 'Alice', age: 21 }]</span>
+<span class="hljs-comment">// }</span>
+</code></pre><hr><blockquote><p>使用扩展运算符和<code>initialValue</code>绑定包含在对象数组中的数组</p></blockquote><pre class="hljs"><code><span class="hljs-comment">// friends - 对象数组</span>
+<span class="hljs-comment">// where object field "books" - list of favorite books </span>
+<span class="hljs-keyword">var</span> friends = [{
+  <span class="hljs-attr">name</span>: <span class="hljs-string">'Anna'</span>,
+  <span class="hljs-attr">books</span>: [<span class="hljs-string">'Bible'</span>, <span class="hljs-string">'Harry Potter'</span>],
+  <span class="hljs-attr">age</span>: <span class="hljs-number">21</span>
+}, {
+  <span class="hljs-attr">name</span>: <span class="hljs-string">'Bob'</span>,
+  <span class="hljs-attr">books</span>: [<span class="hljs-string">'War and peace'</span>, <span class="hljs-string">'Romeo and Juliet'</span>],
+  <span class="hljs-attr">age</span>: <span class="hljs-number">26</span>
+}, {
+  <span class="hljs-attr">name</span>: <span class="hljs-string">'Alice'</span>,
+  <span class="hljs-attr">books</span>: [<span class="hljs-string">'The Lord of the Rings'</span>, <span class="hljs-string">'The Shining'</span>],
+  <span class="hljs-attr">age</span>: <span class="hljs-number">18</span>
+}];
+
+<span class="hljs-comment">// allbooks - list which will contain all friends' books +  </span>
+<span class="hljs-comment">// additional list contained in initialValue</span>
+<span class="hljs-keyword">var</span> allbooks = friends.reduce(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">prev, curr</span>) </span>{
+  <span class="hljs-keyword">return</span> [...prev, ...curr.books];
+}, [<span class="hljs-string">'Alphabet'</span>]);
+
+<span class="hljs-comment">// allbooks = [</span>
+<span class="hljs-comment">//   'Alphabet', 'Bible', 'Harry Potter', 'War and peace', </span>
+<span class="hljs-comment">//   'Romeo and Juliet', 'The Lord of the Rings',</span>
+<span class="hljs-comment">//   'The Shining'</span>
+<span class="hljs-comment">// ]</span>
+</code></pre><hr><blockquote><p>数组去重节</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">let</span> arr = [<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">5</span>,<span class="hljs-number">4</span>,<span class="hljs-number">5</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>,<span class="hljs-number">4</span>,<span class="hljs-number">4</span>,<span class="hljs-number">4</span>];
+<span class="hljs-keyword">let</span> result = arr.sort().reduce(<span class="hljs-function">(<span class="hljs-params">init, current</span>)=&gt;</span>{
+    <span class="hljs-keyword">if</span>(init.length===<span class="hljs-number">0</span> || init[init.length<span class="hljs-number">-1</span>]!==current){
+        init.push(current);
+    }
+    <span class="hljs-keyword">return</span> init;
+}, []);
+<span class="hljs-built_in">console</span>.log(result); <span class="hljs-comment">//[1,2,3,4,5]</span>
+</code></pre><hr><blockquote><p>按顺序运行Promise节</p></blockquote><pre class="hljs"><code><span class="hljs-comment">/**
+ * Runs promises from array of functions that can return promises
+ * in chained manner
+ *
+ * <span class="hljs-doctag">@param <span class="hljs-type">{array}</span> <span class="hljs-variable">arr</span></span> - promise arr
+ * <span class="hljs-doctag">@return <span class="hljs-type">{Object}</span> </span>promise object
+ */</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">runPromiseInSequence</span>(<span class="hljs-params">arr, input</span>) </span>{
+  <span class="hljs-keyword">return</span> arr.reduce(
+    <span class="hljs-function">(<span class="hljs-params">promiseChain, currentFunction</span>) =&gt;</span> promiseChain.then(currentFunction),
+    <span class="hljs-built_in">Promise</span>.resolve(input)
+  );
+}
+
+<span class="hljs-comment">// promise function 1</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">p1</span>(<span class="hljs-params">a</span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve, reject</span>) =&gt;</span> {
+    resolve(a * <span class="hljs-number">5</span>);
+  });
+}
+
+<span class="hljs-comment">// promise function 2</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">p2</span>(<span class="hljs-params">a</span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve, reject</span>) =&gt;</span> {
+    resolve(a * <span class="hljs-number">2</span>);
+  });
+}
+
+<span class="hljs-comment">// function 3  - will be wrapped in a resolved promise by .then()</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f3</span>(<span class="hljs-params">a</span>) </span>{
+ <span class="hljs-keyword">return</span> a * <span class="hljs-number">3</span>;
+}
+
+<span class="hljs-comment">// promise function 4</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">p4</span>(<span class="hljs-params">a</span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve, reject</span>) =&gt;</span> {
+    resolve(a * <span class="hljs-number">4</span>);
+  });
+}
+
+<span class="hljs-keyword">const</span> promiseArr = [p1, p2, f3, p4];
+runPromiseInSequence(promiseArr, <span class="hljs-number">10</span>)
+  .then(<span class="hljs-built_in">console</span>.log);   <span class="hljs-comment">// 1200</span>
+</code></pre><hr><blockquote><p>功能型函数管道节</p></blockquote><pre class="hljs"><code><span class="hljs-comment">// Building-blocks to use for composition</span>
+<span class="hljs-keyword">const</span> double = <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x + x;
+<span class="hljs-keyword">const</span> triple = <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> <span class="hljs-number">3</span> * x;
+<span class="hljs-keyword">const</span> quadruple = <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> <span class="hljs-number">4</span> * x;
+
+<span class="hljs-comment">// Function composition enabling pipe functionality</span>
+<span class="hljs-keyword">const</span> pipe = <span class="hljs-function">(<span class="hljs-params">...functions</span>) =&gt;</span> <span class="hljs-function"><span class="hljs-params">input</span> =&gt;</span> functions.reduce(
+    <span class="hljs-function">(<span class="hljs-params">acc, fn</span>) =&gt;</span> fn(acc),
+    input
+);
+
+<span class="hljs-comment">// Composed functions for multiplication of specific values</span>
+<span class="hljs-keyword">const</span> multiply6 = pipe(double, triple);
+<span class="hljs-keyword">const</span> multiply9 = pipe(triple, triple);
+<span class="hljs-keyword">const</span> multiply16 = pipe(quadruple, quadruple);
+<span class="hljs-keyword">const</span> multiply24 = pipe(double, triple, quadruple);
+
+<span class="hljs-comment">// Usage</span>
+multiply6(<span class="hljs-number">6</span>); <span class="hljs-comment">// 36</span>
+multiply9(<span class="hljs-number">9</span>); <span class="hljs-comment">// 81</span>
+multiply16(<span class="hljs-number">16</span>); <span class="hljs-comment">// 256</span>
+multiply24(<span class="hljs-number">10</span>); <span class="hljs-comment">// 240</span>
+</code></pre><hr><h4 id="polyfill-7">Polyfill <a class="markdownIt-Anchor" href="#polyfill-7">#</a></h4><p>如果您需要兼容不支持<code>Object.defineProperty</code>的<code>JavaScript</code>引擎，那么最好不要 <code>polyfill</code> <code>Array.prototype</code>方法，因为你无法使其成为<code>不可枚举</code>的。</p><pre class="hljs"><code><span class="hljs-comment">// Production steps of ECMA-262, Edition 5, 15.4.4.21</span>
+<span class="hljs-comment">// Reference: http://es5.github.io/#x15.4.4.21</span>
+<span class="hljs-comment">// https://tc39.github.io/ecma262/#sec-array.prototype.reduce</span>
+<span class="hljs-keyword">if</span> (!<span class="hljs-built_in">Array</span>.prototype.reduce) {
+  <span class="hljs-built_in">Object</span>.defineProperty(<span class="hljs-built_in">Array</span>.prototype, <span class="hljs-string">'reduce'</span>, {
+    <span class="hljs-attr">value</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">callback <span class="hljs-regexp">/*, initialValue*/</span></span>) </span>{
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span> === <span class="hljs-literal">null</span>) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>( <span class="hljs-string">'Array.prototype.reduce '</span> + 
+          <span class="hljs-string">'called on null or undefined'</span> );
+      }
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> callback !== <span class="hljs-string">'function'</span>) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>( callback +
+          <span class="hljs-string">' is not a function'</span>);
+      }
+
+      <span class="hljs-comment">// 1. Let O be ? ToObject(this value).</span>
+      <span class="hljs-keyword">var</span> o = <span class="hljs-built_in">Object</span>(<span class="hljs-keyword">this</span>);
+
+      <span class="hljs-comment">// 2. Let len be ? ToLength(? Get(O, "length")).</span>
+      <span class="hljs-keyword">var</span> len = o.length &gt;&gt;&gt; <span class="hljs-number">0</span>; 
+
+      <span class="hljs-comment">// Steps 3, 4, 5, 6, 7      </span>
+      <span class="hljs-keyword">var</span> k = <span class="hljs-number">0</span>; 
+      <span class="hljs-keyword">var</span> value;
+
+      <span class="hljs-keyword">if</span> (<span class="hljs-built_in">arguments</span>.length &gt;= <span class="hljs-number">2</span>) {
+        value = <span class="hljs-built_in">arguments</span>[<span class="hljs-number">1</span>];
+      } <span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">while</span> (k &lt; len &amp;&amp; !(k <span class="hljs-keyword">in</span> o)) {
+          k++; 
+        }
+
+        <span class="hljs-comment">// 3. If len is 0 and initialValue is not present,</span>
+        <span class="hljs-comment">//    throw a TypeError exception.</span>
+        <span class="hljs-keyword">if</span> (k &gt;= len) {
+          <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>( <span class="hljs-string">'Reduce of empty array '</span> +
+            <span class="hljs-string">'with no initial value'</span> );
+        }
+        value = o[k++];
+      }
+
+      <span class="hljs-comment">// 8. Repeat, while k &lt; len</span>
+      <span class="hljs-keyword">while</span> (k &lt; len) {
+        <span class="hljs-comment">// a. Let Pk be ! ToString(k).</span>
+        <span class="hljs-comment">// b. Let kPresent be ? HasProperty(O, Pk).</span>
+        <span class="hljs-comment">// c. If kPresent is true, then</span>
+        <span class="hljs-comment">//    i.  Let kValue be ? Get(O, Pk).</span>
+        <span class="hljs-comment">//    ii. Let accumulator be ? Call(</span>
+        <span class="hljs-comment">//          callbackfn, undefined,</span>
+        <span class="hljs-comment">//          « accumulator, kValue, k, O »).</span>
+        <span class="hljs-keyword">if</span> (k <span class="hljs-keyword">in</span> o) {
+          value = callback(value, o[k], k, o);
+        }
+
+        <span class="hljs-comment">// d. Increase k by 1.      </span>
+        k++;
+      }
+
+      <span class="hljs-comment">// 9. Return accumulator.</span>
+      <span class="hljs-keyword">return</span> value;
+    }
+  });
+}
+</code></pre><hr><h3 id="reduceright"><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/reduceRight" target="_blank" rel="noopener">reduceRight()</a> <a class="markdownIt-Anchor" href="#reduceright">#</a></h3><h4 id="基础语法-10">基础语法 <a class="markdownIt-Anchor" href="#基础语法-10">#</a></h4><pre class="hljs"><code>arr.reduceRight(callback[, initialValue])
+</code></pre><hr><h4 id="参数说明-10">参数说明 <a class="markdownIt-Anchor" href="#参数说明-10">#</a></h4><blockquote><p>callback</p></blockquote><p>执行数组中每个值的函数，包含四个参数：</p><ul><li><p>previousValue</p><p>上一次调用回调的返回值，或提供的 <code>initialValue</code>（见于下方）。</p></li><li><p>currentValue</p><p>数组中正在处理的元素。</p></li><li><p>currentIndex</p><p>数组中正在处理的当前元素的索引。 如果提供了<code>initialValue</code>，则起始索引号为<code>0</code>，否则为<code>1</code>。</p></li><li><p>array 可选</p><p>调用<code>reduceRight()</code>的数组</p></li></ul><blockquote><p><code>initialValue</code> 可选</p></blockquote><p>可作为第一次调用回调 <code>callback</code> 的第一个参数</p><hr><h4 id="返回值说明-10">返回值说明 <a class="markdownIt-Anchor" href="#返回值说明-10">#</a></h4><p>执行之后的返回值</p><hr><h4 id="详细说明-10">详细说明 <a class="markdownIt-Anchor" href="#详细说明-10">#</a></h4><p><code>reduceRight()</code> 方法接受一个函数作为累加器（<code>accumulator</code>）和数组的每个值（从右到左）将其减少为单个值。</p><p><code>reduceRight</code> 为数组中每个元素调用一次 <code>callback</code>回调函数，但是数组中<code>被删除</code>的索引或<code>从未被赋值</code>的索引会跳过。</p><p>回调函数接受四个参数：<code>初始值（或上次调用回调的返回值）</code>、<code>当前元素值</code>、<code>当前索引</code>，以及<code>调用 reduceRight 的数组</code>。</p><p>可以像下面这样调用 <code>reduceRight</code> 的回调函数 <code>callback</code></p><pre class="hljs"><code>array.reduceRight(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">previousValue, currentValue, index, array</span>) </span>{
+    <span class="hljs-comment">// ...</span>
+});
+</code></pre><p>首次调用回调函数时，<code>previousValue</code> 和 <code>currentValue</code> 可以是两个值之一。</p><p>如果调用 <code>reduceRight</code> 时提供了 <code>initialValue</code> 参数，则 <code>previousValue</code> 等于 <code>initialValue</code>，<code>currentValue</code> 等于数组中的最后一个值。</p><p>如果没有提供 <code>initialValue</code> 参数，则 <code>previousValue</code> 等于数组最后一个值， <code>currentValue</code> 等于数组中倒数第二个值。</p><p>如果数组为空，且没有提供 <code>initialValue</code> 参数，将会抛出一个 <code>TypeError</code> 错误。如果数组只有一个元素且没有提供 <code>initialValue</code> 参数，或者提供了 <code>initialValue</code> 参数，但是数组为空将会直接返回数组中的那一个元素或 <code>initialValue</code> 参数，而不会调用 <code>callback</code>。</p><hr><h4 id="运行说明-1">运行说明 <a class="markdownIt-Anchor" href="#运行说明-1">#</a></h4><p>假如运行下段<code>reduceRight()</code>代码：</p><pre class="hljs"><code>[<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>].reduceRight(<span class="hljs-function">(<span class="hljs-params">previousValue, currentValue, index, array</span>) =&gt;</span> previousValue + currentValue );
+</code></pre><p><code>callback</code> 被调用四次，每次调用的参数和返回值如下表：</p><table><thead><tr><th style="text-align:left">callback</th><th style="text-align:left">previousValue</th><th style="text-align:left">currentValue</th><th style="text-align:left">index</th><th style="text-align:left">array</th><th style="text-align:left">return value</th></tr></thead><tbody><tr><td style="text-align:left">first call</td><td style="text-align:left">4</td><td style="text-align:left">3</td><td style="text-align:left">3</td><td style="text-align:left">[0,1,2,3,4]</td><td style="text-align:left">7</td></tr><tr><td style="text-align:left">second call</td><td style="text-align:left">7</td><td style="text-align:left">2</td><td style="text-align:left">2</td><td style="text-align:left">[0,1,2,3,4]</td><td style="text-align:left">9</td></tr><tr><td style="text-align:left">third call</td><td style="text-align:left">9</td><td style="text-align:left">1</td><td style="text-align:left">1</td><td style="text-align:left">[0,1,2,3,4]</td><td style="text-align:left">10</td></tr><tr><td style="text-align:left">fourth call</td><td style="text-align:left">10</td><td style="text-align:left">0</td><td style="text-align:left">0</td><td style="text-align:left">[0,1,2,3,4]</td><td style="text-align:left">10</td></tr></tbody></table><p>由<code>reduceRight</code>返回的值将是上次回调调用的值<code>（10）</code>。</p><p>如果你打算提供一个初始值作为<code>reduceRight ()</code>方法的第二个参数，以下是运行过程及结果：</p><pre class="hljs"><code>[<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>]..reduceRight(<span class="hljs-function">(<span class="hljs-params">previousValue, currentValue, index, array</span>) =&gt;</span> previousValue + currentValue , <span class="hljs-number">10</span> );
+</code></pre><table><thead><tr><th style="text-align:left">callback</th><th style="text-align:left">previousValue</th><th style="text-align:left">currentValue</th><th style="text-align:left">index</th><th style="text-align:left">array</th><th style="text-align:left">return value</th></tr></thead><tbody><tr><td style="text-align:left">first call</td><td style="text-align:left">10</td><td style="text-align:left">4</td><td style="text-align:left">4</td><td style="text-align:left">[0,1,2,3,4]</td><td style="text-align:left">14</td></tr><tr><td style="text-align:left">second call</td><td style="text-align:left">14</td><td style="text-align:left">3</td><td style="text-align:left">3</td><td style="text-align:left">[0,1,2,3,4]</td><td style="text-align:left">17</td></tr><tr><td style="text-align:left">third call</td><td style="text-align:left">17</td><td style="text-align:left">2</td><td style="text-align:left">2</td><td style="text-align:left">[0,1,2,3,4]</td><td style="text-align:left">19</td></tr><tr><td style="text-align:left">fourth call</td><td style="text-align:left">19</td><td style="text-align:left">1</td><td style="text-align:left">1</td><td style="text-align:left">[0,1,2,3,4]</td><td style="text-align:left">20</td></tr><tr><td style="text-align:left">fifth call</td><td style="text-align:left">20</td><td style="text-align:left">0</td><td style="text-align:left">0</td><td style="text-align:left">[0,1,2,3,4]</td><td style="text-align:left">20</td></tr></tbody></table><p>这种情况下<code>reduceRight()</code>返回的值是<code>20</code>。</p><hr><h4 id="案例-10">案例 <a class="markdownIt-Anchor" href="#案例-10">#</a></h4><blockquote><p>求一个数组中所有值的和节</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">const</span> total = [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>].reduceRight(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">a, b</span>) </span>{
+    <span class="hljs-keyword">return</span> a + b;
+});
+<span class="hljs-comment">// total == 6</span>
+</code></pre><hr><blockquote><p>扁平化（flatten）一个元素为数组的数组</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">const</span> flattened = [[<span class="hljs-number">0</span>, <span class="hljs-number">1</span>], [<span class="hljs-number">2</span>, <span class="hljs-number">3</span>], [<span class="hljs-number">4</span>, <span class="hljs-number">5</span>]].reduceRight(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">a, b</span>) </span>{
+    <span class="hljs-keyword">return</span> a.concat(b);
+}, []);
+<span class="hljs-comment">// flattened is [4, 5, 2, 3, 0, 1]</span>
+</code></pre><hr><blockquote><p><code>reduce</code> 与 <code>reduceRight</code> 之间的区别</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">var</span> a = [<span class="hljs-string">'1'</span>, <span class="hljs-string">'2'</span>, <span class="hljs-string">'3'</span>, <span class="hljs-string">'4'</span>, <span class="hljs-string">'5'</span>];
+<span class="hljs-keyword">var</span> left  = a.reduce(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">prev, cur</span>)      </span>{ <span class="hljs-keyword">return</span> prev + cur; });
+<span class="hljs-keyword">var</span> right = a.reduceRight(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">prev, cur</span>) </span>{ <span class="hljs-keyword">return</span> prev + cur; });
+
+<span class="hljs-built_in">console</span>.log(left);  <span class="hljs-comment">// "12345"</span>
+<span class="hljs-built_in">console</span>.log(right); <span class="hljs-comment">// "54321"</span>
+</code></pre><hr><h4 id="polyfill-8">Polyfill <a class="markdownIt-Anchor" href="#polyfill-8">#</a></h4><p>如果您需要兼容不支持<code>Object.defineProperty</code>的<code>JavaScript</code>引擎，那么最好不要 <code>polyfill</code> <code>Array.prototype</code>方法，因为你无法使其成为<code>不可枚举</code>的。</p><pre class="hljs"><code><span class="hljs-comment">// Production steps of ECMA-262, Edition 5, 15.4.4.21</span>
+<span class="hljs-comment">// Reference: http://es5.github.io/#x15.4.4.21</span>
+<span class="hljs-comment">// https://tc39.github.io/ecma262/#sec-array.prototype.reduce</span>
+<span class="hljs-keyword">if</span> (!<span class="hljs-built_in">Array</span>.prototype.reduceRight) {
+  <span class="hljs-built_in">Object</span>.defineProperty(<span class="hljs-built_in">Array</span>.prototype, <span class="hljs-string">'reduceRight'</span>, {
+    <span class="hljs-attr">value</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">callback <span class="hljs-regexp">/*, initialValue*/</span></span>) </span>{
+    <span class="hljs-string">'use strict'</span>;
+    <span class="hljs-keyword">if</span> (<span class="hljs-literal">null</span> === <span class="hljs-keyword">this</span> || <span class="hljs-string">'undefined'</span> === <span class="hljs-keyword">typeof</span> <span class="hljs-keyword">this</span>) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">'Array.prototype.reduceRight called on null or undefined'</span>);
+    }
+    <span class="hljs-keyword">if</span> (<span class="hljs-string">'function'</span> !== <span class="hljs-keyword">typeof</span> callback) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(callback + <span class="hljs-string">' is not a function'</span>);
+    }
+    <span class="hljs-keyword">var</span> t = <span class="hljs-built_in">Object</span>(<span class="hljs-keyword">this</span>), len = t.length &gt;&gt;&gt; <span class="hljs-number">0</span>, k = len - <span class="hljs-number">1</span>, value;
+    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">arguments</span>.length &gt;= <span class="hljs-number">2</span>) {
+      value = <span class="hljs-built_in">arguments</span>[<span class="hljs-number">1</span>];
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">while</span> (k &gt;= <span class="hljs-number">0</span> &amp;&amp; !(k <span class="hljs-keyword">in</span> t)) {
+        k--;
+      }
+      <span class="hljs-keyword">if</span> (k &lt; <span class="hljs-number">0</span>) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">TypeError</span>(<span class="hljs-string">'reduceRight of empty array with no initial value'</span>);
+      }
+      value = t[k--];
+    }
+    <span class="hljs-keyword">for</span> (; k &gt;= <span class="hljs-number">0</span>; k--) {
+      <span class="hljs-keyword">if</span> (k <span class="hljs-keyword">in</span> t) {
+        value = callback(value, t[k], k, t);
+      }
+    }
+    <span class="hljs-keyword">return</span> value;
+  });
+}
+</code></pre><hr><h3 id="entries"><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/entries" target="_blank" rel="noopener">entries()</a> <a class="markdownIt-Anchor" href="#entries">#</a></h3><h4 id="基础语法-11">基础语法 <a class="markdownIt-Anchor" href="#基础语法-11">#</a></h4><pre class="hljs"><code>arr.entries()
+</code></pre><hr><h4 id="返回值说明-11">返回值说明 <a class="markdownIt-Anchor" href="#返回值说明-11">#</a></h4><p>一个新的 <code>Array</code> 迭代器对象。<code>Array Iterator</code>是对象，它的原型（<code>__proto__:Array Iterator</code>）上有一个<code>next</code>方法，可用用于遍历迭代器取得原数组的<code>[key,value]</code>。</p><hr><h4 id="详细说明-11">详细说明 <a class="markdownIt-Anchor" href="#详细说明-11">#</a></h4><p><code>entries()</code> 方法返回一个新的<code>Array Iterator</code>对象，该对象包含数组中每个索引的<code>键/值对</code>。</p><hr><h4 id="案例-11">案例 <a class="markdownIt-Anchor" href="#案例-11">#</a></h4><blockquote><p>Array Iterator</p></blockquote><pre class="hljs"><code>
+<span class="hljs-keyword">var</span> arr = [<span class="hljs-string">"a"</span>, <span class="hljs-string">"b"</span>, <span class="hljs-string">"c"</span>];
+<span class="hljs-keyword">var</span> iterator = arr.entries();
+<span class="hljs-built_in">console</span>.log(iterator);
+
+<span class="hljs-comment">/*Array Iterator {}
+         __proto__:Array Iterator
+         next:ƒ next()
+         Symbol(Symbol.toStringTag):"Array Iterator"
+         __proto__:Object
+*/</span>
+</code></pre><hr><blockquote><p>iterator.next()</p></blockquote><pre class="hljs"><code>
+<span class="hljs-keyword">var</span> arr = [<span class="hljs-string">"a"</span>, <span class="hljs-string">"b"</span>, <span class="hljs-string">"c"</span>];
+<span class="hljs-keyword">var</span> iterator = arr.entries();
+<span class="hljs-built_in">console</span>.log(iterator.next());
+
+<span class="hljs-comment">/*{value: Array(2), done: false}
+          done:false
+          value:(2) [0, "a"]
+           __proto__: Object
+*/</span>
+<span class="hljs-comment">// iterator.next()返回一个对象，对于有元素的数组，</span>
+<span class="hljs-comment">// 是next{ value: Array(2), done: false }；</span>
+<span class="hljs-comment">// next.done 用于指示迭代器是否完成：在每次迭代时进行更新而且都是false，</span>
+<span class="hljs-comment">// 直到迭代器结束done才是true。</span>
+<span class="hljs-comment">// next.value是一个["key":"value"]的数组，是返回的迭代器中的元素值。</span>
+</code></pre><hr><blockquote><p>iterator.next方法运行</p></blockquote><pre class="hljs"><code>
+<span class="hljs-keyword">var</span> arr = [<span class="hljs-string">"a"</span>, <span class="hljs-string">"b"</span>, <span class="hljs-string">"c"</span>];
+<span class="hljs-keyword">var</span> iter = arr.entries();
+<span class="hljs-keyword">var</span> a = [];
+
+<span class="hljs-comment">// for(var i=0; i&lt; arr.length; i++){   // 实际使用的是这个 </span>
+<span class="hljs-keyword">for</span>(<span class="hljs-keyword">var</span> i=<span class="hljs-number">0</span>; i&lt; arr.length+<span class="hljs-number">1</span>; i++){    <span class="hljs-comment">// 注意，是length+1，比数组的长度大</span>
+    <span class="hljs-keyword">var</span> tem = iter.next();             <span class="hljs-comment">// 每次迭代时更新next</span>
+    <span class="hljs-built_in">console</span>.log(tem.done);             <span class="hljs-comment">// 这里可以看到更新后的done都是false</span>
+    <span class="hljs-keyword">if</span>(tem.done !== <span class="hljs-literal">true</span>){             <span class="hljs-comment">// 遍历迭代器结束done才是true</span>
+        <span class="hljs-built_in">console</span>.log(tem.value);
+        a[i]=tem.value;
+    }
+}
+
+<span class="hljs-built_in">console</span>.log(a);                      <span class="hljs-comment">// 遍历完毕，输出next.value的数组</span>
+</code></pre><hr><blockquote><p>二维数组按行排序</p></blockquote><pre class="hljs"><code>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sortArr</span>(<span class="hljs-params">arr</span>) </span>{
+    <span class="hljs-keyword">var</span> goNext = <span class="hljs-literal">true</span>;
+    <span class="hljs-keyword">var</span> entries = arr.entries();
+    <span class="hljs-keyword">while</span> (goNext) {
+        <span class="hljs-keyword">var</span> result = entries.next();
+        <span class="hljs-keyword">if</span> (result.done !== <span class="hljs-literal">true</span>) {
+            result.value[<span class="hljs-number">1</span>].sort(<span class="hljs-function">(<span class="hljs-params">a, b</span>) =&gt;</span> a - b);
+            goNext = <span class="hljs-literal">true</span>;
+        } <span class="hljs-keyword">else</span> {
+            goNext = <span class="hljs-literal">false</span>;
+        }
+    }
+    <span class="hljs-keyword">return</span> arr;
+}
+
+<span class="hljs-keyword">var</span> arr = [[<span class="hljs-number">1</span>,<span class="hljs-number">34</span>],[<span class="hljs-number">456</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">44</span>,<span class="hljs-number">234</span>],[<span class="hljs-number">4567</span>,<span class="hljs-number">1</span>,<span class="hljs-number">4</span>,<span class="hljs-number">5</span>,<span class="hljs-number">6</span>],[<span class="hljs-number">34</span>,<span class="hljs-number">78</span>,<span class="hljs-number">23</span>,<span class="hljs-number">1</span>]];
+sortArr(arr);
+
+<span class="hljs-comment">/*(4) [Array(2), Array(5), Array(5), Array(4)]
+    0:(2) [1, 34]
+    1:(5) [2, 3, 44, 234, 456]
+    2:(5) [1, 4, 5, 6, 4567]
+    3:(4) [1, 23, 34, 78]
+    length:4
+    __proto__:Array(0)
+*/</span>
+</code></pre><hr><blockquote><p>使用<code>for…of</code> 循环</p></blockquote><pre class="hljs"><code>
+<span class="hljs-keyword">var</span> arr = [<span class="hljs-string">"a"</span>, <span class="hljs-string">"b"</span>, <span class="hljs-string">"c"</span>];
+<span class="hljs-keyword">var</span> iterator = arr.entries();
+<span class="hljs-comment">// undefined</span>
+
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> e <span class="hljs-keyword">of</span> iterator) {
+    <span class="hljs-built_in">console</span>.log(e);
+}
+
+<span class="hljs-comment">// [0, "a"]</span>
+<span class="hljs-comment">// [1, "b"]</span>
+<span class="hljs-comment">// [2, "c"]</span>
+</code></pre><hr><h3 id="keys"><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/keys" target="_blank" rel="noopener">keys()</a> <a class="markdownIt-Anchor" href="#keys">#</a></h3><h4 id="基础语法-12">基础语法 <a class="markdownIt-Anchor" href="#基础语法-12">#</a></h4><pre class="hljs"><code>arr.keys()
+</code></pre><hr><h4 id="返回值说明-12">返回值说明 <a class="markdownIt-Anchor" href="#返回值说明-12">#</a></h4><p>一个新的 <code>Array</code> 迭代器对象。<code>Array Iterator</code>是对象</p><hr><h4 id="详细说明-12">详细说明 <a class="markdownIt-Anchor" href="#详细说明-12">#</a></h4><p><code>keys()</code> 方法返回一个包含数组中每个<code>索引键</code>的<code>Array Iterator</code>对象。</p><hr><h4 id="案例-12">案例 <a class="markdownIt-Anchor" href="#案例-12">#</a></h4><blockquote><p>索引迭代器会包含那些没有对应元素的索引节</p></blockquote><pre class="hljs"><code>
+<span class="hljs-keyword">var</span> arr = [<span class="hljs-string">"a"</span>, , <span class="hljs-string">"c"</span>];
+<span class="hljs-keyword">var</span> sparseKeys = <span class="hljs-built_in">Object</span>.keys(arr);
+<span class="hljs-keyword">var</span> denseKeys = [...arr.keys()];
+<span class="hljs-built_in">console</span>.log(sparseKeys); <span class="hljs-comment">// ['0', '2']</span>
+<span class="hljs-built_in">console</span>.log(denseKeys);  <span class="hljs-comment">// [0, 1, 2]</span>
+</code></pre><hr><h3 id="values"><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/values" target="_blank" rel="noopener">values()</a> <a class="markdownIt-Anchor" href="#values">#</a></h3><h4 id="基础语法-13">基础语法 <a class="markdownIt-Anchor" href="#基础语法-13">#</a></h4><pre class="hljs"><code>arr.values()
+</code></pre><hr><h4 id="返回值说明-13">返回值说明 <a class="markdownIt-Anchor" href="#返回值说明-13">#</a></h4><p>一个新的 <code>Array</code> 迭代器对象。<code>Array Iterator</code>是对象</p><hr><h4 id="详细说明-13">详细说明 <a class="markdownIt-Anchor" href="#详细说明-13">#</a></h4><p><code>values()</code> 方法返回一个包含数组每个索引的<code>值</code>的<code>Array Iterator</code>对象。</p><hr><h4 id="案例-13">案例 <a class="markdownIt-Anchor" href="#案例-13">#</a></h4><blockquote><p>使用 <code>for...of</code> 循环进行迭代</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">let</span> arr = [<span class="hljs-string">'w'</span>, <span class="hljs-string">'y'</span>, <span class="hljs-string">'k'</span>, <span class="hljs-string">'o'</span>, <span class="hljs-string">'p'</span>];
+<span class="hljs-keyword">let</span> eArr = arr.values();
+<span class="hljs-comment">// 您的浏览器必须支持 for..of 循环</span>
+<span class="hljs-comment">// 以及 let —— 将变量作用域限定在 for 循环中</span>
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> letter <span class="hljs-keyword">of</span> eArr) {
+  <span class="hljs-built_in">console</span>.log(letter);
+}
+</code></pre><blockquote><p>另一种迭代方式</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">let</span> arr = [<span class="hljs-string">'w'</span>, <span class="hljs-string">'y'</span>, <span class="hljs-string">'k'</span>, <span class="hljs-string">'o'</span>, <span class="hljs-string">'p'</span>];
+<span class="hljs-keyword">let</span> eArr = arr.values();
+<span class="hljs-built_in">console</span>.log(eArr.next().value); <span class="hljs-comment">// w</span>
+<span class="hljs-built_in">console</span>.log(eArr.next().value); <span class="hljs-comment">// y</span>
+<span class="hljs-built_in">console</span>.log(eArr.next().value); <span class="hljs-comment">// k</span>
+<span class="hljs-built_in">console</span>.log(eArr.next().value); <span class="hljs-comment">// o</span>
+<span class="hljs-built_in">console</span>.log(eArr.next().value); <span class="hljs-comment">// p</span>
+</code></pre><hr><h2 id="排序稳定性">排序稳定性 <a class="markdownIt-Anchor" href="#排序稳定性">#</a></h2><p><code>排序稳定性（stable sorting）</code>是<code>排序算法</code>的重要属性，指的是排序关键字相同的项目，排序前后的顺序不变。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> arr = [
+  <span class="hljs-string">'peach'</span>,
+  <span class="hljs-string">'straw'</span>,
+  <span class="hljs-string">'apple'</span>,
+  <span class="hljs-string">'spork'</span>
+];
+
+<span class="hljs-keyword">const</span> stableSorting = <span class="hljs-function">(<span class="hljs-params">s1, s2</span>) =&gt;</span> {
+  <span class="hljs-keyword">if</span> (s1[<span class="hljs-number">0</span>] &lt; s2[<span class="hljs-number">0</span>]) <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;
+  <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+};
+
+arr.sort(stableSorting)
+<span class="hljs-comment">// ["apple", "peach", "straw", "spork"]</span>
+</code></pre><p>上面代码对数组<code>arr</code>按照首字母进行排序。排序结果中，<code>straw</code>在<code>spork</code>的前面，跟原始顺序一致，所以排序算法<code>stableSorting</code>是稳定排序。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> unstableSorting = <span class="hljs-function">(<span class="hljs-params">s1, s2</span>) =&gt;</span> {
+  <span class="hljs-keyword">if</span> (s1[<span class="hljs-number">0</span>] &lt;= s2[<span class="hljs-number">0</span>]) <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;
+  <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+};
+
+arr.sort(unstableSorting)
+<span class="hljs-comment">// ["apple", "peach", "spork", "straw"]</span>
+</code></pre><p>上面代码中，排序结果是<code>spork</code>在<code>straw</code>前面，跟原始顺序相反，所以排序算法<code>unstableSorting</code>是不稳定的。</p><p>常见的排序算法之中，<code>插入排序</code>、<code>合并排序</code>、<code>冒泡排序</code>等都是稳定的，<code>堆排序</code>、<code>快速排序</code>等是不稳定的。</p><p><code>不稳定排序</code>的主要缺点是，多重排序时可能会产生问题。</p><p>假设有一个姓和名的列表，按照“先姓，后名”进行排序。开发者可能会先按名字排序，再按姓氏进行排序。如果排序算法是稳定的，这样也可以达到“先姓，后名”的排序效果。如果是不稳定的，就不行。</p><p>早先的 <code>ECMAScript</code> 没有规定，<code>Array.prototype.sort()</code>的默认排序算法是否稳定，留给浏览器自己决定，这导致某些实现是不稳定的。<a href="https://github.com/tc39/ecma262/pull/1340" target="_blank" rel="noopener">ES2019</a> 明确规定，<code>Array.prototype.sort()</code>的默认排序算法必须稳定。这个规定已经做到了，现在 JavaScript 各个主要实现的默认排序算法都是稳定的。</p><hr></div><div dir="ltr" class="level article-bar is-mobile"><div class="level-item has-text-centered"><a title="previous page" class="previouse-article-link" href="../chapters08/prototype-function-extend.html"><span class="icon icon-previous" data-icon="previous"></span><span class="link-content">&laquo; Previous</span></a></div><div class="level-item has-text-centered"><a title="font size" class="link-item link-item-size"><span class="icon icon-size" data-icon="size"></span></a></div><div class="level-item has-text-centered"><a title="table of content" class="link-item link-item-toc"><span class="icon icon-toc" data-icon="toc"></span></a></div><div class="level-item has-text-centered"><a title="top" href="#"><span class="icon icon-up" data-icon="up"></span> <span class="link-content">⤊ Top</span></a></div><div class="level-item has-text-centered"><a title="next page" class="next-article-link" href="../chapters08/empty-space-processing-of-array.html"><span class="icon icon-next" data-icon="next"></span><span class="link-content">Next &raquo;</span></a></div></div></div><div class="column is-2-widescreen is-hidden"></div></div><div class="columns foot"><div class="column is-3 is-offset-9 build-by">Build by <a href="https://github.com/ruanyf/loppo" target="_blank">Loppo</a> 0.6.16</div></div><div class="book-toc notification is-warning is-hidden"><h3>Table of chapters &nbsp;<span class="title-close"><a class="button is-danger"> Close</a></span></h3><ul class="chapter-area"><li class="chapter-item"><a href="../chapters01/index.html">第一章 ECMAScript 6 简介</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters01/base-js.html">js基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/base-es.html">es基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/Babel.html">通过Babel使用ES6</a></li><li class="chapter-item"><a href="../chapters01/Traceur.html">通过Traceur使用ES6</a></li><li class="chapter-item"><a href="../chapters01/stage-00.html">Strawman 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-01.html">Proposal 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-02.html">Draft 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/active-proposals.html">Candidate 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-04.html">Finished 阶段的 proposals</a></li></ul><li class="chapter-item"><a href="../chapters02/index.html">第二章 let和const命令</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters02/base.html">前置知识了解</a></li><li class="chapter-item"><a href="../chapters02/let.html">let 命令</a></li><li class="chapter-item"><a href="../chapters02/const.html">const 命令</a></li><li class="chapter-item"><a href="../chapters02/statement-details.html">语句进阶说明</a></li></ul><li class="chapter-item"><a href="../chapters03/index.html">第三章 变量的解构赋值</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters03/base.html">基础数据结构</a></li><li class="chapter-item"><a href="../chapters03/complex.html">复杂数据结构</a></li><li class="chapter-item"><a href="../chapters03/parentheses.html">圆括号问题</a></li><li class="chapter-item"><a href="../chapters03/use.html">用途</a></li></ul><li class="chapter-item"><a href="../chapters04/index.html">第四章 字符串的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters04/unicode.html">字符的 Unicode 表示法</a></li><li class="chapter-item"><a href="../chapters04/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/template-string.html">模板字符串</a></li><li class="chapter-item"><a href="../chapters04/string-Iterator.html">字符串的遍历器接口</a></li><li class="chapter-item"><a href="../chapters04/tag-template.html">标签模板</a></li></ul><li class="chapter-item"><a href="../chapters05/index.html">第五章 正则的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters05/constructor.html">RegExp 构造函数</a></li><li class="chapter-item"><a href="../chapters05/base.html">RegExp 基础使用</a></li><li class="chapter-item"><a href="../chapters05/prototype-attribute.html">RegExp 原型属性</a></li><li class="chapter-item"><a href="../chapters05/modifier.html">RegExp 修饰符</a></li><li class="chapter-item"><a href="../chapters05/assert.html">RegExp 断言</a></li><li class="chapter-item"><a href="../chapters05/string-with-regExp.html">String中正则相关方法</a></li><li class="chapter-item"><a href="../chapters05/named-group-matching.html">具名组匹配</a></li><li class="chapter-item"><a href="../chapters05/unicode-attribute-class.html">Unicode 属性类</a></li></ul><li class="chapter-item"><a href="../chapters06/index.html">第六章 数值的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters06/base-notation.html">Number 进制表示法</a></li><li class="chapter-item"><a href="../chapters06/prototype-attribute.html">Number 原型属性</a></li><li class="chapter-item"><a href="../chapters06/base-function-extend.html">Number 对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/prototype-function-extend.html">Number 原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/math-extension.html">math 对象扩展</a></li><li class="chapter-item"><a href="../chapters06/exponent-operator.html">指数运算符</a></li></ul><li class="chapter-item"><a href="../chapters07/index.html">第七章 函数的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters07/arrow-function.html">箭头函数</a></li><li class="chapter-item"><a href="../chapters07/strict-mode.html">严格模式</a></li><li class="chapter-item"><a href="../chapters07/function-parameter-improvement.html">函数参数改进</a></li><li class="chapter-item"><a href="../chapters07/the-name-attribute-of-the-function.html">函数的name属性</a></li><li class="chapter-item"><a href="../chapters07/tail-call-optimization.html">尾调用优化</a></li></ul><li class="chapter-item"><a href="../chapters08/index.html">第八章 数组的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-collapse" data-icon="collapse"></span></a></li><ul class="chapter-level-1 chapter-level-1-current"><li class="chapter-item"><a href="../chapters08/extension-operator.html">扩展运算符</a></li><li class="chapter-item"><a href="../chapters08/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item chapter-item-current"><a href="../chapters08/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/empty-space-processing-of-array.html">数组的空位处理</a></li><li class="chapter-item"><a href="../chapters08/pipeline-optimization-of-arrays.html">数组的管道运算优化</a></li></ul><li class="chapter-item"><a href="../chapters09/index.html">第九章 ts学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters09/history.html">ts历史</a></li><li class="chapter-item"><a href="../chapters09/advantages-and-disadvantages.html">ts优势与劣势</a></li><li class="chapter-item"><a href="../chapters09/learn-primitive-type.html">基础类型学习</a></li><li class="chapter-item"><a href="../chapters09/learn-derivative-type.html">衍生类型基础学习</a></li><li class="chapter-item"><a href="../chapters09/Enum.html">衍生类型之Enum</a></li><li class="chapter-item"><a href="../chapters09/interface.html">衍生类型之interface</a></li><li class="chapter-item"><a href="../chapters09/Class.html">衍生类型之Class</a></li><li class="chapter-item"><a href="../chapters09/ts-util.html">ts 高级工具用法</a></li></ul><li class="chapter-item"><a href="../chapters10/index.html">第十章 react学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters10/history.html">react历史</a></li><li class="chapter-item"><a href="../chapters10/version-management.html">react版本管理</a></li><li class="chapter-item"><a href="../chapters10/advantages-and-disadvantages.html">react优势与劣势</a></li><li class="chapter-item"><a href="../chapters10/base.html">react基础语法</a></li><li class="chapter-item"><a href="../chapters10/common-package.html">react常用组件包</a></li><li class="chapter-item"><a href="../chapters10/family-bucket.html">react全家桶</a></li><li class="chapter-item"><a href="../chapters10/ecosphere.html">react的生态圈</a></li><li class="chapter-item"><a href="../chapters10/substitute-product.html">react和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters11/index.html">第十一章 webpack学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters11/history.html">webpack历史</a></li><li class="chapter-item"><a href="../chapters11/version-management.html">webpack版本管理</a></li><li class="chapter-item"><a href="../chapters11/advantages-and-disadvantages.html">webpack优势与劣势</a></li><li class="chapter-item"><a href="../chapters11/base-config.html">webpack项目基础配置</a></li><li class="chapter-item"><a href="../chapters11/common-package.html">webpack常用组件包</a></li><li class="chapter-item"><a href="../chapters11/ecosphere.html">webpack的生态圈</a></li><li class="chapter-item"><a href="../chapters11/substitute-product.html">webpack和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters12/index.html">第十二章 微信小程序学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters12/history.html">微信小程序历史</a></li><li class="chapter-item"><a href="../chapters12/version-management.html">微信小程序版本管理</a></li><li class="chapter-item"><a href="../chapters12/advantages-and-disadvantages.html">微信小程序优势与劣势</a></li><li class="chapter-item"><a href="../chapters12/base.html">微信小程序基础学习</a></li><li class="chapter-item"><a href="../chapters12/common-ui-package.html">微信小程序常用UI库</a></li><li class="chapter-item"><a href="../chapters12/ecosphere.html">微信小程序的生态圈</a></li><li class="chapter-item"><a href="../chapters12/cross-platform.html">微信小程序跨平台</a></li><li class="chapter-item"><a href="../chapters12/substitute-product.html">微信小程序和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters13/index.html">第十三章 web安全方案</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters13/common-web-risks.html">常见web风险</a></li><li class="chapter-item"><a href="../chapters13/monitoring-system.html">前端监控体系</a></li><li class="chapter-item"><a href="../chapters13/performance-optimization.html">前端性能优化</a></li><li class="chapter-item"><a href="../chapters13/security-prevention-and-control.html">前端安全防控</a></li><li class="chapter-item"><a href="../chapters13/test-system.html">前端测试体系</a></li></ul></ul></div><div class="progress-indicator"></div><!-- SCRIPTS --><script>var LOPPO={current_path:"chapters08/instance-function-extend.md",relative_root_path:"../",article_toc:'<ul class="markdownIt-TOC">\n<li><a href="#%E5%86%85%E9%83%A8%E6%95%B0%E6%8D%AE%E5%AF%BB%E6%89%BE">内部数据寻找</a>\n<ul>\n<li><a href="#find">find()</a></li>\n<li><a href="#findindex">findIndex()</a></li>\n<li><a href="#includes">includes()</a></li>\n</ul>\n</li>\n<li><a href="#%E5%86%85%E9%83%A8%E6%95%B0%E6%8D%AE%E5%A1%AB%E5%85%85">内部数据填充</a>\n<ul>\n<li><a href="#copywithin">copyWithin()</a></li>\n<li><a href="#fill">fill()</a></li>\n</ul>\n</li>\n<li><a href="#%E5%86%85%E9%83%A8%E6%95%B0%E6%8D%AE%E5%B1%95%E5%B9%B3">内部数据展平</a>\n<ul>\n<li><a href="#flat">flat()</a></li>\n<li><a href="#flatmap">flatMap()</a></li>\n</ul>\n</li>\n<li><a href="#%E9%81%8D%E5%8E%86%E5%88%A4%E6%96%AD">遍历判断</a>\n<ul>\n<li><a href="#some">some()</a></li>\n<li><a href="#every">every()</a></li>\n<li><a href="#reduce">reduce()</a></li>\n<li><a href="#reduceright">reduceRight()</a></li>\n<li><a href="#entries">entries()</a></li>\n<li><a href="#keys">keys()</a></li>\n<li><a href="#values">values()</a></li>\n</ul>\n</li>\n<li><a href="#%E6%8E%92%E5%BA%8F%E7%A8%B3%E5%AE%9A%E6%80%A7">排序稳定性</a></li>\n</ul>\n'}</script><script src="../assets/js/app.js"></script></body></html>

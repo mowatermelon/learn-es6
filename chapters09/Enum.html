@@ -1,0 +1,268 @@
+<!DOCTYPE html><html><head><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta charset="utf-8"><title>衍生类型之Enum - learn es6</title><meta name="description" content=""><meta name="author" content=""><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1"><link rel="stylesheet" href="../assets/css/bulma.min.css"><link rel="stylesheet" href="../assets/css/app.css"><!--[if lt IE 9]>
+<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]--><link rel="shortcut icon" href=""></head><body dir="ltr"><nav class="columns navbar"><div class="column logo is-3 is-offset-1"><a class="is-brand" href="../index.html">learn es6</a></div></nav><div class="columns content"><div class="column is-2-desktop is-3-widescreen is-hidden-touch"></div><div class="column article-container is-11-tablet is-8-desktop is-6-widescreen"><div class="breadcrumb-area"><a href="../index.html" class="breadcrumb-item">Home</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters09/index.html" class="breadcrumb-item">第九章 ts学习</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters09/Enum.html" class="breadcrumb-item">衍生类型之Enum</a></div><h1 class="article-title">衍生类型之Enum</h1><div class="article"><h1 id="枚举enums">枚举(enums) <a class="markdownIt-Anchor" href="#枚举enums">#</a></h1><h2 id="基础介绍">基础介绍 <a class="markdownIt-Anchor" href="#基础介绍">#</a></h2><p>使用<code>枚举</code>我们可以定义一些<code>带名字</code>的<code>常量</code>。 使用<code>枚举</code>可以清晰地表达意图或创建一组有区别的用例。</p><p>TypeScript支持<code>数字</code>的和基于<code>字符串</code>的<code>枚举</code>。</p><hr><h2 id="基础枚举">基础枚举 <a class="markdownIt-Anchor" href="#基础枚举">#</a></h2><h3 id="数字枚举">数字枚举 <a class="markdownIt-Anchor" href="#数字枚举">#</a></h3><blockquote><p>基础赋值</p></blockquote><p>我们定义了一个<code>数字枚举</code>，当这边不使用<code>初始化器</code>，未对第一个<code>枚举项</code>进行赋值，则默认从<code>0</code>开始， <code>Red</code>使用初始化为 <code>0</code>。 其余的<code>成员值</code>会从 <code>0</code>开始<code>自动增长</code>。</p><p>换句话说，<code>Color.Red</code>的值为 <code>0</code>，<code>Green</code>为 <code>1</code>，<code>Blue</code>为 <code>2</code>。</p><pre class="hljs"><code><span class="hljs-keyword">enum</span> Color {Red, Green, Blue}
+<span class="hljs-keyword">let</span> c: Color = Color.Green;<span class="hljs-comment">// 1</span>
+</code></pre><blockquote><p>全部都采用手动赋值</p></blockquote><p>我们定义了一个<code>数字枚举</code>，当这边使用<code>初始化器</code>，对每个<code>枚举项</code>进行赋值， <code>Red</code>使用初始化为 <code>1</code>。</p><p>在枚举项没有被<code>手动赋值</code>的前提下，其余的<code>成员值</code>会从 <code>1</code>开始<code>自动增长</code>。</p><p>换句话说，<code>Color.Red</code>的值为 <code>1</code>，<code>Green</code>为 <code>3</code>，<code>Blue</code>为 <code>4</code>。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">enum</span> Color {Red = <span class="hljs-number">1</span>, Green = <span class="hljs-number">3</span>, Blue}
+<span class="hljs-keyword">let</span> c: Color = Color.Green;
+log(c);<span class="hljs-comment">// 3</span>
+</code></pre><blockquote><p>枚举类型提供的一个便利是你可以由枚举的值得到它的名字。</p></blockquote><p>例如，我们知道数值为<code>2</code>，但是不确定它映射到<code>Color</code>里的哪个名字，我们可以查找相应的名字。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">enum</span> Color {Red = <span class="hljs-number">1</span>, Green, Blue}
+<span class="hljs-keyword">let</span> colorName: <span class="hljs-built_in">string</span> = Color[<span class="hljs-number">2</span>];
+
+log(colorName);  <span class="hljs-comment">// 显示'Green'因为上面代码里它的值是2</span>
+</code></pre><hr><blockquote><p>通过枚举的属性来访问枚举成员，和枚举的名字来访问枚举类型</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">enum</span> Melon {
+    No = <span class="hljs-number">0</span>,
+    Yes = <span class="hljs-number">1</span>,
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">respond</span>(<span class="hljs-params">recipient: <span class="hljs-built_in">string</span>, message: Melon</span>): <span class="hljs-title">void</span> </span>{
+    log(recipient, message);
+}
+
+respond(<span class="hljs-string">"Watermelon"</span>, Melon.No); <span class="hljs-comment">// Watermelon,  0</span>
+
+respond(<span class="hljs-string">"Watermelon"</span>, Melon.Yes); <span class="hljs-comment">// Watermelon,  1</span>
+
+respond(<span class="hljs-string">"Watermelon"</span>, <span class="hljs-number">3</span>);<span class="hljs-comment">// Argument of type '3' is not assignable to parameter of type 'Response'.</span>
+</code></pre><hr><blockquote><p>不可以使用数组对象相关运算符，进行转译。</p></blockquote><p>虽然可以通过<code>反向映射</code>，即<code>枚举值</code>，访问到对应的<code>枚举成员</code>，但是<code>枚举对象</code>，仍然不可以通过<code>展开运算符</code>进行展开。</p><p>也不可以通过<code>Array.from()</code>进行转译为数组对象。</p><pre class="hljs"><code>
+<span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">enum</span> Color {Red = <span class="hljs-number">1</span>, Green, Blue}
+
+<span class="hljs-keyword">const</span> arr = [...Color];<span class="hljs-comment">// Type 'typeof Color' must have a '[Symbol.iterator]()' method that returns an iterator.</span>
+<span class="hljs-keyword">const</span> arr = <span class="hljs-built_in">Array</span>.from(Color);
+<span class="hljs-comment">// No overload matches this call. Overload 1 of 6, '(iterable: Iterable&lt;unknown&gt; | ArrayLike&lt;unknown&gt;): unknown[]', gave the following error. Argument of type 'typeof Color' is not assignable to parameter of type 'Iterable&lt;unknown&gt; | ArrayLike&lt;unknown&gt;'. Property 'length' is missing in type 'typeof Color' but required in type 'ArrayLike&lt;unknown&gt;'. Overload 2 of 6, '(iterable: Iterable&lt;unknown&gt; | ArrayLike&lt;unknown&gt;): unknown[]', gave the following error. Argument of type 'typeof Color' is not assignable to parameter of type 'Iterable&lt;unknown&gt; | ArrayLike&lt;unknown&gt;'. Type 'typeof Color' is not assignable to type 'ArrayLike&lt;unknown&gt;'. Overload 3 of 6, '(arrayLike: ArrayLike&lt;unknown&gt;): unknown[]', gave the following error. Argument of type 'typeof Color' is not assignable to parameter of type 'ArrayLike&lt;unknown&gt;'.</span>
+
+</code></pre><hr><h3 id="字符串枚举">字符串枚举 <a class="markdownIt-Anchor" href="#字符串枚举">#</a></h3><blockquote><p>由于字符串枚举没有<code>自增长</code>的行为，<code>字符串枚举</code>允许你提供一个<code>运行时</code>有意义的，并且<code>可读</code>的值，独立于<code>枚举成员</code>的名字，字符串枚举可以很好的用于<code>序列化</code>。</p></blockquote><p>一般要读一个<code>数字枚举</code>的运行时的值，这个值通常是很难读的，因为它并不能表达有用的信息。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">enum</span> Color { Red = <span class="hljs-string">'rRed'</span>, Green = <span class="hljs-string">'rGreen'</span>, Blue = <span class="hljs-string">'rBlue'</span> }
+
+<span class="hljs-keyword">const</span> c: Color = Color.Red;<span class="hljs-comment">// 1</span>
+log(c);<span class="hljs-comment">// rRed</span>
+
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">respond</span>(<span class="hljs-params">recipient: <span class="hljs-built_in">string</span>, message: Color</span>): <span class="hljs-title">void</span> </span>{
+    log(recipient, message);
+}
+
+respond(<span class="hljs-string">"Watermelon "</span>, Color.Green); <span class="hljs-comment">// Watermelon ,  rGreen</span>
+
+respond(<span class="hljs-string">"Watermelon "</span>, Color.Blue); <span class="hljs-comment">// Watermelon ,  rBlue</span>
+
+respond(<span class="hljs-string">"Watermelon "</span>, <span class="hljs-number">3</span>); <span class="hljs-comment">// Watermelon,  Argument of type '3' is not assignable to parameter of type 'Color'.</span>
+
+</code></pre><hr><blockquote><p>必须完整赋值</p></blockquote><p>请注意这边如果将枚举值指定为非<code>number</code>类型的值，则需要每个枚举值都进行<code>手动赋值</code>，否则就会报错<code>Enum member must have initializer.</code>。</p><pre class="hljs"><code><span class="hljs-comment">// Enum member must have initializer.</span>
+<span class="hljs-keyword">enum</span> Color { Red = <span class="hljs-string">'rRed'</span>, Green, Blue }
+</code></pre><hr><blockquote><p>必须完整赋值为同一种类型</p></blockquote><p>请注意这边如果将枚举值指定为非<code>number</code>类型的值，则需要每个枚举值都进行手动赋值，同时，除了<code>number</code>类型，手动赋值的类型需要为同一种类型。</p><pre class="hljs"><code><span class="hljs-comment">// fine</span>
+<span class="hljs-keyword">enum</span> Color { Red = <span class="hljs-number">0</span>, Green = <span class="hljs-string">'rGreen'</span>, Blue = <span class="hljs-string">'rBlue'</span> }
+
+<span class="hljs-comment">// Computed values are not permitted in an enum with string valued members.</span>
+<span class="hljs-keyword">enum</span> Color { Red = <span class="hljs-literal">true</span>, Green = <span class="hljs-string">'rGreen'</span>, Blue = <span class="hljs-string">'rBlue'</span> }
+</code></pre><hr><h3 id="反向映射">反向映射 <a class="markdownIt-Anchor" href="#反向映射">#</a></h3><blockquote><p>反向映射</p></blockquote><p>除了创建一个以属性名作为对象成员的对象之外，<code>数字枚举成员</code>还具有了 <code>反向映射</code>，从<code>枚举值</code>到<code>枚举名字</code>。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">enum</span> Color { Red = <span class="hljs-number">0</span>, Green = <span class="hljs-string">'rGreen'</span>, Blue = <span class="hljs-string">'rBlue'</span> }
+log(Color[<span class="hljs-number">0</span>]);<span class="hljs-comment">// Red</span>
+log(Color.Red);<span class="hljs-comment">// 0</span>
+
+log(Color[<span class="hljs-number">1</span>]);<span class="hljs-comment">// undefined</span>
+log(Color.Green);<span class="hljs-comment">// rGreen</span>
+
+log(Color[<span class="hljs-number">2</span>]);<span class="hljs-comment">// undefined</span>
+log(Color.Blue);<span class="hljs-comment">// rBlue</span>
+</code></pre><p>生成的代码中，<code>枚举类型</code>被编译成一个<code>对象</code>，它包含了<code>正向映射</code>（ <code>name</code> -&gt; <code>value</code>）和<code>反向映射</code>（ <code>value</code> -&gt; <code>name</code>）。</p><p>引用<code>枚举成员</code>总会生成为对<code>属性</code>访问，并且永远也不会<code>内联代码</code>。</p><pre class="hljs"><code><span class="hljs-meta">"use strict"</span>;
+<span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">var</span> Color;
+(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">Color</span>) </span>{
+    Color[Color[<span class="hljs-string">"Red"</span>] = <span class="hljs-number">0</span>] = <span class="hljs-string">"Red"</span>;
+    Color[<span class="hljs-string">"Green"</span>] = <span class="hljs-string">"rGreen"</span>;
+    Color[<span class="hljs-string">"Blue"</span>] = <span class="hljs-string">"rBlue"</span>;
+})(Color || (Color = {}));
+log(Color[<span class="hljs-number">0</span>]); <span class="hljs-comment">// Red</span>
+log(Color.Red); <span class="hljs-comment">// 0</span>
+
+log(Color[<span class="hljs-number">1</span>]); <span class="hljs-comment">// undefined</span>
+log(Color.Green); <span class="hljs-comment">// rGreen</span>
+
+log(Color[<span class="hljs-number">2</span>]);<span class="hljs-comment">// undefined</span>
+log(Color.Blue);<span class="hljs-comment">// rBlue</span>
+</code></pre><p>要注意的是不会为<code>字符串枚举</code>成员生成<code>反向映射</code>。</p><hr><h3 id="const枚举"><code>const</code>枚举 <a class="markdownIt-Anchor" href="#const枚举">#</a></h3><p>大多数情况下，枚举是十分有效的方案。 然而在某些情况下需求很严格。</p><p>为了避免在额外生成的代码上的<code>开销</code>和额外的非直接的对<code>枚举成员</code>的访问，我们可以使用 <code>const</code>枚举。</p><p><code>常量枚举</code>通过在枚举上使用 <code>const</code>修饰符来定义。</p><blockquote><p>未使用到的常量枚举，在编译结果中是不存在的</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">enum</span> Enum {
+    A = <span class="hljs-number">1</span>,
+    B = A * <span class="hljs-number">2</span>
+}
+</code></pre><p>编译后的代码</p><pre class="hljs"><code><span class="hljs-meta">"use strict"</span>;
+<span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+</code></pre><hr><blockquote><p>内联结果</p></blockquote><p><code>常量枚举</code>只能使用<code>常量枚举</code>表达式，并且不同于常规的枚举，它们在<code>编译阶段</code>会被删除。</p><p><code>常量枚举</code>成员在使用的地方会被<code>内联</code>进来。 之所以可以这么做是因为，<code>常量枚举</code>不允许包含<code>计算成员</code>。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+
+<span class="hljs-keyword">const</span> <span class="hljs-keyword">enum</span> Color { Red = <span class="hljs-number">0</span>, Green, Blue = <span class="hljs-string">'rBlue'</span> };
+
+<span class="hljs-keyword">const</span> arr = [Color.Red,Color.Green,Color.Blue];
+log(arr);<span class="hljs-comment">// // Array(3) [0: 0,1: 1,2: "rBlue",length: 3]</span>
+</code></pre><p>转译结果</p><pre class="hljs"><code><span class="hljs-meta">"use strict"</span>;
+<span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+;
+<span class="hljs-keyword">const</span> arr = [<span class="hljs-number">0</span> <span class="hljs-comment">/* Red */</span>, <span class="hljs-number">1</span> <span class="hljs-comment">/* Green */</span>, <span class="hljs-string">"rBlue"</span> <span class="hljs-comment">/* Blue */</span>];
+log(arr); <span class="hljs-comment">// Array(3) [0: 0,1: 1,2: "rBlue",length: 3]</span>
+
+</code></pre><hr><h2 id="复杂枚举">复杂枚举 <a class="markdownIt-Anchor" href="#复杂枚举">#</a></h2><h3 id="常量枚举">常量枚举 <a class="markdownIt-Anchor" href="#常量枚举">#</a></h3><p><code>枚举成员</code>使用<code>常量枚举表达式</code>初始化。</p><p><code>常量枚举表达式</code>是<code>TypeScript表达式</code>的<code>子集</code>，可以在编译时对其进行完全求值。</p><ul><li>文字枚举表达式（基本上是字符串文字或数字文字）</li><li>对先前定义的常量枚举成员的引用（可以源自其他枚举）</li><li>带括号的常量枚举表达式</li><li>一个<code>+</code>，<code>-</code>，<code>~</code>一元运算符应用于<code>恒定</code>枚举表达。</li><li><code>+</code>，<code>-</code>，<code>*</code>，<code>/</code>，<code>%</code>，<code>&lt;&lt;</code>，<code>&gt;&gt;</code>，<code>&gt;&gt;&gt;</code>，<code>&amp;</code>，<code>|</code>，<code>^</code>二元算<code>常数</code>的枚举表达式作为操作数</li><li>使用<code>Number</code>对象相关静态属性值</li></ul><p>在所有其他情况下，<code>枚举成员</code>使用表达式进行赋值，都视为<code>计算枚举成员</code>。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+
+<span class="hljs-keyword">enum</span> MelonAccess {
+    <span class="hljs-comment">// constant members</span>
+    a1 = <span class="hljs-number">1</span>,
+    <span class="hljs-comment">// a2 = 'melon', 注意如果要使用相关计算运算符，枚举成员中不能有字符串成员</span>
+    a3 = a1,
+    a4 = +a1,
+    a5 = ~a1,
+    a6 = -a1,
+    a7 = a1 + <span class="hljs-number">1</span>,
+    a8 = a1 - <span class="hljs-number">1</span>,
+    a9 = a1 * <span class="hljs-number">1</span>,
+    a10 = a1 / <span class="hljs-number">1</span>,
+    a11 = a1 % <span class="hljs-number">1</span>,
+    a12 = a1 &lt;&lt; <span class="hljs-number">1</span>,
+    a13 = a1 &gt;&gt; <span class="hljs-number">1</span>,
+    a14 = a1 &gt;&gt;&gt; <span class="hljs-number">1</span>,
+    a15 = a1 &amp; <span class="hljs-number">1</span>,
+    a16 = a1 | <span class="hljs-number">1</span>,
+    a17 = ^a1,
+
+    a18 = <span class="hljs-built_in">Number</span>.EPSILON,
+    a19 = <span class="hljs-built_in">Number</span>.MAX_SAFE_INTEGER,
+    a20 = <span class="hljs-built_in">Number</span>.MAX_VALUE,
+    a21 = <span class="hljs-built_in">Number</span>.MIN_SAFE_INTEGER,
+    a22 = <span class="hljs-built_in">Number</span>.MIN_VALUE,
+    a23 = <span class="hljs-built_in">Number</span>.NEGATIVE_INFINITY,
+    a24 = <span class="hljs-built_in">Number</span>.POSITIVE_INFINITY
+}
+
+log(MelonAccess);
+<span class="hljs-comment">//  { "0": "a14", "1": "a17", "2": "a12", "a1": 1, "a3": 1, "a4": 1, "a5": -2, "-2": "a5", "a6": -1, "-1": "a6", "a7": 2, "a8": 0, "a9": 1, "a10": 1, "a11": 0, "a12": 2, "a13": 0, "a14": 0, "a15": 1, "a16": 1, "a17": 1, "a18": 2.220446049250313e-16, "2.220446049250313e-16": "a18", "a19": 9007199254740991, "9007199254740991": "a19", "a20": 1.7976931348623157e+308, "1.7976931348623157e+308": "a20", "a21": -9007199254740991, "-9007199254740991": "a21", "a22": 5e-324, "5e-324": "a22", "a23": null, "-Infinity": "a23", "a24": null, "Infinity": "a24" }</span>
+</code></pre><blockquote><p>注意</p></blockquote><p>将<code>常量</code>枚举表达式计算为<code>NaN</code>，这边TS内部会将值转换为<code>null</code>。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+
+<span class="hljs-keyword">enum</span> MelonAccess {
+    a1 = <span class="hljs-built_in">Number</span>.NaN,
+    a2 = <span class="hljs-built_in">Number</span>(<span class="hljs-string">'melon'</span>) <span class="hljs-comment">// 实际值是NAN,但是，TS这边内部会将值转译为null</span>
+}
+
+log(MelonAccess);
+<span class="hljs-comment">// { "a1": null, "a2": null }</span>
+</code></pre><hr><h3 id="文字枚举">文字枚举 <a class="markdownIt-Anchor" href="#文字枚举">#</a></h3><p>文字枚举成员是没有<code>初始化值</code>，或具有初始化为的值的<code>常量</code>枚举成员</p><ul><li>任何字符串文字（例如&quot;foo&quot;，&quot;bar，&quot;baz&quot;）</li><li>任何数字文字（例如1，100）</li><li>应用于任何数字文本一个一元减号（例如-1，-100）</li></ul><hr><h3 id="计算枚举">计算枚举 <a class="markdownIt-Anchor" href="#计算枚举">#</a></h3><blockquote><p>基础案例</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">enum</span> E {
+    G = <span class="hljs-string">"123"</span>.length
+}
+</code></pre><hr><blockquote><p>在运行时枚举</p></blockquote><p>枚举是在运行时存在的真实对象</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+
+<span class="hljs-keyword">enum</span> E {
+    X, Y, Z
+}
+
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params">obj: { X: <span class="hljs-built_in">number</span> }</span>) </span>{
+    <span class="hljs-keyword">return</span> obj.X;
+}
+
+<span class="hljs-comment">// Works, since 'E' has a property named 'X' which is a number.</span>
+log(f(E));<span class="hljs-comment">// 0</span>
+</code></pre><hr><blockquote><p>在编译时枚举</p></blockquote><p>尽管<code>枚举</code>是运行时存在的<code>真实对象</code>，但<code>keyof</code>关键字的工作方式与您对<code>典型对象</code>的预期不同。</p><p>而是使用<code>keyof typeof</code>获取一个将所有<code>Enum</code>键表示为字符串的<code>Type</code>。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+
+<span class="hljs-keyword">enum</span> LogLevel {
+    ERROR, WARN, INFO, DEBUG
+}
+
+<span class="hljs-comment">/**
+ * This is equivalent to:
+ * type LogLevelStrings = 'ERROR' | 'WARN' | 'INFO' | 'DEBUG';
+ */</span>
+<span class="hljs-keyword">type</span> LogLevelStrings = keyof <span class="hljs-keyword">typeof</span> LogLevel;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">printImportant</span>(<span class="hljs-params">key: LogLevelStrings, message: <span class="hljs-built_in">string</span></span>) </span>{
+    <span class="hljs-keyword">const</span> num = LogLevel[key];
+    <span class="hljs-keyword">if</span> (num &lt;= LogLevel.WARN) {
+       log(<span class="hljs-string">'Log level key is: '</span>, key);<span class="hljs-comment">// Log level key is: ,  ERROR</span>
+       log(<span class="hljs-string">'Log level value is: '</span>, num);<span class="hljs-comment">// Log level value is: ,  0</span>
+       log(<span class="hljs-string">'Log level message is: '</span>, message);<span class="hljs-comment">// Log level message is: ,  This is a message</span>
+    }
+}
+printImportant(<span class="hljs-string">'ERROR'</span>, <span class="hljs-string">'This is a message'</span>);
+</code></pre><hr><blockquote><p>第一个枚举成员未使用初始化器，其他成员必须要进行初始化</p></blockquote><p>不带初始化器的枚举或者被放在第一的位置，或者被放在使用了数字常量，或其它常量初始化了的枚举后面。</p><p>换句话说，下面的情况是不被允许的：</p><pre class="hljs"><code><span class="hljs-keyword">const</span> getSomeValue = <span class="hljs-function"><span class="hljs-params">()</span>=&gt;</span> <span class="hljs-number">11</span>;
+
+<span class="hljs-keyword">enum</span> E {
+    A = getSomeValue(),
+    B, <span class="hljs-comment">// error! 'A' is not constant-initialized, so 'B' needs an initializer</span>
+}
+</code></pre><hr><h3 id="异构枚举">异构枚举 <a class="markdownIt-Anchor" href="#异构枚举">#</a></h3><p>从技术上讲，枚举可以与<code>字符串</code>和<code>数字</code>成员混合。</p><p>但是，一般推荐一个枚举对象中，都是<code>同一类型</code>的。</p><pre class="hljs"><code><span class="hljs-keyword">enum</span> Color { Red = <span class="hljs-number">0</span>, Green, Blue = <span class="hljs-string">'rBlue'</span> };
+</code></pre><hr><blockquote><p>指定枚举值为布尔值</p></blockquote><pre class="hljs"><code><span class="hljs-comment">// Type 'true' is not assignable to type 'Color'</span>
+<span class="hljs-comment">// Type 'false' is not assignable to type 'Color'</span>
+<span class="hljs-keyword">enum</span> Color { Red = <span class="hljs-number">0</span>, Green = <span class="hljs-literal">true</span>, Blue = <span class="hljs-literal">false</span> }
+</code></pre><hr><blockquote><p>指定枚举值为<code>null</code>和<code>undefined</code></p></blockquote><pre class="hljs"><code><span class="hljs-comment">// Type 'null' is not assignable to type 'Color'</span>
+<span class="hljs-comment">// Type 'undefined' is not assignable to type 'Color'</span>
+<span class="hljs-keyword">enum</span> Color { Red = <span class="hljs-number">0</span>, Green = <span class="hljs-literal">null</span>, Blue = <span class="hljs-literal">undefined</span> }
+</code></pre><hr><blockquote><p>指定枚举值为<code>array</code>和<code>object</code></p></blockquote><pre class="hljs"><code><span class="hljs-comment">// Type 'never[]' is not assignable to type 'Color'</span>
+<span class="hljs-comment">// Type '{}' is not assignable to type 'Color'</span>
+<span class="hljs-keyword">enum</span> Color { Red = <span class="hljs-number">0</span>, Green = [], Blue = {} }
+</code></pre><hr><blockquote><p>指定枚举值为<code>symbol</code></p></blockquote><pre class="hljs"><code><span class="hljs-keyword">const</span> sys = Symbol();
+<span class="hljs-comment">// Type 'unique symbol' is not assignable to type 'Color'.</span>
+<span class="hljs-comment">// Type '{}' is not assignable to type 'Color'</span>
+<span class="hljs-keyword">enum</span> Color { Red = <span class="hljs-number">0</span>, Green = sys, Blue }
+</code></pre><hr><h3 id="联合枚举">联合枚举 <a class="markdownIt-Anchor" href="#联合枚举">#</a></h3><p>当<code>枚举</code>中的所有<code>成员</code>都具有[文字枚举][文字枚举]值时，就会使用一些特殊的语义。<br>文字枚举成员。</p><blockquote><p>枚举成员也将成为类型</p></blockquote><p>例如，我们可以说某些<code>成员</code>只能具有<code>枚举成员</code>的值</p><pre class="hljs"><code><span class="hljs-keyword">enum</span> ShapeKind {
+    Circle,
+    Square,
+}
+
+<span class="hljs-keyword">interface</span> Circle {
+    kind: ShapeKind.Circle;
+    radius: <span class="hljs-built_in">number</span>;
+}
+
+<span class="hljs-keyword">interface</span> Square {
+    kind: ShapeKind.Square;
+    sideLength: <span class="hljs-built_in">number</span>;
+}
+
+<span class="hljs-keyword">const</span> c: Circle = {
+    kind: ShapeKind.Square, <span class="hljs-comment">// Error! Type 'ShapeKind.Square' is not assignable to type 'ShapeKind.Circle'.</span>
+    radius: <span class="hljs-number">100</span>,
+}
+</code></pre><hr><blockquote><p>枚举类型本身有效地，成为<code>联合</code>枚举成员。</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">enum</span> E {
+    Foo,
+    Bar,
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params">x: E.Foo | E.Bar</span>) </span>{
+    <span class="hljs-keyword">if</span> (x !== E.Foo){
+        log(<span class="hljs-string">'111111'</span>, x);
+    }<span class="hljs-keyword">else</span>{
+        log(<span class="hljs-string">'222222'</span>, x);
+    }
+}
+
+f(<span class="hljs-number">0</span>); <span class="hljs-comment">// 222222,  0</span>
+f(<span class="hljs-number">1</span>); <span class="hljs-comment">//  111111,  1</span>
+f(<span class="hljs-number">-1</span>); <span class="hljs-comment">//  111111,  -1</span>
+
+f(<span class="hljs-string">'melon'</span>); <span class="hljs-comment">//  Argument of type '"melon"' is not assignable to parameter of type 'E'.</span>
+
+</code></pre><p>因为<code>TypeScript</code>能知道<code>枚举</code>本身中存在的<code>确切值集</code>，所以，<code>TypeScript</code>也可以捕获<code>愚蠢</code>的<code>条件错误</code>，例如：</p><pre class="hljs"><code><span class="hljs-keyword">enum</span> E {
+    Foo,
+    Bar,
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params">x: E</span>) </span>{<span class="hljs-comment">// 类似 x 只能为 E.Foo || E.Bar</span>
+    <span class="hljs-keyword">if</span> (x !== E.Foo || x !== E.Bar) {
+        <span class="hljs-comment">//             ~~~~~~~~~~~</span>
+        <span class="hljs-comment">// Error! This condition will always return 'true' since the types 'E.Foo' and 'E.Bar' have no overlap.</span>
+    }
+}
+</code></pre><p>在该示例中，我们首先检查是否<code>x</code>是没有 <code>E.Foo</code>。如果该检查成功，则我们<code>||</code>的电路将短路，<code>if</code>的<code>主体</code>将运行。</p><p>但是，如果检查没有成功，则<code>x</code>又只可能为<code>E.Foo</code>，所以<code>x !== E.Bar</code>是没有意义的。</p><hr><h3 id="环境枚举">环境枚举 <a class="markdownIt-Anchor" href="#环境枚举">#</a></h3><p><code>环境枚举</code>用于描述已经存在的<code>枚举类型</code>的<code>形状</code>。</p><pre class="hljs"><code><span class="hljs-keyword">enum</span> Enum {
+    A = <span class="hljs-number">1</span>,<span class="hljs-comment">// 已计算</span>
+    B,<span class="hljs-comment">// 常量</span>
+    C = <span class="hljs-number">2</span><span class="hljs-comment">// 已计算</span>
+}
+
+
+<span class="hljs-keyword">declare</span> <span class="hljs-keyword">enum</span> Enum {
+    A = <span class="hljs-number">1</span>,<span class="hljs-comment">// 常量</span>
+    B,<span class="hljs-comment">// 已计算</span>
+    C = <span class="hljs-number">2</span><span class="hljs-comment">// 常量</span>
+}
+</code></pre><p><code>环境枚举</code>和<code>非环境枚举</code>之间的一个重要区别是，在<code>常规枚举</code>中，如果没有其<code>初始值</code>设定项的成员被视为<code>常量</code>，则该<code>成员</code>将被视为<code>常量</code>。</p><p>在<code>环境枚举</code>中相反，始终将没有<code>初始化</code>程序的环境（和非<code>const</code>）<code>枚举成员</code>视为<code>已计算</code>。</p><hr></div><div dir="ltr" class="level article-bar is-mobile"><div class="level-item has-text-centered"><a title="previous page" class="previouse-article-link" href="../chapters09/learn-derivative-type.html"><span class="icon icon-previous" data-icon="previous"></span><span class="link-content">&laquo; Previous</span></a></div><div class="level-item has-text-centered"><a title="font size" class="link-item link-item-size"><span class="icon icon-size" data-icon="size"></span></a></div><div class="level-item has-text-centered"><a title="table of content" class="link-item link-item-toc"><span class="icon icon-toc" data-icon="toc"></span></a></div><div class="level-item has-text-centered"><a title="top" href="#"><span class="icon icon-up" data-icon="up"></span> <span class="link-content">⤊ Top</span></a></div><div class="level-item has-text-centered"><a title="next page" class="next-article-link" href="../chapters09/interface.html"><span class="icon icon-next" data-icon="next"></span><span class="link-content">Next &raquo;</span></a></div></div></div><div class="column is-2-widescreen is-hidden"></div></div><div class="columns foot"><div class="column is-3 is-offset-9 build-by">Build by <a href="https://github.com/ruanyf/loppo" target="_blank">Loppo</a> 0.6.16</div></div><div class="book-toc notification is-warning is-hidden"><h3>Table of chapters &nbsp;<span class="title-close"><a class="button is-danger"> Close</a></span></h3><ul class="chapter-area"><li class="chapter-item"><a href="../chapters01/index.html">第一章 ECMAScript 6 简介</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters01/base-js.html">js基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/base-es.html">es基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/Babel.html">通过Babel使用ES6</a></li><li class="chapter-item"><a href="../chapters01/Traceur.html">通过Traceur使用ES6</a></li><li class="chapter-item"><a href="../chapters01/stage-00.html">Strawman 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-01.html">Proposal 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-02.html">Draft 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/active-proposals.html">Candidate 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-04.html">Finished 阶段的 proposals</a></li></ul><li class="chapter-item"><a href="../chapters02/index.html">第二章 let和const命令</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters02/base.html">前置知识了解</a></li><li class="chapter-item"><a href="../chapters02/let.html">let 命令</a></li><li class="chapter-item"><a href="../chapters02/const.html">const 命令</a></li><li class="chapter-item"><a href="../chapters02/statement-details.html">语句进阶说明</a></li></ul><li class="chapter-item"><a href="../chapters03/index.html">第三章 变量的解构赋值</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters03/base.html">基础数据结构</a></li><li class="chapter-item"><a href="../chapters03/complex.html">复杂数据结构</a></li><li class="chapter-item"><a href="../chapters03/parentheses.html">圆括号问题</a></li><li class="chapter-item"><a href="../chapters03/use.html">用途</a></li></ul><li class="chapter-item"><a href="../chapters04/index.html">第四章 字符串的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters04/unicode.html">字符的 Unicode 表示法</a></li><li class="chapter-item"><a href="../chapters04/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/template-string.html">模板字符串</a></li><li class="chapter-item"><a href="../chapters04/string-Iterator.html">字符串的遍历器接口</a></li><li class="chapter-item"><a href="../chapters04/tag-template.html">标签模板</a></li></ul><li class="chapter-item"><a href="../chapters05/index.html">第五章 正则的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters05/constructor.html">RegExp 构造函数</a></li><li class="chapter-item"><a href="../chapters05/base.html">RegExp 基础使用</a></li><li class="chapter-item"><a href="../chapters05/prototype-attribute.html">RegExp 原型属性</a></li><li class="chapter-item"><a href="../chapters05/modifier.html">RegExp 修饰符</a></li><li class="chapter-item"><a href="../chapters05/assert.html">RegExp 断言</a></li><li class="chapter-item"><a href="../chapters05/string-with-regExp.html">String中正则相关方法</a></li><li class="chapter-item"><a href="../chapters05/named-group-matching.html">具名组匹配</a></li><li class="chapter-item"><a href="../chapters05/unicode-attribute-class.html">Unicode 属性类</a></li></ul><li class="chapter-item"><a href="../chapters06/index.html">第六章 数值的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters06/base-notation.html">Number 进制表示法</a></li><li class="chapter-item"><a href="../chapters06/prototype-attribute.html">Number 原型属性</a></li><li class="chapter-item"><a href="../chapters06/base-function-extend.html">Number 对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/prototype-function-extend.html">Number 原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/math-extension.html">math 对象扩展</a></li><li class="chapter-item"><a href="../chapters06/exponent-operator.html">指数运算符</a></li></ul><li class="chapter-item"><a href="../chapters07/index.html">第七章 函数的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters07/arrow-function.html">箭头函数</a></li><li class="chapter-item"><a href="../chapters07/strict-mode.html">严格模式</a></li><li class="chapter-item"><a href="../chapters07/function-parameter-improvement.html">函数参数改进</a></li><li class="chapter-item"><a href="../chapters07/the-name-attribute-of-the-function.html">函数的name属性</a></li><li class="chapter-item"><a href="../chapters07/tail-call-optimization.html">尾调用优化</a></li></ul><li class="chapter-item"><a href="../chapters08/index.html">第八章 数组的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters08/extension-operator.html">扩展运算符</a></li><li class="chapter-item"><a href="../chapters08/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/empty-space-processing-of-array.html">数组的空位处理</a></li><li class="chapter-item"><a href="../chapters08/pipeline-optimization-of-arrays.html">数组的管道运算优化</a></li></ul><li class="chapter-item"><a href="../chapters09/index.html">第九章 ts学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-collapse" data-icon="collapse"></span></a></li><ul class="chapter-level-1 chapter-level-1-current"><li class="chapter-item"><a href="../chapters09/history.html">ts历史</a></li><li class="chapter-item"><a href="../chapters09/advantages-and-disadvantages.html">ts优势与劣势</a></li><li class="chapter-item"><a href="../chapters09/learn-primitive-type.html">基础类型学习</a></li><li class="chapter-item"><a href="../chapters09/learn-derivative-type.html">衍生类型基础学习</a></li><li class="chapter-item chapter-item-current"><a href="../chapters09/Enum.html">衍生类型之Enum</a></li><li class="chapter-item"><a href="../chapters09/interface.html">衍生类型之interface</a></li><li class="chapter-item"><a href="../chapters09/Class.html">衍生类型之Class</a></li><li class="chapter-item"><a href="../chapters09/ts-util.html">ts 高级工具用法</a></li></ul><li class="chapter-item"><a href="../chapters10/index.html">第十章 react学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters10/history.html">react历史</a></li><li class="chapter-item"><a href="../chapters10/version-management.html">react版本管理</a></li><li class="chapter-item"><a href="../chapters10/advantages-and-disadvantages.html">react优势与劣势</a></li><li class="chapter-item"><a href="../chapters10/base.html">react基础语法</a></li><li class="chapter-item"><a href="../chapters10/common-package.html">react常用组件包</a></li><li class="chapter-item"><a href="../chapters10/family-bucket.html">react全家桶</a></li><li class="chapter-item"><a href="../chapters10/ecosphere.html">react的生态圈</a></li><li class="chapter-item"><a href="../chapters10/substitute-product.html">react和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters11/index.html">第十一章 webpack学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters11/history.html">webpack历史</a></li><li class="chapter-item"><a href="../chapters11/version-management.html">webpack版本管理</a></li><li class="chapter-item"><a href="../chapters11/advantages-and-disadvantages.html">webpack优势与劣势</a></li><li class="chapter-item"><a href="../chapters11/base-config.html">webpack项目基础配置</a></li><li class="chapter-item"><a href="../chapters11/common-package.html">webpack常用组件包</a></li><li class="chapter-item"><a href="../chapters11/ecosphere.html">webpack的生态圈</a></li><li class="chapter-item"><a href="../chapters11/substitute-product.html">webpack和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters12/index.html">第十二章 微信小程序学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters12/history.html">微信小程序历史</a></li><li class="chapter-item"><a href="../chapters12/version-management.html">微信小程序版本管理</a></li><li class="chapter-item"><a href="../chapters12/advantages-and-disadvantages.html">微信小程序优势与劣势</a></li><li class="chapter-item"><a href="../chapters12/base.html">微信小程序基础学习</a></li><li class="chapter-item"><a href="../chapters12/common-ui-package.html">微信小程序常用UI库</a></li><li class="chapter-item"><a href="../chapters12/ecosphere.html">微信小程序的生态圈</a></li><li class="chapter-item"><a href="../chapters12/cross-platform.html">微信小程序跨平台</a></li><li class="chapter-item"><a href="../chapters12/substitute-product.html">微信小程序和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters13/index.html">第十三章 web安全方案</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters13/common-web-risks.html">常见web风险</a></li><li class="chapter-item"><a href="../chapters13/monitoring-system.html">前端监控体系</a></li><li class="chapter-item"><a href="../chapters13/performance-optimization.html">前端性能优化</a></li><li class="chapter-item"><a href="../chapters13/security-prevention-and-control.html">前端安全防控</a></li><li class="chapter-item"><a href="../chapters13/test-system.html">前端测试体系</a></li></ul></ul></div><div class="progress-indicator"></div><!-- SCRIPTS --><script>var LOPPO={current_path:"chapters09/Enum.md",relative_root_path:"../",article_toc:'<ul class="markdownIt-TOC">\n<li><a href="#%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D">基础介绍</a></li>\n<li><a href="#%E5%9F%BA%E7%A1%80%E6%9E%9A%E4%B8%BE">基础枚举</a>\n<ul>\n<li><a href="#%E6%95%B0%E5%AD%97%E6%9E%9A%E4%B8%BE">数字枚举</a></li>\n<li><a href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%9E%9A%E4%B8%BE">字符串枚举</a></li>\n<li><a href="#%E5%8F%8D%E5%90%91%E6%98%A0%E5%B0%84">反向映射</a></li>\n<li><a href="#const%E6%9E%9A%E4%B8%BE"><code>const</code>枚举</a></li>\n</ul>\n</li>\n<li><a href="#%E5%A4%8D%E6%9D%82%E6%9E%9A%E4%B8%BE">复杂枚举</a>\n<ul>\n<li><a href="#%E5%B8%B8%E9%87%8F%E6%9E%9A%E4%B8%BE">常量枚举</a></li>\n<li><a href="#%E6%96%87%E5%AD%97%E6%9E%9A%E4%B8%BE">文字枚举</a></li>\n<li><a href="#%E8%AE%A1%E7%AE%97%E6%9E%9A%E4%B8%BE">计算枚举</a></li>\n<li><a href="#%E5%BC%82%E6%9E%84%E6%9E%9A%E4%B8%BE">异构枚举</a></li>\n<li><a href="#%E8%81%94%E5%90%88%E6%9E%9A%E4%B8%BE">联合枚举</a></li>\n<li><a href="#%E7%8E%AF%E5%A2%83%E6%9E%9A%E4%B8%BE">环境枚举</a></li>\n</ul>\n</li>\n</ul>\n'}</script><script src="../assets/js/app.js"></script></body></html>

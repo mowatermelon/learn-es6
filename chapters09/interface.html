@@ -1,0 +1,462 @@
+<!DOCTYPE html><html><head><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta charset="utf-8"><title>interface - learn es6</title><meta name="description" content=""><meta name="author" content=""><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1"><link rel="stylesheet" href="../assets/css/bulma.min.css"><link rel="stylesheet" href="../assets/css/app.css"><!--[if lt IE 9]>
+<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]--><link rel="shortcut icon" href=""></head><body dir="ltr"><nav class="columns navbar"><div class="column logo is-3 is-offset-1"><a class="is-brand" href="../index.html">learn es6</a></div></nav><div class="columns content"><div class="column is-2-desktop is-3-widescreen is-hidden-touch"></div><div class="column article-container is-11-tablet is-8-desktop is-6-widescreen"><div class="breadcrumb-area"><a href="../index.html" class="breadcrumb-item">Home</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters09/index.html" class="breadcrumb-item">第九章 ts学习</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters09/interface.html" class="breadcrumb-item">衍生类型之interface</a></div><h1 class="article-title">interface</h1><div class="article"><p><code>TypeScript</code>的核心原则之一是<code>类型检查</code>的重点是值的形状。有时称为<code>鸭式打字</code>或<code>结构子类型化</code>。在<code>TypeScript</code>中，接口充当命名这些类型的角色，并且是定义<code>代码内契约</code>以及<code>项目外代码契约</code>的有效方法。</p><h2 id="基础说明">基础说明 <a class="markdownIt-Anchor" href="#基础说明">#</a></h2><h3 id="接口可索引类型">接口可索引类型 <a class="markdownIt-Anchor" href="#接口可索引类型">#</a></h3><p>我们也可以描述可以<code>索引</code>到的类型，例如<code>a[10]</code>或<code>ageMap[&quot;daniel&quot;]</code>。</p><p><code>可索引类型</code>具有<code>索引签名</code>，该签名描述了可用于索引对象的<code>类型</code>，以及建立索引时对应的<code>返回类型</code>。</p><p>支持两种类型的索引签名：<code>字符串</code>和<code>数字</code>。可以同时支持两种类型的<code>索引器</code>，</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">interface</span> StringArray {
+    [index: <span class="hljs-built_in">number</span>]: <span class="hljs-built_in">string</span>;
+}
+
+<span class="hljs-keyword">const</span> myArray: StringArray = [<span class="hljs-string">"Bob"</span>, <span class="hljs-string">"Fred"</span>];
+
+<span class="hljs-keyword">const</span> myStr: <span class="hljs-built_in">string</span> = myArray[<span class="hljs-number">0</span>];
+log(myStr);<span class="hljs-comment">// Bob</span>
+</code></pre><p>上面，我们有一个<code>StringArray</code>带有索引签名的接口。该索引签名指出，当添加 <code>StringArray</code>对象中索引名类型为<code>number</code>的字段时，这个时候对应的字段值应该为一个字符串<code>string</code>。</p><hr><blockquote><p>从数字索引器返回的<code>类型</code>，必须是从字符串索引器返回的类型的<code>子类型</code>。</p></blockquote><p>这是因为当使用编制索引时，<code>JavaScript</code>实际上会在将其<code>string</code>编入对象之前将其隐式转换为<code>number</code>。</p><p>这意味着，与索引<code>100</code>（一<code>number</code>），与索引<code>100</code>（一<code>string</code>）是同样的运行效果，所以这两个要一致。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">class</span> Animal {
+    name: <span class="hljs-built_in">string</span>;
+    <span class="hljs-keyword">constructor</span>(<span class="hljs-params">name: <span class="hljs-built_in">string</span></span>) {
+        <span class="hljs-keyword">this</span>.name = name;
+    }
+}
+<span class="hljs-keyword">class</span> Dog <span class="hljs-keyword">extends</span> Animal {
+    breed: <span class="hljs-built_in">string</span>;
+    <span class="hljs-keyword">constructor</span>(<span class="hljs-params">breed: <span class="hljs-built_in">string</span></span>) {
+        <span class="hljs-keyword">super</span>(breed);
+        <span class="hljs-keyword">this</span>.breed = breed;
+    }
+}
+
+<span class="hljs-keyword">interface</span> NotOkay {
+    [x: <span class="hljs-built_in">number</span>]: Animal;<span class="hljs-comment">// Numeric index type 'Animal' is not assignable to string index type 'Dog'.</span>
+    [x: <span class="hljs-built_in">string</span>]: Dog;
+}
+</code></pre><hr><blockquote><p>尽管<code>字符串索引签名</code>是描述“字典”模式的强大方法，但它们还强制所有字段与其返回类型匹配。</p></blockquote><p>这是因为字符串索引声明该字符串<code>obj.property</code>也可以作为<code>obj[&quot;property&quot;]</code>。</p><p>在以下示例中，<code>name</code>的类型与<code>字符串索引</code>的类型不匹配，并且<code>类型检查器</code>给出错误</p><pre class="hljs"><code><span class="hljs-keyword">interface</span> NumberDictionary {
+    [index: <span class="hljs-built_in">string</span>]: <span class="hljs-built_in">number</span>;
+    length: <span class="hljs-built_in">number</span>;    <span class="hljs-comment">// ok, length is a number</span>
+    name: <span class="hljs-built_in">string</span>;      <span class="hljs-comment">// Property 'name' of type 'string' is not assignable to string index type 'number'.</span>
+}
+</code></pre><p>但是，如果索引签名是字段类型的<code>并集</code>，则可以接受不同<code>类型</code>的<code>字段</code>。</p><pre class="hljs"><code><span class="hljs-keyword">interface</span> NumberOrStringDictionary {
+    [index: <span class="hljs-built_in">string</span>]: <span class="hljs-built_in">number</span> | <span class="hljs-built_in">string</span>;
+    length: <span class="hljs-built_in">number</span>;    <span class="hljs-comment">// ok, length is a number</span>
+    name: <span class="hljs-built_in">string</span>;      <span class="hljs-comment">// ok, name is a string</span>
+}
+</code></pre><hr><blockquote><p>与<code>readonly</code>进行结合</p></blockquote><p>可以进行索引签名<code>readonly</code>以防止分配给它们的索引</p><pre class="hljs"><code><span class="hljs-keyword">interface</span> ReadonlyStringArray {
+    readonly [index: <span class="hljs-built_in">number</span>]: <span class="hljs-built_in">string</span>;
+}
+<span class="hljs-keyword">const</span> myArray: ReadonlyStringArray = [<span class="hljs-string">"Alice"</span>, <span class="hljs-string">"Bob"</span>];
+myArray[<span class="hljs-number">2</span>] = <span class="hljs-string">"Mallory"</span>; <span class="hljs-comment">// Index signature in type 'ReadonlyStringArray' only permits reading.</span>
+
+</code></pre><hr><h3 id="接口扩展">接口扩展 <a class="markdownIt-Anchor" href="#接口扩展">#</a></h3><blockquote><p>单一接口扩展</p></blockquote><p>像类一样，接口可以互相<code>扩展</code>。</p><p>可以将一个接口的成员复制到另一个接口中，从而在将接口分离为可重用组件的过程中提供了更大的灵活性。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">interface</span> Shape {
+    color: <span class="hljs-built_in">string</span>;
+}
+
+<span class="hljs-keyword">interface</span> Square <span class="hljs-keyword">extends</span> Shape {
+    sideLength: <span class="hljs-built_in">number</span>;
+}
+
+<span class="hljs-keyword">const</span> square = {} <span class="hljs-keyword">as</span> Square;
+square.color = <span class="hljs-string">"blue"</span>;
+square.sideLength = <span class="hljs-number">10</span>;
+log(square);<span class="hljs-comment">// {color: "blue", sideLength: 10}</span>
+</code></pre><hr><blockquote><p>多个接口扩展</p></blockquote><p>一个接口可以扩展多个接口，从而创建所有接口的组合。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">interface</span> Shape {
+    color: <span class="hljs-built_in">string</span>;
+}
+
+<span class="hljs-keyword">interface</span> PenStroke {
+    penWidth: <span class="hljs-built_in">number</span>;
+}
+
+<span class="hljs-keyword">interface</span> Square <span class="hljs-keyword">extends</span> Shape, PenStroke {
+    sideLength: <span class="hljs-built_in">number</span>;
+}
+
+<span class="hljs-keyword">const</span> square = {} <span class="hljs-keyword">as</span> Square;
+square.color = <span class="hljs-string">"blue"</span>;
+square.sideLength = <span class="hljs-number">10</span>;
+square.penWidth = <span class="hljs-number">5.0</span>;
+log(square);<span class="hljs-comment">// {color: "blue", sideLength: 10, penWidth: 5}</span>
+</code></pre><hr><h3 id="类与接口继承">类与接口继承 <a class="markdownIt-Anchor" href="#类与接口继承">#</a></h3><blockquote><p>基础实现字段接口继承</p></blockquote><p>在<code>TypeScript</code>中，还可以使用<code>C＃</code>和<code>Java</code>等语言中接口的最常见用法之一，即<code>显式强制类满足特定协定</code>。</p><pre class="hljs"><code><span class="hljs-keyword">interface</span> ClockInterface{
+  currTime : <span class="hljs-built_in">Date</span>;
+}
+<span class="hljs-keyword">class</span> Clock <span class="hljs-keyword">implements</span> ClockInterface{
+    currTime: <span class="hljs-built_in">Date</span> = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+    <span class="hljs-comment">// if not declare currTime property,it will throw error.</span>
+    <span class="hljs-comment">// Class 'Clock' incorrectly implements interface 'ClockInterface'.</span>
+    <span class="hljs-comment">// Property 'currTime' is missing in type 'Clock' but required in type 'ClockInterface'.</span>
+    <span class="hljs-keyword">constructor</span>(<span class="hljs-params">h: <span class="hljs-built_in">number</span>, s: <span class="hljs-built_in">number</span></span>) { }
+   <span class="hljs-comment">// 'h' is declared but its value is never read.</span>
+   <span class="hljs-comment">// 's' is declared but its value is never read.</span>
+}
+</code></pre><p>注意，接口中声明了公共类的字段，在类继承的时候一定要做对应字段声明，否则这边会抛出相关错误。</p><hr><blockquote><p>基础实现方法接口继承</p></blockquote><p>还可以像<code>setTime</code>在下面的示例中所做的那样，描述在类中实现的<code>接口</code>中的<code>方法</code>。</p><pre class="hljs"><code><span class="hljs-keyword">interface</span> ClockInterface {
+    currentTime: <span class="hljs-built_in">Date</span>;
+    setTime(d: <span class="hljs-built_in">Date</span>): <span class="hljs-built_in">void</span>;
+}
+
+<span class="hljs-keyword">class</span> Clock <span class="hljs-keyword">implements</span> ClockInterface {
+    currentTime: <span class="hljs-built_in">Date</span> = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+    setTime(d: <span class="hljs-built_in">Date</span>) {
+        <span class="hljs-keyword">this</span>.currentTime = d;
+    }
+    <span class="hljs-keyword">constructor</span>(<span class="hljs-params">h: <span class="hljs-built_in">number</span>, m: <span class="hljs-built_in">number</span></span>) { }
+}
+</code></pre><p><code>接口</code>描述了类的公共<code>字段</code>和<code>方法</code>，而不是公共和私有中的所有<code>字段</code>和<code>方法</code>。</p><p>即如果是特定子类中才需要进行实例的<code>字段</code>和<code>方法</code>，应该放到具体的子类中进行相关实现，而不是在<code>公共接口</code>中实现。</p><p>这主要是禁止使用它们来检查<code>类</code>是否还具有针对该类实例的<code>私有类</code>的<code>特定类型</code>。</p><hr><h3 id="静态和实例差异">静态和实例差异 <a class="markdownIt-Anchor" href="#静态和实例差异">#</a></h3><p>当使用类和接口时，请记住一个类有两种类型：<code>静态端</code>的<code>类型</code>和<code>实例端</code>的<code>类型</code>。</p><p>如果使用<code>构造签名(new)</code>创建<code>接口</code>，并尝试创建实现该接口的类，则会抛出错误。</p><pre class="hljs"><code><span class="hljs-keyword">interface</span> ClockConstructor {
+    <span class="hljs-keyword">new</span>(hour: <span class="hljs-built_in">number</span>, minute: <span class="hljs-built_in">number</span>);
+    <span class="hljs-comment">// Construct signature, which lacks return-type annotation, implicitly has an 'any' return type.</span>
+}
+
+<span class="hljs-keyword">class</span> Clock <span class="hljs-keyword">implements</span> ClockConstructor {
+<span class="hljs-comment">// Class 'Clock' incorrectly implements interface 'ClockConstructor'.</span>
+    currentTime: <span class="hljs-built_in">Date</span> = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+    <span class="hljs-keyword">constructor</span>(<span class="hljs-params">h: <span class="hljs-built_in">number</span>, m: <span class="hljs-built_in">number</span></span>) { }
+}
+</code></pre><p>这是因为当类实现<code>接口</code>时，仅检查该类的<code>实例侧</code>。由于<code>构造函数</code>位于<code>静态端</code>，因此它不包含在此检查中。</p><p>即类在实现接口的时候，只检测是否有实现可继承的实例字段和实例方法，而构造函数属于类的静态方法，不属于检测访问内，即不可用于继承，所以这边不可以做正确继承。</p><hr><blockquote><p>如何绕过构造签名检测，修改构造签名的接口不可以直接用于类继承，但是还可以用作类型检测</p></blockquote><p>在此示例中，在<code>ClockConstructor</code>接口中修改了<code>构造签名</code>，在<code>ClockInterface</code>接口中添加了<code>实例方法</code>。</p><p>然后，为方便起见，我们定义一个构造函数<code>createClock</code>，该函数创建传递给它的类型的实例，这种绕过静态检测的写法，不建议使用。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">interface</span> ClockConstructor {
+    <span class="hljs-keyword">new</span> (hour: <span class="hljs-built_in">number</span>, minute: <span class="hljs-built_in">number</span>): ClockInterface;
+}
+
+
+<span class="hljs-keyword">interface</span> ClockInterface {
+    tick(): <span class="hljs-built_in">void</span>;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createClock</span>(<span class="hljs-params">ctor: ClockConstructor, hour: <span class="hljs-built_in">number</span>, minute: <span class="hljs-built_in">number</span></span>): <span class="hljs-title">ClockInterface</span> </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> ctor(hour, minute);
+}
+
+<span class="hljs-keyword">class</span> DigitalClock <span class="hljs-keyword">implements</span> ClockInterface {
+    h: <span class="hljs-built_in">number</span>;
+    m: <span class="hljs-built_in">number</span>;
+    <span class="hljs-keyword">constructor</span>(<span class="hljs-params">h: <span class="hljs-built_in">number</span>, m: <span class="hljs-built_in">number</span></span>) { 
+        <span class="hljs-keyword">this</span>.h = h;
+        <span class="hljs-keyword">this</span>.m = m;
+    }
+    tick() {
+        log(<span class="hljs-string">`beep beep,the time is <span class="hljs-subst">${<span class="hljs-keyword">this</span>.h}</span>:<span class="hljs-subst">${<span class="hljs-keyword">this</span>.m}</span>`</span>);
+    }
+}
+<span class="hljs-keyword">class</span> AnalogClock <span class="hljs-keyword">implements</span> ClockInterface {
+    h: <span class="hljs-built_in">number</span>;
+    m: <span class="hljs-built_in">number</span>;
+    <span class="hljs-keyword">constructor</span>(<span class="hljs-params">h: <span class="hljs-built_in">number</span>, m: <span class="hljs-built_in">number</span></span>) { 
+        <span class="hljs-keyword">this</span>.h = h;
+        <span class="hljs-keyword">this</span>.m = m;
+    }
+    tick() {
+        log(<span class="hljs-string">`tick tock is <span class="hljs-subst">${<span class="hljs-keyword">this</span>.h}</span>:<span class="hljs-subst">${<span class="hljs-keyword">this</span>.m}</span>`</span>);
+    }
+}
+
+<span class="hljs-keyword">const</span> digital = createClock(DigitalClock, <span class="hljs-number">12</span>, <span class="hljs-number">17</span>);
+<span class="hljs-keyword">const</span> analog = createClock(AnalogClock, <span class="hljs-number">7</span>, <span class="hljs-number">32</span>);
+
+<span class="hljs-comment">// log(ClockConstructor);// 'ClockConstructor' only refers to a type, but is being used as a value here.</span>
+<span class="hljs-comment">// log(ClockInterface);// 'ClockInterface' only refers to a type, but is being used as a value here.</span>
+log(DigitalClock);
+<span class="hljs-comment">// class DigitalClock {</span>
+<span class="hljs-comment">//     constructor(h, m) { }</span>
+<span class="hljs-comment">//     tick() {</span>
+<span class="hljs-comment">//         console.log("beep beep");</span>
+<span class="hljs-comment">//     }</span>
+<span class="hljs-comment">// }</span>
+log(AnalogClock);
+<span class="hljs-comment">// class AnalogClock {</span>
+<span class="hljs-comment">//     constructor(h, m) { }</span>
+<span class="hljs-comment">//     tick() {</span>
+<span class="hljs-comment">//         console.log("tick tock");</span>
+<span class="hljs-comment">//     }</span>
+<span class="hljs-comment">// }</span>
+
+log(digital.tick());<span class="hljs-comment">// beep beep,the time is 12:17</span>
+log(analog.tick());<span class="hljs-comment">// tick tock is 7:32</span>
+</code></pre><p><code>createClock</code>的第一个参数的类型为<code>ClockConstructor</code>，<code>createClock(AnalogClock, 7, 32)</code>和<code>createClock(DigitalClock, 12, 17)</code>，因此会检查<code>AnalogClock</code>和<code>DigitalClock</code>是否具有正确的<code>构造函数签名</code>和对应的构造返回值。</p><p>这两个类都是继承了<code>ClockInterface</code>，同时又有正确的<code>构造函数签名</code>，所以这边检测通过。</p><hr><blockquote><p>如何绕过构造签名检测，使用类表达式强制声明继承。</p></blockquote><p>这种在严格模式检测中，也是会报错，这种绕过静态检测的写法，不建议使用。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">interface</span> ClockConstructor {
+    <span class="hljs-keyword">new</span>(hour: <span class="hljs-built_in">number</span>, minute: <span class="hljs-built_in">number</span>);
+  <span class="hljs-comment">// Construct signature, which lacks return-type annotation, implicitly has an 'any' return type.</span>
+}
+
+<span class="hljs-keyword">interface</span> ClockInterface {
+  tick(): <span class="hljs-built_in">void</span>;
+}
+
+<span class="hljs-keyword">const</span> Clock: ClockConstructor = <span class="hljs-keyword">class</span> Clock <span class="hljs-keyword">implements</span> ClockInterface {
+    h: <span class="hljs-built_in">number</span>;
+    m: <span class="hljs-built_in">number</span>;
+    <span class="hljs-keyword">constructor</span>(<span class="hljs-params">h: <span class="hljs-built_in">number</span>, m: <span class="hljs-built_in">number</span></span>) { 
+        <span class="hljs-keyword">this</span>.h = h;
+        <span class="hljs-keyword">this</span>.m = m;
+    }
+    tick() {
+        log(<span class="hljs-string">`beep beep,the time is <span class="hljs-subst">${<span class="hljs-keyword">this</span>.h}</span>:<span class="hljs-subst">${<span class="hljs-keyword">this</span>.m}</span>`</span>);
+    }
+}
+
+log((<span class="hljs-keyword">new</span> Clock(<span class="hljs-number">7</span>,<span class="hljs-number">33</span>)).tick())<span class="hljs-comment">// beep beep,the time is 7:33</span>
+</code></pre><hr><h3 id="类私有字段继承">类私有字段继承 <a class="markdownIt-Anchor" href="#类私有字段继承">#</a></h3><p>首先要注意<code>类与类</code>，<code>接口和类</code>和<code>接口与接口</code>之间的继承是通过<code>extends</code>关键词，类与接口的继承是通过<code>implements</code>关键词。</p><p>当<code>接口</code>扩展<code>类</code>类型时，它将继承该<code>类</code>的<code>成员</code>，但不继承其实现。</p><p>好像该<code>接口</code>声明了该<code>类</code>的<code>所有成员</code>，而没有提供<code>实现</code>。</p><p><code>接口</code>甚至继承基类的<code>私有成员</code>和<code>受保护成员</code>。这意味着，当您创建一个扩展带有<code>私有</code>或<code>受保护成员</code>的<code>类</code>的<code>接口</code>时，该接<code>口</code>类型只能由该<code>类</code>或其<code>子类</code>实现。</p><p>当具有较大的继承<code>层次</code>结构，但要指定您的代码仅适用于具有某些字段的子类时，这很有用。<code>子类</code>除了从<code>基类</code>继承外不必关联。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">class</span> Control {
+    <span class="hljs-keyword">private</span> state: <span class="hljs-built_in">any</span>;
+    <span class="hljs-keyword">constructor</span>(<span class="hljs-params">state: <span class="hljs-built_in">string</span></span>) { <span class="hljs-keyword">this</span>.state = state; }
+    getState(): <span class="hljs-built_in">string</span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.state;
+    }
+}
+
+<span class="hljs-keyword">interface</span> SelectableControl <span class="hljs-keyword">extends</span> Control {
+    select(): <span class="hljs-built_in">void</span>;
+}
+
+<span class="hljs-keyword">class</span> Button <span class="hljs-keyword">extends</span> Control <span class="hljs-keyword">implements</span> SelectableControl {
+    select() {
+        log(<span class="hljs-string">`that's state is <span class="hljs-subst">${<span class="hljs-keyword">this</span>.getState()}</span>`</span>)
+    }
+}
+
+<span class="hljs-keyword">class</span> TextBox <span class="hljs-keyword">extends</span> Control {
+    select() {
+        log(<span class="hljs-string">`that's state is <span class="hljs-subst">${<span class="hljs-keyword">this</span>.getState()}</span>`</span>)
+    }
+}
+
+<span class="hljs-comment">// Class 'ImageConstructor' incorrectly implements interface 'SelectableControl'.</span>
+<span class="hljs-comment">//   Types have separate declarations of a private property 'state'.</span>
+<span class="hljs-comment">// Property 'getState' is missing in type 'ImageConstructor' but required in type 'SelectableControl'.</span>
+<span class="hljs-keyword">class</span> ImageConstructor <span class="hljs-keyword">implements</span> SelectableControl {
+    <span class="hljs-keyword">private</span> state: <span class="hljs-built_in">any</span>;
+    <span class="hljs-keyword">type</span>: <span class="hljs-built_in">string</span> = <span class="hljs-string">'Image'</span>;<span class="hljs-comment">// can declare common property</span>
+    readonly style: <span class="hljs-built_in">string</span> = <span class="hljs-string">''</span>; <span class="hljs-comment">// can declare readonly property</span>
+    select() {
+        log(<span class="hljs-string">`that's state is <span class="hljs-subst">${<span class="hljs-keyword">this</span>.state}</span>,that's type is <span class="hljs-subst">${<span class="hljs-keyword">this</span>.<span class="hljs-keyword">type</span>}</span>`</span>);
+    }
+}
+
+<span class="hljs-keyword">class</span> LocationConstructor {
+    <span class="hljs-keyword">private</span> state: <span class="hljs-built_in">any</span>;
+    <span class="hljs-keyword">type</span>: <span class="hljs-built_in">string</span> = <span class="hljs-string">'Location'</span>;<span class="hljs-comment">// can declare common property</span>
+    readonly style: <span class="hljs-built_in">string</span> = <span class="hljs-string">''</span>; <span class="hljs-comment">// can declare readonly property</span>
+    select() {
+        log(<span class="hljs-string">`that's state is <span class="hljs-subst">${<span class="hljs-keyword">this</span>.state}</span>,that's type is <span class="hljs-subst">${<span class="hljs-keyword">this</span>.<span class="hljs-keyword">type</span>}</span>`</span>);
+    }
+}
+
+<span class="hljs-keyword">const</span> oButton = <span class="hljs-keyword">new</span> Button(<span class="hljs-string">'Button'</span>);
+<span class="hljs-keyword">const</span> oTextBox = <span class="hljs-keyword">new</span> TextBox(<span class="hljs-string">'TextBox'</span>);
+log(oButton.select());<span class="hljs-comment">// that's state is Button</span>
+log(oTextBox.select());<span class="hljs-comment">// that's state is TextBox</span>
+
+<span class="hljs-keyword">const</span> oImage = <span class="hljs-keyword">new</span> ImageConstructor();
+<span class="hljs-keyword">const</span> oLocation = <span class="hljs-keyword">new</span> LocationConstructor();
+log(oImage.select());<span class="hljs-comment">// that's state is undefined,that's type is Image</span>
+log(oLocation.select());<span class="hljs-comment">// that's state is undefined,that's type is Location</span>
+</code></pre><p><code>private</code>字段和方法，只能在声明的类内部进行访问和修改，后续继承的子类和子接口都无法通过<code>字面量</code>的形式访问。</p><p>在以上示例中，<code>SelectableControl</code>接口继承了<code>Control</code>类，包括私有<code>state</code>字段和<code>getState</code>方法。</p><p>由于<code>state</code>是私有成员，因此只有<code>Control</code>的后代，才能实现<code>SelectableControl</code>。</p><p>这是因为只有<code>Control</code>的后代，会拥有源自同一声明的私有成员<code>state</code>，这是私有成员必须兼容的要求。</p><hr><h2 id="作用说明">作用说明 <a class="markdownIt-Anchor" href="#作用说明">#</a></h2><h3 id="形参类型校验">形参类型校验 <a class="markdownIt-Anchor" href="#形参类型校验">#</a></h3><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">printLabel</span>(<span class="hljs-params">labeledObj: { label: <span class="hljs-built_in">string</span> }</span>) </span>{
+  log(labeledObj.label);
+}
+
+<span class="hljs-keyword">const</span> myObj = {size: <span class="hljs-number">10</span>, label: <span class="hljs-string">"Size 10 Object"</span>};
+printLabel(myObj);<span class="hljs-comment">// Size 10 Object</span>
+
+<span class="hljs-keyword">const</span> testObj = { size: <span class="hljs-number">1</span> };
+printLabel(testObj);
+<span class="hljs-comment">// Argument of type '{ size: number; }' is not assignable to parameter of type '{ label: string; }'.</span>
+<span class="hljs-comment">//   Property 'label' is missing in type '{ size: number; }' but required in type '{ label: string; }'.</span>
+</code></pre><p>类型检查器检查对的调用<code>printLabel</code>。该<code>printLabel</code>函数具有一个<code>参数</code>，该参数要求传入的对象具有一个名为<code>label</code> 值类型为<code>string</code>的字段。</p><p>请注意，我们的对象实际上具有比此更多的字段，但是编译器仅检查是否至少存在所需的字段并与所需的类型匹配。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">interface</span> LabeledValue {
+    label: <span class="hljs-built_in">string</span>;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">printLabel</span>(<span class="hljs-params">labeledObj: LabeledValue</span>) </span>{
+  log(labeledObj.label);
+}
+
+<span class="hljs-keyword">const</span> testObj = { size: <span class="hljs-number">1</span> };
+printLabel(testObj);
+<span class="hljs-comment">// Argument of type '{ size: number; }' is not assignable to parameter of type '{ label: string; }'.</span>
+<span class="hljs-comment">//   Property 'label' is missing in type '{ size: number; }' but required in type '{ label: string; }'.</span>
+
+</code></pre><p>接口<code>LabeledValue</code>是一个名称，我们现在可以在前面的示例中使用它来描述需求。它仍然表示具有一个称为<code>label</code> 的单个字段<code>string</code>。</p><p>注意，我们不必明确地说要传递给该对象，可以像使用其他语言一样实现此接口<code>printLabel</code>。在这里，只有<code>类型</code>很重要。</p><p>如果我们传递给该函数的对象满足列出的要求，则允许它进行传递。</p><p>值得指出的是，类型检查器不需要这些字段以任何<code>顺序</code>出现，而仅要求接口存在的字段具有必需的<code>类型</code>。</p><hr><h3 id="可选字段">可选字段 <a class="markdownIt-Anchor" href="#可选字段">#</a></h3><p>并非接口的所有字段都是必需的。有些在某些条件下存在或根本不存在。</p><p>具有可选字段的接口与其他接口的编写方式相似，每个可选字段，在声明中字段名称的末尾用<code>?</code>表示。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">interface</span> SquareConfig {
+    color?: <span class="hljs-built_in">string</span>;
+    width?: <span class="hljs-built_in">number</span>;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createSquare</span>(<span class="hljs-params">config: SquareConfig</span>): </span>{color: <span class="hljs-built_in">string</span>; area: <span class="hljs-built_in">number</span>} {
+    <span class="hljs-keyword">const</span> newSquare = {color: <span class="hljs-string">"white"</span>, area: <span class="hljs-number">100</span>};
+    <span class="hljs-keyword">if</span> (config.color) {
+        newSquare.color = config.color;
+    }
+    <span class="hljs-keyword">if</span> (config.width) {
+        newSquare.area = config.width * config.width;
+    }
+    <span class="hljs-keyword">return</span> newSquare;
+}
+
+<span class="hljs-keyword">const</span> mySquare = createSquare({color: <span class="hljs-string">"black"</span>});
+log(mySquare);<span class="hljs-comment">// {color: "black", area: 100}</span>
+</code></pre><blockquote><p>基础字段拼写检测</p></blockquote><p>可选字段的优点在于，您可以描述这些可能的可用字段，同时仍然可以防止使用不属于接口的<code>字段</code>。</p><p>例如，如果我们在中错误键入了<code>color</code>字段的名称<code>createSquare</code>，则会收到一条错误消息，通知我们：</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">interface</span> SquareConfig {
+    color?: <span class="hljs-built_in">string</span>;
+    width?: <span class="hljs-built_in">number</span>;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createSquare</span>(<span class="hljs-params">config: SquareConfig</span>): </span>{ color: <span class="hljs-built_in">string</span>; area: <span class="hljs-built_in">number</span> } {
+    <span class="hljs-keyword">const</span> newSquare = {color: <span class="hljs-string">"white"</span>, area: <span class="hljs-number">100</span>};
+    <span class="hljs-keyword">if</span> (config.clor) {
+        <span class="hljs-comment">// Property 'clor' does not exist on type 'SquareConfig'. Did you mean 'color'</span>
+        newSquare.color = config.clor;
+    }
+    <span class="hljs-keyword">if</span> (config.width) {
+        newSquare.area = config.width * config.width;
+    }
+    <span class="hljs-keyword">return</span> newSquare;
+}
+
+<span class="hljs-keyword">const</span> mySquare = createSquare({ clor: <span class="hljs-string">"black"</span> });
+<span class="hljs-comment">// Argument of type '{ clor: string; }' is not assignable to parameter of type 'SquareConfig'.</span>
+<span class="hljs-comment">//   Object literal may only specify known properties, but 'clor' does not exist in type 'SquareConfig'. Did you mean to write 'color'?</span>
+</code></pre><h3 id="只读字段">只读字段 <a class="markdownIt-Anchor" href="#只读字段">#</a></h3><p>某些字段仅在首次创建对象时才可修改。您可以通过将<code>readonly</code>字段名称放在前面来指定此名称。</p><pre class="hljs"><code><span class="hljs-keyword">interface</span> Point {
+    readonly x: <span class="hljs-built_in">number</span>;
+    readonly y: <span class="hljs-built_in">number</span>;
+}
+</code></pre><p>您可以<code>Point</code>通过分配对象文字来构造一个。转让后，<code>x</code>和<code>y</code>字段都不能更改。</p><pre class="hljs"><code><span class="hljs-keyword">interface</span> Point {
+    readonly x: <span class="hljs-built_in">number</span>;
+    readonly y: <span class="hljs-built_in">number</span>;
+}
+<span class="hljs-keyword">const</span> p1: Point = { x: <span class="hljs-number">10</span>, y: <span class="hljs-number">20</span> };
+p1.x = <span class="hljs-number">5</span>; <span class="hljs-comment">// Cannot assign to 'x' because it is a read-only property.</span>
+</code></pre><hr><blockquote><p><code>ReadonlyArray&lt;T&gt;</code></p></blockquote><p><code>TypeScript</code>的<code>ReadonlyArray&lt;T&gt;</code>类型<code>Array&lt;T&gt;</code>与删除的所有变异方法相同，因此可以确保创建后不更改数组。</p><pre class="hljs"><code><span class="hljs-keyword">let</span> a: <span class="hljs-built_in">number</span>[] = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>];
+<span class="hljs-keyword">const</span> ro: ReadonlyArray&lt;<span class="hljs-built_in">number</span>&gt; = a;
+ro[<span class="hljs-number">0</span>] = <span class="hljs-number">12</span>; <span class="hljs-comment">// Index signature in type 'readonly number[]' only permits reading.</span>
+ro.push(<span class="hljs-number">5</span>); <span class="hljs-comment">// Property 'push' does not exist on type 'readonly number[]'.</span>
+ro.length = <span class="hljs-number">100</span>; <span class="hljs-comment">// Cannot assign to 'length' because it is a read-only property.</span>
+a = ro; <span class="hljs-comment">// The type 'readonly number[]' is 'readonly' and cannot be assigned to the mutable type 'number[]'.</span>
+</code></pre><p>在代码片段的最后一行，可以看到，即使将整个<code>ReadonlyArray</code>数组分配回<code>普通数组</code>也是非法的。</p><p>但是，仍然可以使用<code>类型断言</code>来覆盖它：</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">let</span> a: <span class="hljs-built_in">number</span>[] = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>];
+<span class="hljs-keyword">const</span> ro: ReadonlyArray&lt;<span class="hljs-built_in">number</span>&gt; = a;
+a = ro <span class="hljs-keyword">as</span> <span class="hljs-built_in">number</span>[];
+log(a);<span class="hljs-comment">// [1, 2, 3, 4]</span>
+</code></pre><hr><blockquote><p><code>readonly</code> vs <code>const</code></p></blockquote><p>记住在确认是使用<code>readonly</code>还是<code>const</code>时，最简单的方法询问是否在<code>变量</code>或<code>字段</code>上使用它。使用<code>变量</code>就是<code>const</code>，而使用<code>字段</code>就是<code>readonly</code>。</p><hr><h3 id="模糊字段检测">模糊字段检测 <a class="markdownIt-Anchor" href="#模糊字段检测">#</a></h3><blockquote><p><code>字符串索引</code>签名</p></blockquote><p>如果确定对象可以具有某些以特殊方式使用的<code>额外字段</code>，则更好的方法可能是添加<code>字符串索引</code>签名。</p><p>如果<code>SquareConfig</code>可以具有上述类型的<code>color</code>和<code>width</code>字段，但也可以具有任意数量的<code>其他字段</code>，那么我们可以这样定义它：</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">interface</span> SquareConfig {
+    color?: <span class="hljs-built_in">string</span>;
+    width?: <span class="hljs-built_in">number</span>;
+    [propName: <span class="hljs-built_in">string</span>]: <span class="hljs-built_in">any</span>;
+}
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createSquare</span>(<span class="hljs-params">config: SquareConfig</span>): </span>{ color: <span class="hljs-built_in">string</span>; area: <span class="hljs-built_in">number</span> } {
+    <span class="hljs-keyword">const</span> newSquare = {color: <span class="hljs-string">"white"</span>, area: <span class="hljs-number">100</span>};
+    <span class="hljs-keyword">if</span> (config.clor) {
+        newSquare.color = config.clor;
+    }
+    <span class="hljs-keyword">if</span> (config.width) {
+        newSquare.area = config.width * config.width;
+    }
+    <span class="hljs-keyword">return</span> newSquare;
+}
+
+<span class="hljs-keyword">const</span> mySquare = createSquare({ clor: <span class="hljs-string">"black"</span> });
+log(mySquare);<span class="hljs-comment">// {color: "black", area: 100}</span>
+</code></pre><p>上面代码声明了一个<code>SquareConfig</code>可以具有任意数量的<code>字段</code>，只要它们不是<code>color</code>或者<code>width</code>，它们的类型就没有关系。</p><hr><blockquote><p>重新赋值变量</p></blockquote><p>解决这些检查的最后一种方法（可能有点令人惊讶）是将对象分配给另一个变量：由于<code>squareOptions</code>不会进行过多的字段检查，因此编译器不会报误。</p><pre class="hljs"><code>
+<span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">interface</span> SquareConfig {
+    color?: <span class="hljs-built_in">string</span>;
+    width?: <span class="hljs-built_in">number</span>;
+}
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createSquare</span>(<span class="hljs-params">config: SquareConfig</span>): </span>{ color: <span class="hljs-built_in">string</span>; area: <span class="hljs-built_in">number</span> } {
+    <span class="hljs-keyword">const</span> newSquare = {color: <span class="hljs-string">"white"</span>, area: <span class="hljs-number">100</span>};
+    <span class="hljs-keyword">if</span> (config.color) {
+        newSquare.color = config.color;
+    }
+    <span class="hljs-keyword">if</span> (config.width) {
+        newSquare.area = config.width * config.width;
+    }
+    <span class="hljs-keyword">return</span> newSquare;
+}
+<span class="hljs-keyword">const</span> squareOptions = { colour: <span class="hljs-string">"red"</span>, width: <span class="hljs-number">100</span> };
+<span class="hljs-keyword">const</span> mySquare = createSquare(squareOptions);
+log(mySquare);<span class="hljs-comment">// {color: "white", area: 10000}</span>
+</code></pre><p>因为在上面示例中变量已经包含了<code>width</code>字段，即只要您在<code>squareOptions</code>和<code>SquareConfig</code>之间具有相同的字段，上述变通办法就会起作用。</p><p>但是，如果变量没有任何公共对象<code>字段</code>，它将失败。例如：</p><pre class="hljs"><code><span class="hljs-keyword">interface</span> SquareConfig {
+    color?: <span class="hljs-built_in">string</span>;
+    width?: <span class="hljs-built_in">number</span>;
+}
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createSquare</span>(<span class="hljs-params">config: SquareConfig</span>): </span>{ color: <span class="hljs-built_in">string</span>; area: <span class="hljs-built_in">number</span> } {
+    <span class="hljs-keyword">const</span> newSquare = {color: <span class="hljs-string">"white"</span>, area: <span class="hljs-number">100</span>};
+    <span class="hljs-keyword">if</span> (config.color) {
+        newSquare.color = config.color;
+    }
+    <span class="hljs-keyword">if</span> (config.width) {
+        newSquare.area = config.width * config.width;
+    }
+    <span class="hljs-keyword">return</span> newSquare;
+}
+<span class="hljs-keyword">const</span> squareOptions = { colour: <span class="hljs-string">"red"</span> };
+<span class="hljs-keyword">const</span> mySquare = createSquare(squareOptions);
+<span class="hljs-comment">// Type '{ colour: string; }' has no properties in common with type 'SquareConfig'.</span>
+
+</code></pre><hr><blockquote><p>总结</p></blockquote><p>请记住，对于上述简单代码，您可能不应该试图<code>绕开</code>这些检查。对于具有方法和保持状态的更复杂的<code>对象常量</code>，您可能需要牢记这些技术，</p><p>但是大多数<code>多余的字段错误</code>，实际上也是一种<code>错误</code>。这意味着，如果遇到有很多类似字段的字段检查问题，则可能需要修改一些类型声明。</p><p>在这种情况下，如果可以将同时具有<code>color</code>或<code>colour</code>字段的对象传递给<code>createSquare</code>，则应该修正的定义<code>SquareConfig</code>以反映这一点。</p><hr><h3 id="函数类型约束">函数类型约束 <a class="markdownIt-Anchor" href="#函数类型约束">#</a></h3><p>为了描述带有接口的函数类型，我们给接口一个调用签名。这就像只声明参数列表和返回类型的函数声明。参数列表中的每个参数都需要名称和类型。</p><pre class="hljs"><code><span class="hljs-keyword">interface</span> SearchFunc {
+    (source: <span class="hljs-built_in">string</span>, subString: <span class="hljs-built_in">string</span>): <span class="hljs-built_in">boolean</span>;
+}
+
+
+</code></pre><p>一旦定义，我们可以像使用其他接口一样使用此<code>函数类型接口</code>。在这里，我们展示了如何创建函数类型的<code>变量</code>，并为其分配<code>相同类型</code>的<code>函数值</code>。</p><pre class="hljs"><code><span class="hljs-keyword">interface</span> SearchFunc {
+    (source: <span class="hljs-built_in">string</span>, subString: <span class="hljs-built_in">string</span>): <span class="hljs-built_in">boolean</span>;
+}
+<span class="hljs-keyword">let</span> mySearch: SearchFunc;
+mySearch = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">source: <span class="hljs-built_in">string</span>, subString: <span class="hljs-built_in">string</span></span>) </span>{
+    <span class="hljs-keyword">let</span> result = source.search(subString);
+    <span class="hljs-keyword">return</span> result &gt; <span class="hljs-number">-1</span>;
+}
+
+</code></pre><hr><blockquote><p>形参名称可以不一样</p></blockquote><p>为了使函数类型正确键入检查，<code>参数</code>名称不需要<code>完全匹配</code>。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">interface</span> SearchFunc {
+    (source: <span class="hljs-built_in">string</span>, subString: <span class="hljs-built_in">string</span>): <span class="hljs-built_in">boolean</span>;
+}
+<span class="hljs-keyword">let</span> mySearch: SearchFunc;
+mySearch = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">src: <span class="hljs-built_in">string</span>, sub: <span class="hljs-built_in">string</span></span>): <span class="hljs-title">boolean</span> </span>{
+    <span class="hljs-keyword">let</span> result = src.search(sub);
+    <span class="hljs-keyword">return</span> result &gt; <span class="hljs-number">-1</span>;
+}
+log(mySearch(<span class="hljs-string">'watermelon'</span>, <span class="hljs-string">'melon'</span>));<span class="hljs-comment">// true</span>
+
+</code></pre><hr><blockquote><p>隐式类型推导</p></blockquote><p>一次检查一个功能参数，每个对应参数位置的类型相互检查。</p><p>如果根本不想指定类型，那么<code>TypeScript</code>的上下文类型可以推断<code>参数类型</code>，因为函数值直接分配给<code>type</code>变量<code>SearchFunc</code>。</p><p>同样，在这里，函数表达式的返回类型也由其返回的值（此处<code>false</code>和<code>true</code>）所隐含。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">interface</span> SearchFunc {
+    (source: <span class="hljs-built_in">string</span>, subString: <span class="hljs-built_in">string</span>): <span class="hljs-built_in">boolean</span>;
+}
+<span class="hljs-keyword">let</span> mySearch: SearchFunc;
+mySearch = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">src, sub</span>) </span>{
+    <span class="hljs-keyword">let</span> result = src.search(sub);
+    <span class="hljs-keyword">return</span> result &gt; <span class="hljs-number">-1</span>;
+}
+log(mySearch(<span class="hljs-number">1</span>,<span class="hljs-number">2</span>));<span class="hljs-comment">// Argument of type '1' is not assignable to parameter of type 'string'.</span>
+
+</code></pre><hr><blockquote><p>类型匹配失败，会进行报错</p></blockquote><p>如果函数表达式返回数字或字符串，则<code>类型检查器</code>将产生一个错误，指示<code>返回类型</code>与<code>SearchFunc</code>接口中描述的返回类型不匹配。</p><pre class="hljs"><code><span class="hljs-keyword">interface</span> SearchFunc {
+    (source: <span class="hljs-built_in">string</span>, subString: <span class="hljs-built_in">string</span>): <span class="hljs-built_in">boolean</span>;
+}
+
+<span class="hljs-keyword">let</span> mySearch: SearchFunc;
+
+<span class="hljs-comment">// error: Type '(src: string, sub: string) =&gt; string' is not assignable to type 'SearchFunc'.</span>
+<span class="hljs-comment">// Type 'string' is not assignable to type 'boolean'.</span>
+mySearch = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">src, sub</span>) </span>{
+  <span class="hljs-keyword">let</span> result = src.search(sub);
+  <span class="hljs-keyword">return</span> <span class="hljs-string">"string"</span>;
+};
+</code></pre><hr><h3 id="第三方交互">第三方交互 <a class="markdownIt-Anchor" href="#第三方交互">#</a></h3><p><code>接口</code>可以描述现实世界<code>JavaScript</code>中存在的<code>丰富类型</code>。</p><p>由于<code>JavaScript</code>具有动态和灵活的特性，因此有时可能会遇到一个<code>对象</code>，该<code>对象</code>可以作为某些<code>类型</code>的组合使用。</p><p>下述的示例是一个既具有<code>功能</code>又具有<code>对象特性</code>的<code>对象</code>，还具有<code>其他字段</code>。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">interface</span> Counter {
+    (start: <span class="hljs-built_in">number</span>): <span class="hljs-built_in">string</span>;
+    interval: <span class="hljs-built_in">number</span>;
+    reset(): <span class="hljs-built_in">void</span>;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getCounter</span>(<span class="hljs-params"></span>): <span class="hljs-title">Counter</span> </span>{
+    <span class="hljs-keyword">const</span> counter = (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">start: <span class="hljs-built_in">number</span></span>) </span>{ }) <span class="hljs-keyword">as</span> Counter;
+    counter.interval = <span class="hljs-number">123</span>;
+    counter.reset = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{ };
+    <span class="hljs-keyword">return</span> counter;
+}
+
+<span class="hljs-keyword">const</span> c = getCounter();
+c(<span class="hljs-number">10</span>);
+log(c.interval);<span class="hljs-comment">// 123</span>
+c.reset();
+log(c.interval);<span class="hljs-comment">// 123</span>
+c.interval = <span class="hljs-number">5.0</span>;
+log(c.interval);<span class="hljs-comment">// 5</span>
+</code></pre><p>与第三方<code>JavaScript</code>交互时，可能需要使用上述模式来完全描述类型。</p><hr></div><div dir="ltr" class="level article-bar is-mobile"><div class="level-item has-text-centered"><a title="previous page" class="previouse-article-link" href="../chapters09/Enum.html"><span class="icon icon-previous" data-icon="previous"></span><span class="link-content">&laquo; Previous</span></a></div><div class="level-item has-text-centered"><a title="font size" class="link-item link-item-size"><span class="icon icon-size" data-icon="size"></span></a></div><div class="level-item has-text-centered"><a title="table of content" class="link-item link-item-toc"><span class="icon icon-toc" data-icon="toc"></span></a></div><div class="level-item has-text-centered"><a title="top" href="#"><span class="icon icon-up" data-icon="up"></span> <span class="link-content">⤊ Top</span></a></div><div class="level-item has-text-centered"><a title="next page" class="next-article-link" href="../chapters09/Class.html"><span class="icon icon-next" data-icon="next"></span><span class="link-content">Next &raquo;</span></a></div></div></div><div class="column is-2-widescreen is-hidden"></div></div><div class="columns foot"><div class="column is-3 is-offset-9 build-by">Build by <a href="https://github.com/ruanyf/loppo" target="_blank">Loppo</a> 0.6.16</div></div><div class="book-toc notification is-warning is-hidden"><h3>Table of chapters &nbsp;<span class="title-close"><a class="button is-danger"> Close</a></span></h3><ul class="chapter-area"><li class="chapter-item"><a href="../chapters01/index.html">第一章 ECMAScript 6 简介</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters01/base-js.html">js基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/base-es.html">es基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/Babel.html">通过Babel使用ES6</a></li><li class="chapter-item"><a href="../chapters01/Traceur.html">通过Traceur使用ES6</a></li><li class="chapter-item"><a href="../chapters01/stage-00.html">Strawman 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-01.html">Proposal 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-02.html">Draft 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/active-proposals.html">Candidate 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-04.html">Finished 阶段的 proposals</a></li></ul><li class="chapter-item"><a href="../chapters02/index.html">第二章 let和const命令</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters02/base.html">前置知识了解</a></li><li class="chapter-item"><a href="../chapters02/let.html">let 命令</a></li><li class="chapter-item"><a href="../chapters02/const.html">const 命令</a></li><li class="chapter-item"><a href="../chapters02/statement-details.html">语句进阶说明</a></li></ul><li class="chapter-item"><a href="../chapters03/index.html">第三章 变量的解构赋值</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters03/base.html">基础数据结构</a></li><li class="chapter-item"><a href="../chapters03/complex.html">复杂数据结构</a></li><li class="chapter-item"><a href="../chapters03/parentheses.html">圆括号问题</a></li><li class="chapter-item"><a href="../chapters03/use.html">用途</a></li></ul><li class="chapter-item"><a href="../chapters04/index.html">第四章 字符串的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters04/unicode.html">字符的 Unicode 表示法</a></li><li class="chapter-item"><a href="../chapters04/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/template-string.html">模板字符串</a></li><li class="chapter-item"><a href="../chapters04/string-Iterator.html">字符串的遍历器接口</a></li><li class="chapter-item"><a href="../chapters04/tag-template.html">标签模板</a></li></ul><li class="chapter-item"><a href="../chapters05/index.html">第五章 正则的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters05/constructor.html">RegExp 构造函数</a></li><li class="chapter-item"><a href="../chapters05/base.html">RegExp 基础使用</a></li><li class="chapter-item"><a href="../chapters05/prototype-attribute.html">RegExp 原型属性</a></li><li class="chapter-item"><a href="../chapters05/modifier.html">RegExp 修饰符</a></li><li class="chapter-item"><a href="../chapters05/assert.html">RegExp 断言</a></li><li class="chapter-item"><a href="../chapters05/string-with-regExp.html">String中正则相关方法</a></li><li class="chapter-item"><a href="../chapters05/named-group-matching.html">具名组匹配</a></li><li class="chapter-item"><a href="../chapters05/unicode-attribute-class.html">Unicode 属性类</a></li></ul><li class="chapter-item"><a href="../chapters06/index.html">第六章 数值的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters06/base-notation.html">Number 进制表示法</a></li><li class="chapter-item"><a href="../chapters06/prototype-attribute.html">Number 原型属性</a></li><li class="chapter-item"><a href="../chapters06/base-function-extend.html">Number 对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/prototype-function-extend.html">Number 原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/math-extension.html">math 对象扩展</a></li><li class="chapter-item"><a href="../chapters06/exponent-operator.html">指数运算符</a></li></ul><li class="chapter-item"><a href="../chapters07/index.html">第七章 函数的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters07/arrow-function.html">箭头函数</a></li><li class="chapter-item"><a href="../chapters07/strict-mode.html">严格模式</a></li><li class="chapter-item"><a href="../chapters07/function-parameter-improvement.html">函数参数改进</a></li><li class="chapter-item"><a href="../chapters07/the-name-attribute-of-the-function.html">函数的name属性</a></li><li class="chapter-item"><a href="../chapters07/tail-call-optimization.html">尾调用优化</a></li></ul><li class="chapter-item"><a href="../chapters08/index.html">第八章 数组的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters08/extension-operator.html">扩展运算符</a></li><li class="chapter-item"><a href="../chapters08/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/empty-space-processing-of-array.html">数组的空位处理</a></li><li class="chapter-item"><a href="../chapters08/pipeline-optimization-of-arrays.html">数组的管道运算优化</a></li></ul><li class="chapter-item"><a href="../chapters09/index.html">第九章 ts学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-collapse" data-icon="collapse"></span></a></li><ul class="chapter-level-1 chapter-level-1-current"><li class="chapter-item"><a href="../chapters09/history.html">ts历史</a></li><li class="chapter-item"><a href="../chapters09/advantages-and-disadvantages.html">ts优势与劣势</a></li><li class="chapter-item"><a href="../chapters09/learn-primitive-type.html">基础类型学习</a></li><li class="chapter-item"><a href="../chapters09/learn-derivative-type.html">衍生类型基础学习</a></li><li class="chapter-item"><a href="../chapters09/Enum.html">衍生类型之Enum</a></li><li class="chapter-item chapter-item-current"><a href="../chapters09/interface.html">衍生类型之interface</a></li><li class="chapter-item"><a href="../chapters09/Class.html">衍生类型之Class</a></li><li class="chapter-item"><a href="../chapters09/ts-util.html">ts 高级工具用法</a></li></ul><li class="chapter-item"><a href="../chapters10/index.html">第十章 react学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters10/history.html">react历史</a></li><li class="chapter-item"><a href="../chapters10/version-management.html">react版本管理</a></li><li class="chapter-item"><a href="../chapters10/advantages-and-disadvantages.html">react优势与劣势</a></li><li class="chapter-item"><a href="../chapters10/base.html">react基础语法</a></li><li class="chapter-item"><a href="../chapters10/common-package.html">react常用组件包</a></li><li class="chapter-item"><a href="../chapters10/family-bucket.html">react全家桶</a></li><li class="chapter-item"><a href="../chapters10/ecosphere.html">react的生态圈</a></li><li class="chapter-item"><a href="../chapters10/substitute-product.html">react和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters11/index.html">第十一章 webpack学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters11/history.html">webpack历史</a></li><li class="chapter-item"><a href="../chapters11/version-management.html">webpack版本管理</a></li><li class="chapter-item"><a href="../chapters11/advantages-and-disadvantages.html">webpack优势与劣势</a></li><li class="chapter-item"><a href="../chapters11/base-config.html">webpack项目基础配置</a></li><li class="chapter-item"><a href="../chapters11/common-package.html">webpack常用组件包</a></li><li class="chapter-item"><a href="../chapters11/ecosphere.html">webpack的生态圈</a></li><li class="chapter-item"><a href="../chapters11/substitute-product.html">webpack和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters12/index.html">第十二章 微信小程序学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters12/history.html">微信小程序历史</a></li><li class="chapter-item"><a href="../chapters12/version-management.html">微信小程序版本管理</a></li><li class="chapter-item"><a href="../chapters12/advantages-and-disadvantages.html">微信小程序优势与劣势</a></li><li class="chapter-item"><a href="../chapters12/base.html">微信小程序基础学习</a></li><li class="chapter-item"><a href="../chapters12/common-ui-package.html">微信小程序常用UI库</a></li><li class="chapter-item"><a href="../chapters12/ecosphere.html">微信小程序的生态圈</a></li><li class="chapter-item"><a href="../chapters12/cross-platform.html">微信小程序跨平台</a></li><li class="chapter-item"><a href="../chapters12/substitute-product.html">微信小程序和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters13/index.html">第十三章 web安全方案</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters13/common-web-risks.html">常见web风险</a></li><li class="chapter-item"><a href="../chapters13/monitoring-system.html">前端监控体系</a></li><li class="chapter-item"><a href="../chapters13/performance-optimization.html">前端性能优化</a></li><li class="chapter-item"><a href="../chapters13/security-prevention-and-control.html">前端安全防控</a></li><li class="chapter-item"><a href="../chapters13/test-system.html">前端测试体系</a></li></ul></ul></div><div class="progress-indicator"></div><!-- SCRIPTS --><script>var LOPPO={current_path:"chapters09/interface.md",relative_root_path:"../",article_toc:'<ul class="markdownIt-TOC">\n<li><a href="#%E5%9F%BA%E7%A1%80%E8%AF%B4%E6%98%8E">基础说明</a>\n<ul>\n<li><a href="#%E6%8E%A5%E5%8F%A3%E5%8F%AF%E7%B4%A2%E5%BC%95%E7%B1%BB%E5%9E%8B">接口可索引类型</a></li>\n<li><a href="#%E6%8E%A5%E5%8F%A3%E6%89%A9%E5%B1%95">接口扩展</a></li>\n<li><a href="#%E7%B1%BB%E4%B8%8E%E6%8E%A5%E5%8F%A3%E7%BB%A7%E6%89%BF">类与接口继承</a></li>\n<li><a href="#%E9%9D%99%E6%80%81%E5%92%8C%E5%AE%9E%E4%BE%8B%E5%B7%AE%E5%BC%82">静态和实例差异</a></li>\n<li><a href="#%E7%B1%BB%E7%A7%81%E6%9C%89%E5%AD%97%E6%AE%B5%E7%BB%A7%E6%89%BF">类私有字段继承</a></li>\n</ul>\n</li>\n<li><a href="#%E4%BD%9C%E7%94%A8%E8%AF%B4%E6%98%8E">作用说明</a>\n<ul>\n<li><a href="#%E5%BD%A2%E5%8F%82%E7%B1%BB%E5%9E%8B%E6%A0%A1%E9%AA%8C">形参类型校验</a></li>\n<li><a href="#%E5%8F%AF%E9%80%89%E5%AD%97%E6%AE%B5">可选字段</a></li>\n<li><a href="#%E5%8F%AA%E8%AF%BB%E5%AD%97%E6%AE%B5">只读字段</a></li>\n<li><a href="#%E6%A8%A1%E7%B3%8A%E5%AD%97%E6%AE%B5%E6%A3%80%E6%B5%8B">模糊字段检测</a></li>\n<li><a href="#%E5%87%BD%E6%95%B0%E7%B1%BB%E5%9E%8B%E7%BA%A6%E6%9D%9F">函数类型约束</a></li>\n<li><a href="#%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BA%A4%E4%BA%92">第三方交互</a></li>\n</ul>\n</li>\n</ul>\n'}</script><script src="../assets/js/app.js"></script></body></html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html><html><head><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta charset="utf-8"><title>实例对象方法扩展 - learn es6</title><meta name="description" content=""><meta name="author" content=""><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1"><link rel="stylesheet" href="../assets/css/bulma.min.css"><link rel="stylesheet" href="../assets/css/app.css"><!--[if lt IE 9]>
+<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]--><link rel="shortcut icon" href=""></head><body dir="ltr"><nav class="columns navbar"><div class="column logo is-3 is-offset-1"><a class="is-brand" href="../index.html">learn es6</a></div></nav><div class="columns content"><div class="column is-2-desktop is-3-widescreen is-hidden-touch"></div><div class="column article-container is-11-tablet is-8-desktop is-6-widescreen"><div class="breadcrumb-area"><a href="../index.html" class="breadcrumb-item">Home</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters04/index.html" class="breadcrumb-item">第四章 字符串的扩展</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters04/instance-function-extend.html" class="breadcrumb-item">实例对象方法扩展</a></div><h1 class="article-title">实例对象方法扩展</h1><div class="article"><h1 id="实例对象方法扩展">实例对象方法扩展 <a class="markdownIt-Anchor" href="#实例对象方法扩展">#</a></h1><h2 id="codepointat">codePointAt() <a class="markdownIt-Anchor" href="#codepointat">#</a></h2><h3 id="产生原因">产生原因 <a class="markdownIt-Anchor" href="#产生原因">#</a></h3><p>在 <code>Javascript</code>内部，字符以<code>UTF-16</code>的格式存储，每个字符固定为<code>2</code>个字节。</p><p>对于那些需要<code>4</code>个字节存储的字符（<code>Unicode</code> 编号大于<code>0xFFFF</code>的字符），<code>Javascript</code>会认为它们是<code>两</code>个字符。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log</span>) </span>{
+    <span class="hljs-keyword">const</span> s = <span class="hljs-string">'𠮷a'</span>;
+    log(s.length) <span class="hljs-comment">// 3</span>
+    log(s.charAt(<span class="hljs-number">0</span>)) <span class="hljs-comment">// �</span>
+    log(s.charAt(<span class="hljs-number">1</span>)) <span class="hljs-comment">// �</span>
+
+    log(s.charCodeAt(<span class="hljs-number">0</span>)) <span class="hljs-comment">// 55362</span>
+    log(s.charCodeAt(<span class="hljs-number">1</span>)) <span class="hljs-comment">// 57271</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><p>上面代码中，汉字<code>𠮷</code>（注意，这个字不是<code>吉祥</code>的<code>吉</code>）的<code>码点</code>是<code>0x20BB7</code>，<code>UTF-16</code> 编码为<code>0xD842 0xDFB7</code>（十进制为<code>55362 57271</code>），需要<code>4</code>个字节储存。</p><p>对于这种<code>4</code>个字节的字符，<code>JavaScript</code> 不能正确处理，字符串长度会误判为<code>2</code>，而且<code>charAt</code>方法无法读取整个<code>字符</code>，<code>charCodeAt</code>方法只能分别返回前两个<code>字节</code>和后两个<code>字节</code>的<code>值</code>。</p><hr><h3 id="优化效果">优化效果 <a class="markdownIt-Anchor" href="#优化效果">#</a></h3><p><code>ES6</code>提供了<code>codePointAt</code> 方法，能够正确处理<code>4</code>个字节存储的字符，返回一个字符的<code>Unicode</code>码点。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log</span>) </span>{
+    <span class="hljs-keyword">const</span> s = <span class="hljs-string">'𠮷a'</span>;
+
+    log(s.codePointAt(<span class="hljs-number">0</span>)) <span class="hljs-comment">// 134071</span>
+    log(s.codePointAt(<span class="hljs-number">1</span>)) <span class="hljs-comment">// 57271</span>
+    log(s.codePointAt(<span class="hljs-number">2</span>)) <span class="hljs-comment">// 97</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><p><code>codePointAt</code>方法的参数，是<code>字符</code>在<code>字符串</code>中的位置（从<code>0</code>开始）。</p><p><code>JavaScript</code> 将<code>𠮷a</code>视为三个字符，<code>codePointAt</code> 方法在第一个字符上，正确地识别了<code>𠮷</code>，返回了它的十进制码点 <code>134071</code>（即十六进制的<code>20BB7</code>）。</p><p>在第二个<code>字符</code>（即<code>𠮷</code>的后两个<code>字节</code>）和第三个字符<code>a</code>上，<code>codePointAt</code>方法的结果与<code>charCodeAt</code>方法相同。</p><p>总之，<code>codePointAt</code>方法可以正确返回四字节<code>UTF-16</code>字符的<code>Unicode</code>码点。</p><p>对于那些<code>两个字节</code>存储的<code>常规字符</code>，它返回结果与<code>charCodeAt</code>方法相同。</p><hr><h3 id="结合for-of">结合for-of <a class="markdownIt-Anchor" href="#结合for-of">#</a></h3><p>你可能注意到了，<code>codePointAt</code>方法的参数，仍然是不正确的。</p><p>比如，下面代码中，字符<code>a</code>在字符串<code>s</code>的正确位置序号应该是 <code>1</code>，但是必须向<code>codePointAt</code>方法传入 <code>2</code>。</p><p>解决这个问题的一个办法是使用<code>for...of</code>循环，因为它会正确识别 <code>32</code> 位的 <code>UTF-16</code> 字符。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log</span>) </span>{
+    <span class="hljs-keyword">const</span> s = <span class="hljs-string">'𠮷a'</span>;
+
+    log(s.codePointAt(<span class="hljs-number">0</span>)) <span class="hljs-comment">// 134071</span>
+    log(s.codePointAt(<span class="hljs-number">2</span>)) <span class="hljs-comment">// 97</span>
+
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> ch <span class="hljs-keyword">of</span> s) {
+        log(ch.codePointAt(<span class="hljs-number">0</span>));
+    }
+    <span class="hljs-comment">// 134071</span>
+    <span class="hljs-comment">// 97</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><hr><h3 id="进制转换">进制转换 <a class="markdownIt-Anchor" href="#进制转换">#</a></h3><p><code>codePointAt</code>方法返回的是<code>码点</code>的<code>十进制值</code>，如果想要<code>其他进制</code>的值，可以使用<code>toString</code>方法转换一下。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log</span>) </span>{
+    <span class="hljs-keyword">const</span> s = <span class="hljs-string">'𠮷a'</span>;
+    log(s.codePointAt(<span class="hljs-number">0</span>)) <span class="hljs-comment">// 134071</span>
+    log(s.codePointAt(<span class="hljs-number">2</span>)) <span class="hljs-comment">// 97</span>
+
+    log(s.codePointAt(<span class="hljs-number">0</span>).toString(<span class="hljs-number">2</span>)) <span class="hljs-comment">// 100000101110110111</span>
+    log(s.codePointAt(<span class="hljs-number">2</span>).toString(<span class="hljs-number">2</span>)) <span class="hljs-comment">// 1100001</span>
+
+    log(s.codePointAt(<span class="hljs-number">0</span>).toString(<span class="hljs-number">8</span>)) <span class="hljs-comment">// 405667</span>
+    log(s.codePointAt(<span class="hljs-number">2</span>).toString(<span class="hljs-number">8</span>)) <span class="hljs-comment">// 141</span>
+
+    log(s.codePointAt(<span class="hljs-number">0</span>).toString(<span class="hljs-number">10</span>)) <span class="hljs-comment">// 134071</span>
+    log(s.codePointAt(<span class="hljs-number">2</span>).toString(<span class="hljs-number">10</span>)) <span class="hljs-comment">// 97</span>
+
+    log(s.codePointAt(<span class="hljs-number">0</span>).toString(<span class="hljs-number">16</span>)) <span class="hljs-comment">// 20bb7</span>
+    log(s.codePointAt(<span class="hljs-number">2</span>).toString(<span class="hljs-number">16</span>)) <span class="hljs-comment">// 61</span>
+
+    log(s.codePointAt(<span class="hljs-number">0</span>).toString(<span class="hljs-number">32</span>)) <span class="hljs-comment">// 42tn</span>
+    log(s.codePointAt(<span class="hljs-number">2</span>).toString(<span class="hljs-number">32</span>)) <span class="hljs-comment">// 31</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><h3 id="判断是否是多字节">判断是否是多字节 <a class="markdownIt-Anchor" href="#判断是否是多字节">#</a></h3><p><code>codePointAt</code> 方法是<code>测试</code>一个字符由<code>两个字节</code>还是<code>四个字节</code>组成的最简单方法。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">is32Bit</span>(<span class="hljs-params">c</span>) </span>{
+        <span class="hljs-keyword">return</span> c.codePointAt(<span class="hljs-number">0</span>) &gt; <span class="hljs-number">0xFFFF</span>;
+    }
+
+    log(is32Bit(<span class="hljs-string">'𠮷'</span>)); <span class="hljs-comment">// true</span>
+    log(is32Bit(<span class="hljs-string">'a'</span>)); <span class="hljs-comment">// false</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><hr><h2 id="normalize">normalize() <a class="markdownIt-Anchor" href="#normalize">#</a></h2><h3 id="产生原因-1">产生原因 <a class="markdownIt-Anchor" href="#产生原因-1">#</a></h3><p>许多欧洲语言有<code>语调符号</code>和<code>重音符号</code>。为了表示它们，<code>Unicode</code> 提供了两种方法。</p><ul><li>一种是直接提供带<code>重音符号</code>的字符，比如<code>Ǒ</code>（<code>\u01D1</code>）。</li><li>另一种是提供<code>合成符号</code>（<code>combining character</code>），即<code>原字符</code>与<code>重音符号</code>的合成，两个字符合成一个字符，比如<code>O</code>（<code>\u004F</code>）和<code>ˇ</code>（<code>\u030C</code>）合成<code>Ǒ</code>（<code>\u004F\u030C</code>）。</li></ul><p>这两种表示方法，在<code>视觉</code>和<code>语义</code>上都<code>等价</code>，但是 <code>JavaScript</code> 不能识别。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    log(<span class="hljs-string">'\u01D1'</span> === <span class="hljs-string">'\u004F\u030C'</span>); <span class="hljs-comment">//false</span>
+
+    log(<span class="hljs-string">'\u01D1'</span>.length); <span class="hljs-comment">// 1</span>
+    log(<span class="hljs-string">'\u004F\u030C'</span>.length); <span class="hljs-comment">// 2</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><p>上面代码表示，<code>JavaScript</code> 将<code>合成字符</code>视为<code>两个字符</code>，导致两种表示方法不相等。</p><hr><h3 id="优化效果-1">优化效果 <a class="markdownIt-Anchor" href="#优化效果-1">#</a></h3><p><code>ES6</code> 提供字符串实例的<code>normalize()</code>方法，用来将<code>字符</code>的不同<code>表示方法</code>统一为同样的<code>形式</code>，这称为 <code>Unicode</code> 正规化。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    <span class="hljs-keyword">const</span> type1 = <span class="hljs-string">'\u01D1'</span>.normalize();
+    <span class="hljs-keyword">const</span> type2 = <span class="hljs-string">'\u004F\u030C'</span>.normalize();
+    log(type1 === type2); <span class="hljs-comment">// true</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr><h3 id="参数详解">参数详解 <a class="markdownIt-Anchor" href="#参数详解">#</a></h3><p><code>normalize</code>方法可以接受一个<code>参数</code>来指定<code>normalize</code>的方式，参数的四个可选值如下。</p><table><thead><tr><th>形参值</th><th>形参值解释</th></tr></thead><tbody><tr><td><code>NFC</code></td><td>默认参数，表示<code>标准等价合成</code>（<code>Normalization Form Canonical Composition</code>），返回多个<code>简单字符</code>的<code>合成字符</code>。所谓<code>标准等价</code>指的是<code>视觉</code>和<code>语义</code>上的等价。</td></tr><tr><td><code>NFD</code></td><td>表示<code>标准等价分解</code>（<code>Normalization Form Canonical Decomposition</code>），即在<code>标准等价</code>的前提下，返回<code>合成字符</code>分解的多个<code>简单字符</code>。</td></tr><tr><td><code>NFKC</code></td><td>表示<code>兼容等价合成</code>（<code>Normalization Form Compatibility Composition</code>），返回<code>合成字符</code>。所谓<code>兼容等价</code>指的是<code>语义</code>上存在等价，但<code>视觉</code>上不等价，比如<code>囍</code>和<code>喜喜</code>。（这只是用来举例，<code>normalize</code>方法不能识别<code>中文</code>。）</td></tr><tr><td><code>NFKD</code></td><td>表示<code>兼容等价分解</code>（<code>Normalization Form Compatibility Decomposition</code>），即在<code>兼容等价</code>的前提下，返回<code>合成字符</code>分解的多个<code>简单字符</code>。</td></tr></tbody></table><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    log(<span class="hljs-string">'\u004F\u030C'</span>.normalize(<span class="hljs-string">'NFC'</span>).length); <span class="hljs-comment">// 1</span>
+    log(<span class="hljs-string">'\u004F\u030C'</span>.normalize(<span class="hljs-string">'NFD'</span>).length); <span class="hljs-comment">// 2</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><p>上面代码表示，<code>NFC</code>参数返回字符的<code>合成形式</code>，<code>NFD</code>参数返回字符的分解形式。</p><p>不过，<code>normalize</code>方法目前不能识别<code>三个</code>或<code>三个</code>以上<code>字符</code>的合成。这种情况下，还是只能使用<code>正则表达式</code>，通过 <code>Unicode 编号</code>区间判断。</p><hr><h2 id="判断字符串包含">判断字符串包含 <a class="markdownIt-Anchor" href="#判断字符串包含">#</a></h2><p>传统上，<code>Javascript</code>中只有<code>indexOf</code>方法，可用来确定一个<code>字符串</code>是否<code>包含</code>在另一个<code>字符串</code>中。<code>ES6</code>又提供了三种<code>新方法</code>。</p><table><thead><tr><th style="text-align:left">方法名</th><th style="text-align:left">方法解释</th></tr></thead><tbody><tr><td style="text-align:left">contains(findStr,findIndex)</td><td style="text-align:left">返回布尔值，表示了是否找到参数字符串</td></tr><tr><td style="text-align:left">startsWith(findStr,findIndex)</td><td style="text-align:left">返回布尔值，表示参数字符串是否正在源字符串的头部</td></tr><tr><td style="text-align:left">endsWith(findStr,findIndex)</td><td style="text-align:left">返回布尔值，表示参数字符串是否正在源字符串的尾部</td></tr></tbody></table><ul><li><p><code>findStr</code>，表示被检索的参数字符串</p></li><li><p><code>findIndex</code>，表示开始搜索的位置，<code>endsWith</code>的行为与其他两个方法有所不同，它针对前<code>findIndex</code>个字符，而其他两个<code>方法</code>则针对从<code>findIndex</code>个位置直到字符串结束的字符。</p></li></ul><pre class="hljs"><code>
+(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    <span class="hljs-keyword">const</span> s1 = <span class="hljs-string">'Hello world!'</span>;
+
+    log(s1.startsWith(<span class="hljs-string">'Hello'</span>)); <span class="hljs-comment">// true</span>
+    log(s1.endsWith(<span class="hljs-string">'!'</span>)); <span class="hljs-comment">// true</span>
+    log(s1.includes(<span class="hljs-string">'o'</span>)); <span class="hljs-comment">// true</span>
+
+    <span class="hljs-comment">// 这三个方法都支持第二个参数，表示开始搜索的位置。</span>
+
+    <span class="hljs-keyword">const</span> s2 = <span class="hljs-string">'Hello world!'</span>;
+
+    log(s2.startsWith(<span class="hljs-string">'world'</span>, <span class="hljs-number">6</span>)); <span class="hljs-comment">// true</span>
+    log(s2.endsWith(<span class="hljs-string">'Hello'</span>, <span class="hljs-number">5</span>)); <span class="hljs-comment">// true</span>
+    log(s2.includes(<span class="hljs-string">'Hello'</span>, <span class="hljs-number">6</span>)); <span class="hljs-comment">// false</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr><h2 id="repeat">repeat <a class="markdownIt-Anchor" href="#repeat">#</a></h2><p><code>repeat(repeatIndex)</code>返回一个<code>新字符串</code>，表示将<code>原字符串</code>重复<code>repeatIndex</code>次</p><h3 id="基础使用">基础使用 <a class="markdownIt-Anchor" href="#基础使用">#</a></h3><pre class="hljs"><code>
+(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    log(<span class="hljs-string">'x'</span>.repeat(<span class="hljs-number">3</span>)); <span class="hljs-comment">// 'xxx'</span>
+    log(<span class="hljs-string">'hello'</span>.repeat(<span class="hljs-number">2</span>)); <span class="hljs-comment">// 'hellohello'</span>
+    log(<span class="hljs-string">'na'</span>.repeat(<span class="hljs-number">0</span>)); <span class="hljs-comment">// ''</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr><h3 id="特殊形参值处理">特殊形参值处理 <a class="markdownIt-Anchor" href="#特殊形参值处理">#</a></h3><blockquote><p>参数值为小数</p></blockquote><p>如果<code>repeat</code>的参数是<code>小数</code>，会被<code>取整</code>，注意这个<code>取整</code>对当前值不做任何<code>四舍五入</code>。</p><pre class="hljs"><code>
+(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    log(<span class="hljs-string">'na'</span>.repeat(<span class="hljs-number">2.3</span>)); <span class="hljs-comment">// 'nana'</span>
+    log(<span class="hljs-string">'na'</span>.repeat(<span class="hljs-number">2.5</span>)); <span class="hljs-comment">// 'nana'</span>
+    log(<span class="hljs-string">'na'</span>.repeat(<span class="hljs-number">2.9</span>)); <span class="hljs-comment">// 'nana'</span>
+
+    log(<span class="hljs-string">'na'</span>.repeat(<span class="hljs-number">2.3999</span>)); <span class="hljs-comment">// 'nana'</span>
+    log(<span class="hljs-string">'na'</span>.repeat(<span class="hljs-number">2.599</span>)); <span class="hljs-comment">// 'nana'</span>
+    log(<span class="hljs-string">'na'</span>.repeat(<span class="hljs-number">2.999</span>)); <span class="hljs-comment">// 'nana'</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr><blockquote><p>参数值为0</p></blockquote><p>如果<code>repeat</code>的参数是<code>+0</code>,<code>-0</code>,<code>0</code>,<code>NaN</code>,<code>-1~0</code>之间或者<code>0~1</code>之间值，会返回一个<code>空字符串</code>。</p><p><code>0</code> 到<code>-1</code> 之间的<code>小数</code>，则等同于 <code>0</code>，这是因为会先进行<code>取整</code>运算。</p><p><code>0</code> 到<code>-1</code> 之间的<code>小数</code>，<code>取整</code>以后等于<code>-0</code>，<code>repeat</code>视同为 <code>0</code>。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    log(<span class="hljs-string">'na'</span>.repeat(+<span class="hljs-number">0</span>)); <span class="hljs-comment">// ''</span>
+    log(<span class="hljs-string">'na'</span>.repeat(<span class="hljs-number">-0</span>)); <span class="hljs-comment">// ''</span>
+    log(<span class="hljs-string">'na'</span>.repeat(<span class="hljs-number">-0</span>)); <span class="hljs-comment">// ''</span>
+
+    log(<span class="hljs-string">'na'</span>.repeat(<span class="hljs-literal">NaN</span>)); <span class="hljs-comment">// ''</span>
+
+    log(<span class="hljs-string">'na'</span>.repeat(+<span class="hljs-number">0.2</span>)); <span class="hljs-comment">// ''</span>
+    log(<span class="hljs-string">'na'</span>.repeat(+<span class="hljs-number">0.5</span>)); <span class="hljs-comment">// ''</span>
+    log(<span class="hljs-string">'na'</span>.repeat(+<span class="hljs-number">0.8</span>)); <span class="hljs-comment">// ''</span>
+
+    log(<span class="hljs-string">'na'</span>.repeat(<span class="hljs-number">-0.2</span>)); <span class="hljs-comment">// ''</span>
+    log(<span class="hljs-string">'na'</span>.repeat(<span class="hljs-number">-0.5</span>)); <span class="hljs-comment">// ''</span>
+    log(<span class="hljs-string">'na'</span>.repeat(<span class="hljs-number">-0.8</span>)); <span class="hljs-comment">// ''</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr><blockquote><p>参数值为<code>负数</code>或者<code>Infinity</code></p></blockquote><p>如果<code>repeat</code>的参数是<code>负数</code>或者<code>Infinity</code>，会报错。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    log(<span class="hljs-string">'na'</span>.repeat(<span class="hljs-literal">Infinity</span>)); <span class="hljs-comment">// RangeError: Invalid count value</span>
+    log(<span class="hljs-string">'na'</span>.repeat(<span class="hljs-number">-1</span>)); <span class="hljs-comment">// RangeError: Invalid count value</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr><blockquote><p>参数值为<code>字符串</code></p></blockquote><p>如果<code>repeat</code>的参数是<code>字符串</code>，则会先转换成<code>数字</code>。</p><ul><li>如果<code>字符串</code>中没有包含<code>有效</code>的<code>数字</code>，则当作<code>0</code>处理。</li><li>如果<code>字符串</code>中包含<code>有效</code>的<code>数字</code>，同时又有<code>特殊字符</code>，<code>\s</code>，<code>\S</code>或者<code>字母</code>等，则当作<code>0</code>处理。</li><li>如果<code>字符串</code>中包含<code>有效</code>的<code>数字</code>，同时仅有<code>空格</code>，<code>\t</code>或者<code>\n</code>等，当作有效<code>参数</code>进行使用。</li><li>如果<code>字符串</code>中包含<code>其他进制值</code>的<code>字符串</code>，转换成<code>十进制</code>的<code>数值</code>之后，当作有效<code>参数</code>进行使用。</li><li>如果<code>字符串</code>中包含<code>符号</code>的<code>字符串</code>，转换为<code>数值</code>之后，如果为大于等于<code>1</code>的<code>正数</code>，当作有效<code>参数</code>进行使用；如果为<code>-1~1</code>，则当作<code>0</code>，进行使用；如果为小于等于<code>-1</code>的<code>负数</code>，则会抛出异常<code>RangeError: Invalid count value</code>。</li></ul><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    log(<span class="hljs-number">1</span>, <span class="hljs-string">'na'</span>.repeat(<span class="hljs-string">'na'</span>)); <span class="hljs-comment">// 1 ''</span>
+    log(<span class="hljs-number">2</span>, <span class="hljs-string">'na'</span>.repeat(<span class="hljs-string">'3na'</span>)); <span class="hljs-comment">// 2 ''</span>
+    log(<span class="hljs-number">3</span>, <span class="hljs-string">'na'</span>.repeat(<span class="hljs-string">'3，'</span>)); <span class="hljs-comment">// 3 ''</span>
+    log(<span class="hljs-number">3</span>, <span class="hljs-string">'na'</span>.repeat(<span class="hljs-string">'3\s'</span>)); <span class="hljs-comment">// 3 ''</span>
+    log(<span class="hljs-number">3</span>, <span class="hljs-string">'na'</span>.repeat(<span class="hljs-string">'3\S'</span>)); <span class="hljs-comment">// 3 ''</span>
+
+    log(<span class="hljs-number">4</span>, <span class="hljs-string">'na'</span>.repeat(<span class="hljs-string">'3 '</span>)); <span class="hljs-comment">// 4 'nanana'</span>
+    log(<span class="hljs-number">4</span>, <span class="hljs-string">'na'</span>.repeat(<span class="hljs-string">'3\t'</span>)); <span class="hljs-comment">// 4 'nanana'</span>
+    log(<span class="hljs-number">4</span>, <span class="hljs-string">'na'</span>.repeat(<span class="hljs-string">'\n3\n'</span>)); <span class="hljs-comment">// 4 'nanana'</span>
+
+    log(<span class="hljs-number">5</span>, <span class="hljs-string">'na'</span>.repeat(<span class="hljs-string">'03'</span>)); <span class="hljs-comment">// 5 'nanana'</span>
+    log(<span class="hljs-number">5</span>, <span class="hljs-string">'na'</span>.repeat(<span class="hljs-string">'0b1'</span>)); <span class="hljs-comment">// 5 'na'</span>
+    log(<span class="hljs-number">5</span>, <span class="hljs-string">'na'</span>.repeat(<span class="hljs-string">'0o3'</span>)); <span class="hljs-comment">// 5 'nanana'</span>
+    log(<span class="hljs-number">5</span>, <span class="hljs-string">'na'</span>.repeat(<span class="hljs-string">'0x3'</span>)); <span class="hljs-comment">// 5 'nanana'</span>
+
+    <span class="hljs-comment">// log('na'.repeat('-3')); // RangeError: Invalid count value</span>
+
+    log(<span class="hljs-number">6</span>, <span class="hljs-string">'na'</span>.repeat(<span class="hljs-string">'+3'</span>)); <span class="hljs-comment">// 6 'nanana'</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr><blockquote><p>参数值为<code>日期格式</code></p></blockquote><p>如果<code>repeat</code>的参数是<code>日期格式</code>，则会先转换成<code>数字</code>。</p><p>但是由于转换的<code>值</code>一般超过了可用的<code>字符串长度</code>，所以一般会直接报错<code>RangeError: Invalid string length</code>。</p><p>如果是传入日期格式<code>单独转换</code>的<code>天数</code>和<code>日期值</code>，<code>repeat</code>可以正常使用。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    <span class="hljs-keyword">const</span> d = <span class="hljs-built_in">Reflect</span>.construct(<span class="hljs-built_in">Date</span>,[]);
+    log(d.getTime()); <span class="hljs-comment">// 1549895917860</span>
+    log(d.getDate()); <span class="hljs-comment">// 11</span>
+    log(d.getDay()); <span class="hljs-comment">// 1</span>
+
+    <span class="hljs-comment">// log('na'.repeat(d)); // RangeError: Invalid string length</span>
+    <span class="hljs-comment">// log('na'.repeat(d.getTime())); // RangeError: Invalid string length</span>
+    log(<span class="hljs-string">'na'</span>.repeat(d.getDate())); <span class="hljs-comment">// nanananananananananana</span>
+    log(<span class="hljs-string">'na'</span>.repeat(d.getDay())); <span class="hljs-comment">// na</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr><blockquote><p>参数值为<code>数组</code>或者<code>对象</code></p></blockquote><p>如果<code>repeat</code>的参数是<code>数组</code>，<code>Map</code>，<code>WeakMap</code>，<code>Set</code>，<code>WeakSet</code>或者<code>对象</code>，则会统一当作<code>0</code>进行处理，返回<code>空字符串</code>。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    log(<span class="hljs-number">1</span>, <span class="hljs-string">'na'</span>.repeat([])); <span class="hljs-comment">// 1 ''</span>
+    log(<span class="hljs-number">1</span>, <span class="hljs-string">'na'</span>.repeat([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>])); <span class="hljs-comment">// 1 ''</span>
+    log(<span class="hljs-number">1</span>, <span class="hljs-string">'na'</span>.repeat([{
+        <span class="hljs-attr">z</span>: <span class="hljs-number">1</span>
+    }])); <span class="hljs-comment">// 1 ''</span>
+
+    log(<span class="hljs-number">2</span>, <span class="hljs-string">'na'</span>.repeat({})); <span class="hljs-comment">// 2 ''</span>
+    log(<span class="hljs-number">2</span>, <span class="hljs-string">'na'</span>.repeat({
+        <span class="hljs-attr">z</span>: <span class="hljs-number">1</span>
+    })); <span class="hljs-comment">// 2 ''</span>
+
+    log(<span class="hljs-number">3</span>, <span class="hljs-string">'na'</span>.repeat(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Map</span>())); <span class="hljs-comment">// 3 ''</span>
+
+    log(<span class="hljs-number">4</span>, <span class="hljs-string">'na'</span>.repeat(<span class="hljs-keyword">new</span> <span class="hljs-built_in">WeakMap</span>())); <span class="hljs-comment">// 4 ''</span>
+
+    log(<span class="hljs-number">5</span>, <span class="hljs-string">'na'</span>.repeat(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Set</span>())); <span class="hljs-comment">// 5 ''</span>
+
+    log(<span class="hljs-number">6</span>, <span class="hljs-string">'na'</span>.repeat(<span class="hljs-keyword">new</span> <span class="hljs-built_in">WeakSet</span>())); <span class="hljs-comment">// 6 ''</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr><h2 id="字符串补全">字符串补全 <a class="markdownIt-Anchor" href="#字符串补全">#</a></h2><h3 id="基础使用-1">基础使用 <a class="markdownIt-Anchor" href="#基础使用-1">#</a></h3><p><code>ES2017</code> 引入了字符串补全长度的功能。</p><p>如果某个<code>字符串</code>不够指定<code>长度</code>，会在<code>头部</code>或<code>尾部</code>补全。</p><table><thead><tr><th style="text-align:left">方法名</th><th style="text-align:left">方法解释</th></tr></thead><tbody><tr><td style="text-align:left">padStart(maxFillLength,fillStr)</td><td style="text-align:left">返回最后补全的字符串，用于头部补全</td></tr><tr><td style="text-align:left">padEnd(maxFillLength,fillStr)</td><td style="text-align:left">返回最后补全的字符串，尾部补全</td></tr></tbody></table><ul><li><code>maxFillLength</code>是字符串补全生效的<code>最大长度</code>，</li><li><code>fillStr</code>是用来<code>补全</code>的<code>字符串</code>。</li></ul><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    <span class="hljs-keyword">const</span> s = <span class="hljs-string">'m'</span>;
+    <span class="hljs-keyword">const</span> fillStr = <span class="hljs-string">'ab'</span>;
+    log(s.padStart(<span class="hljs-number">5</span>, fillStr)); <span class="hljs-comment">// ababm</span>
+    log(s.padStart(<span class="hljs-number">4</span>, fillStr)); <span class="hljs-comment">// abam</span>
+
+    log(s.padEnd(<span class="hljs-number">5</span>, fillStr)); <span class="hljs-comment">// mabab</span>
+    log(s.padEnd(<span class="hljs-number">4</span>, fillStr)); <span class="hljs-comment">// maba</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr><h3 id="最大长度值忽略情况">最大长度值忽略情况 <a class="markdownIt-Anchor" href="#最大长度值忽略情况">#</a></h3><p>如果<code>原字符串</code>的<code>长度</code>，等于或大于<code>最大长度</code>，则<code>字符串</code>补全不生效，返回<code>原字符串</code>。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    <span class="hljs-keyword">const</span> s = <span class="hljs-string">'mm'</span>;
+    <span class="hljs-keyword">const</span> fillStr = <span class="hljs-string">'ab'</span>;
+    log(s.padStart(<span class="hljs-number">2</span>, fillStr)); <span class="hljs-comment">// 'mm'</span>
+    log(s.padEnd(<span class="hljs-number">2</span>, fillStr)); <span class="hljs-comment">// 'mm'</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr><h3 id="补全字符串截取">补全字符串截取 <a class="markdownIt-Anchor" href="#补全字符串截取">#</a></h3><p>如果用来补全的<code>字符串</code>与<code>原字符串</code>，两者的长度之和超过了<code>最大长度</code>，则会截去超出<code>位数</code>的<code>补全字符串</code>。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    <span class="hljs-keyword">const</span> s = <span class="hljs-string">'mm'</span>;
+    <span class="hljs-keyword">const</span> fillStr = <span class="hljs-string">'0123456789'</span>;
+    log(s.padStart(<span class="hljs-number">10</span>, fillStr)); <span class="hljs-comment">// 01234567mm</span>
+    log(s.padEnd(<span class="hljs-number">10</span>, fillStr)); <span class="hljs-comment">// mm01234567</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr><h3 id="补全字符串忽略">补全字符串忽略 <a class="markdownIt-Anchor" href="#补全字符串忽略">#</a></h3><p>如果省略第二个<code>参数</code>，默认使用<code>空格</code>补全长度。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    <span class="hljs-keyword">const</span> s = <span class="hljs-string">'mm'</span>;
+    log(s.padStart(<span class="hljs-number">10</span>)); <span class="hljs-comment">//         mm</span>
+    log(s.padEnd(<span class="hljs-number">10</span>)); <span class="hljs-comment">// mm        </span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr><h3 id="常见用途">常见用途 <a class="markdownIt-Anchor" href="#常见用途">#</a></h3><blockquote><p>数值补全指定位数</p></blockquote><p><code>padStart()</code>和<code>padEnd</code>的<code>常见用途</code>是为数值补全<code>指定位数</code>。</p><p>下面代码生成 <code>10</code> 位的<code>数值字符串</code>。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    <span class="hljs-keyword">const</span> fillLength = <span class="hljs-number">10</span>;
+    <span class="hljs-keyword">const</span> fillStr = <span class="hljs-string">'0'</span>;
+    log(<span class="hljs-string">'1'</span>.padStart(fillLength, fillStr)); <span class="hljs-comment">// '0000000001'</span>
+    log(<span class="hljs-string">'12'</span>.padStart(fillLength, fillStr)); <span class="hljs-comment">// '0000000012'</span>
+    log(<span class="hljs-string">'123456'</span>.padStart(fillLength, fillStr)); <span class="hljs-comment">// '0000123456'</span>
+
+    log(<span class="hljs-string">'1'</span>.padEnd(fillLength, fillStr)); <span class="hljs-comment">// '1000000000'</span>
+    log(<span class="hljs-string">'12'</span>.padEnd(fillLength, fillStr)); <span class="hljs-comment">// '1200000000'</span>
+    log(<span class="hljs-string">'123456'</span>.padEnd(fillLength, fillStr)); <span class="hljs-comment">// '1234560000'</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr><blockquote><p>提示字符串格式</p></blockquote><p><code>padStart()</code>和<code>padEnd</code>的还可以用作<code>日期格式</code>的字符串<code>格式提示</code>。</p><p>下面代码生成<code>年月日</code>日期格式的字符串。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+
+    log(<span class="hljs-string">'12'</span>.padStart(<span class="hljs-number">10</span>, <span class="hljs-string">'YYYY-MM-DD'</span>)); <span class="hljs-comment">// 'YYYY-MM-12'</span>
+    log(<span class="hljs-string">'09-12'</span>.padStart(<span class="hljs-number">10</span>, <span class="hljs-string">'YYYY-MM-DD'</span>)); <span class="hljs-comment">// 'YYYY-09-12'</span>
+
+    <span class="hljs-comment">// log('12'.padEnd(10, 'YYYY-MM-DD')); // 12YYYY-MM-</span>
+    <span class="hljs-comment">// log('09-12'.padEnd(10, 'YYYY-MM-DD')); // 09-12YYYY-</span>
+    log(<span class="hljs-string">'2019'</span>.padEnd(<span class="hljs-number">10</span>, <span class="hljs-string">'-MM-DD'</span>)); <span class="hljs-comment">// '2019-MM-DD'</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr><h2 id="matchall">matchAll <a class="markdownIt-Anchor" href="#matchall">#</a></h2><h3 id="产生原因-2">产生原因 <a class="markdownIt-Anchor" href="#产生原因-2">#</a></h3><p>如果一个<code>正则表达式</code>在字符串里面有多个<code>匹配</code>，现在一般使用<code>g</code>修饰符或<code>y</code>修饰符，在循环里面逐一取出。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+
+    <span class="hljs-keyword">const</span> regex = <span class="hljs-regexp">/t(e)(st(\d?))/g</span>;
+    <span class="hljs-keyword">const</span> string = <span class="hljs-string">'test1test2test3'</span>;
+
+    <span class="hljs-keyword">const</span> matches = [];
+    <span class="hljs-keyword">let</span> match;
+    <span class="hljs-keyword">while</span> (match = regex.exec(string)) {
+      matches.push(match);
+    }
+
+    log(matches);
+    <span class="hljs-comment">//     [ [ 'test1',</span>
+    <span class="hljs-comment">//     'e',</span>
+    <span class="hljs-comment">//     'st1',</span>
+    <span class="hljs-comment">//     '1',</span>
+    <span class="hljs-comment">//     index: 0,</span>
+    <span class="hljs-comment">//     input: 'test1test2test3',</span>
+    <span class="hljs-comment">//     groups: undefined ],</span>
+    <span class="hljs-comment">//   [ 'test2',</span>
+    <span class="hljs-comment">//     'e',</span>
+    <span class="hljs-comment">//     'st2',</span>
+    <span class="hljs-comment">//     '2',</span>
+    <span class="hljs-comment">//     index: 5,</span>
+    <span class="hljs-comment">//     input: 'test1test2test3',</span>
+    <span class="hljs-comment">//     groups: undefined ],</span>
+    <span class="hljs-comment">//   [ 'test3',</span>
+    <span class="hljs-comment">//     'e',</span>
+    <span class="hljs-comment">//     'st3',</span>
+    <span class="hljs-comment">//     '3',</span>
+    <span class="hljs-comment">//     index: 10,</span>
+    <span class="hljs-comment">//     input: 'test1test2test3',</span>
+    <span class="hljs-comment">//     groups: undefined ] ]</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><p>上面代码中，<code>while</code>循环取出每一轮的<code>正则匹配</code>，一共三轮。</p><hr><h3 id="优化结果">优化结果 <a class="markdownIt-Anchor" href="#优化结果">#</a></h3><p>目前有一个<code>提案</code>，目前还未实现，增加了<code>String.prototype.matchAll</code>方法，可以一次性取出所有<code>匹配</code>。</p><p>不过，它返回的是一个遍历器（<code>Iterator</code>），而不是<code>数组</code>。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    <span class="hljs-comment">// g 修饰符加不加都可以</span>
+    <span class="hljs-keyword">const</span> regex = <span class="hljs-regexp">/t(e)(st(\d?))/g</span>;
+    <span class="hljs-keyword">const</span> string = <span class="hljs-string">'test1test2test3'</span>;
+
+    <span class="hljs-keyword">if</span> (string.matchAll) {
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> match <span class="hljs-keyword">of</span> string.matchAll(regex)) {
+            log(match);
+        }
+        <span class="hljs-comment">// ["test1", "e", "st1", "1", index: 0, input: "test1test2test3"]</span>
+        <span class="hljs-comment">// ["test2", "e", "st2", "2", index: 5, input: "test1test2test3"]</span>
+        <span class="hljs-comment">// ["test3", "e", "st3", "3", index: 10, input: "test1test2test3"]</span>
+    } <span class="hljs-keyword">else</span> {
+        log(<span class="hljs-string">'not support'</span>);
+    }
+
+    <span class="hljs-comment">// not support</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><p>上面代码中，由于<code>string.matchAll(regex)</code>返回的是<code>遍历器</code>，所以可以用<code>for...of</code>循环取出。</p><p>相对于返回<code>数组</code>，返回<code>遍历器</code>的好处在于，如果匹配<code>结果</code>是一个很大的<code>数组</code>，那么<code>遍历器</code>比较<code>节省资源</code>。</p><hr><h3 id="遍历器转换">遍历器转换 <a class="markdownIt-Anchor" href="#遍历器转换">#</a></h3><p><code>遍历器</code>转为<code>数组</code>是非常简单的，使用<code>...</code>运算符和<code>Array.from</code>方法就可以了。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    <span class="hljs-comment">// g 修饰符加不加都可以</span>
+    <span class="hljs-keyword">const</span> regex = <span class="hljs-regexp">/t(e)(st(\d?))/g</span>;
+    <span class="hljs-keyword">const</span> string = <span class="hljs-string">'test1test2test3'</span>;
+
+    <span class="hljs-keyword">if</span> (string.matchAll) {
+        <span class="hljs-keyword">const</span> matches = string.matchAll(regex);
+        <span class="hljs-comment">// 转为数组方法一</span>
+        log([...matches]);
+        <span class="hljs-comment">//     [ [ 'test1',</span>
+        <span class="hljs-comment">//     'e',</span>
+        <span class="hljs-comment">//     'st1',</span>
+        <span class="hljs-comment">//     '1',</span>
+        <span class="hljs-comment">//     index: 0,</span>
+        <span class="hljs-comment">//     input: 'test1test2test3',</span>
+        <span class="hljs-comment">//     groups: undefined ],</span>
+        <span class="hljs-comment">//   [ 'test2',</span>
+        <span class="hljs-comment">//     'e',</span>
+        <span class="hljs-comment">//     'st2',</span>
+        <span class="hljs-comment">//     '2',</span>
+        <span class="hljs-comment">//     index: 5,</span>
+        <span class="hljs-comment">//     input: 'test1test2test3',</span>
+        <span class="hljs-comment">//     groups: undefined ],</span>
+        <span class="hljs-comment">//   [ 'test3',</span>
+        <span class="hljs-comment">//     'e',</span>
+        <span class="hljs-comment">//     'st3',</span>
+        <span class="hljs-comment">//     '3',</span>
+        <span class="hljs-comment">//     index: 10,</span>
+        <span class="hljs-comment">//     input: 'test1test2test3',</span>
+        <span class="hljs-comment">//     groups: undefined ] ]</span>
+
+        <span class="hljs-comment">// 转为数组方法二</span>
+        log(<span class="hljs-built_in">Array</span>.from(matches));
+        <span class="hljs-comment">//     [ [ 'test1',</span>
+        <span class="hljs-comment">//     'e',</span>
+        <span class="hljs-comment">//     'st1',</span>
+        <span class="hljs-comment">//     '1',</span>
+        <span class="hljs-comment">//     index: 0,</span>
+        <span class="hljs-comment">//     input: 'test1test2test3',</span>
+        <span class="hljs-comment">//     groups: undefined ],</span>
+        <span class="hljs-comment">//   [ 'test2',</span>
+        <span class="hljs-comment">//     'e',</span>
+        <span class="hljs-comment">//     'st2',</span>
+        <span class="hljs-comment">//     '2',</span>
+        <span class="hljs-comment">//     index: 5,</span>
+        <span class="hljs-comment">//     input: 'test1test2test3',</span>
+        <span class="hljs-comment">//     groups: undefined ],</span>
+        <span class="hljs-comment">//   [ 'test3',</span>
+        <span class="hljs-comment">//     'e',</span>
+        <span class="hljs-comment">//     'st3',</span>
+        <span class="hljs-comment">//     '3',</span>
+        <span class="hljs-comment">//     index: 10,</span>
+        <span class="hljs-comment">//     input: 'test1test2test3',</span>
+        <span class="hljs-comment">//     groups: undefined ] ]</span>
+
+    } <span class="hljs-keyword">else</span> {
+        log(<span class="hljs-string">'not support'</span>);
+    }
+
+    <span class="hljs-comment">// not support</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr></div><div dir="ltr" class="level article-bar is-mobile"><div class="level-item has-text-centered"><a title="previous page" class="previouse-article-link" href="../chapters04/prototype-function-extend.html"><span class="icon icon-previous" data-icon="previous"></span><span class="link-content">&laquo; Previous</span></a></div><div class="level-item has-text-centered"><a title="font size" class="link-item link-item-size"><span class="icon icon-size" data-icon="size"></span></a></div><div class="level-item has-text-centered"><a title="table of content" class="link-item link-item-toc"><span class="icon icon-toc" data-icon="toc"></span></a></div><div class="level-item has-text-centered"><a title="top" href="#"><span class="icon icon-up" data-icon="up"></span> <span class="link-content">⤊ Top</span></a></div><div class="level-item has-text-centered"><a title="next page" class="next-article-link" href="../chapters04/template-string.html"><span class="icon icon-next" data-icon="next"></span><span class="link-content">Next &raquo;</span></a></div></div></div><div class="column is-2-widescreen is-hidden"></div></div><div class="columns foot"><div class="column is-3 is-offset-9 build-by">Build by <a href="https://github.com/ruanyf/loppo" target="_blank">Loppo</a> 0.6.16</div></div><div class="book-toc notification is-warning is-hidden"><h3>Table of chapters &nbsp;<span class="title-close"><a class="button is-danger"> Close</a></span></h3><ul class="chapter-area"><li class="chapter-item"><a href="../chapters01/index.html">第一章 ECMAScript 6 简介</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters01/base-js.html">js基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/base-es.html">es基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/Babel.html">通过Babel使用ES6</a></li><li class="chapter-item"><a href="../chapters01/Traceur.html">通过Traceur使用ES6</a></li><li class="chapter-item"><a href="../chapters01/stage-00.html">Strawman 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-01.html">Proposal 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-02.html">Draft 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/active-proposals.html">Candidate 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-04.html">Finished 阶段的 proposals</a></li></ul><li class="chapter-item"><a href="../chapters02/index.html">第二章 let和const命令</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters02/base.html">前置知识了解</a></li><li class="chapter-item"><a href="../chapters02/let.html">let 命令</a></li><li class="chapter-item"><a href="../chapters02/const.html">const 命令</a></li><li class="chapter-item"><a href="../chapters02/statement-details.html">语句进阶说明</a></li></ul><li class="chapter-item"><a href="../chapters03/index.html">第三章 变量的解构赋值</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters03/base.html">基础数据结构</a></li><li class="chapter-item"><a href="../chapters03/complex.html">复杂数据结构</a></li><li class="chapter-item"><a href="../chapters03/parentheses.html">圆括号问题</a></li><li class="chapter-item"><a href="../chapters03/use.html">用途</a></li></ul><li class="chapter-item"><a href="../chapters04/index.html">第四章 字符串的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-collapse" data-icon="collapse"></span></a></li><ul class="chapter-level-1 chapter-level-1-current"><li class="chapter-item"><a href="../chapters04/unicode.html">字符的 Unicode 表示法</a></li><li class="chapter-item"><a href="../chapters04/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item chapter-item-current"><a href="../chapters04/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/template-string.html">模板字符串</a></li><li class="chapter-item"><a href="../chapters04/string-Iterator.html">字符串的遍历器接口</a></li><li class="chapter-item"><a href="../chapters04/tag-template.html">标签模板</a></li></ul><li class="chapter-item"><a href="../chapters05/index.html">第五章 正则的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters05/constructor.html">RegExp 构造函数</a></li><li class="chapter-item"><a href="../chapters05/base.html">RegExp 基础使用</a></li><li class="chapter-item"><a href="../chapters05/prototype-attribute.html">RegExp 原型属性</a></li><li class="chapter-item"><a href="../chapters05/modifier.html">RegExp 修饰符</a></li><li class="chapter-item"><a href="../chapters05/assert.html">RegExp 断言</a></li><li class="chapter-item"><a href="../chapters05/string-with-regExp.html">String中正则相关方法</a></li><li class="chapter-item"><a href="../chapters05/named-group-matching.html">具名组匹配</a></li><li class="chapter-item"><a href="../chapters05/unicode-attribute-class.html">Unicode 属性类</a></li></ul><li class="chapter-item"><a href="../chapters06/index.html">第六章 数值的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters06/base-notation.html">Number 进制表示法</a></li><li class="chapter-item"><a href="../chapters06/prototype-attribute.html">Number 原型属性</a></li><li class="chapter-item"><a href="../chapters06/base-function-extend.html">Number 对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/prototype-function-extend.html">Number 原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/math-extension.html">math 对象扩展</a></li><li class="chapter-item"><a href="../chapters06/exponent-operator.html">指数运算符</a></li></ul><li class="chapter-item"><a href="../chapters07/index.html">第七章 函数的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters07/arrow-function.html">箭头函数</a></li><li class="chapter-item"><a href="../chapters07/strict-mode.html">严格模式</a></li><li class="chapter-item"><a href="../chapters07/function-parameter-improvement.html">函数参数改进</a></li><li class="chapter-item"><a href="../chapters07/the-name-attribute-of-the-function.html">函数的name属性</a></li><li class="chapter-item"><a href="../chapters07/tail-call-optimization.html">尾调用优化</a></li></ul><li class="chapter-item"><a href="../chapters08/index.html">第八章 数组的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters08/extension-operator.html">扩展运算符</a></li><li class="chapter-item"><a href="../chapters08/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/empty-space-processing-of-array.html">数组的空位处理</a></li><li class="chapter-item"><a href="../chapters08/pipeline-optimization-of-arrays.html">数组的管道运算优化</a></li></ul><li class="chapter-item"><a href="../chapters09/index.html">第九章 ts学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters09/history.html">ts历史</a></li><li class="chapter-item"><a href="../chapters09/advantages-and-disadvantages.html">ts优势与劣势</a></li><li class="chapter-item"><a href="../chapters09/learn-primitive-type.html">基础类型学习</a></li><li class="chapter-item"><a href="../chapters09/learn-derivative-type.html">衍生类型基础学习</a></li><li class="chapter-item"><a href="../chapters09/Enum.html">衍生类型之Enum</a></li><li class="chapter-item"><a href="../chapters09/interface.html">衍生类型之interface</a></li><li class="chapter-item"><a href="../chapters09/Class.html">衍生类型之Class</a></li><li class="chapter-item"><a href="../chapters09/ts-util.html">ts 高级工具用法</a></li></ul><li class="chapter-item"><a href="../chapters10/index.html">第十章 react学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters10/history.html">react历史</a></li><li class="chapter-item"><a href="../chapters10/version-management.html">react版本管理</a></li><li class="chapter-item"><a href="../chapters10/advantages-and-disadvantages.html">react优势与劣势</a></li><li class="chapter-item"><a href="../chapters10/base.html">react基础语法</a></li><li class="chapter-item"><a href="../chapters10/common-package.html">react常用组件包</a></li><li class="chapter-item"><a href="../chapters10/family-bucket.html">react全家桶</a></li><li class="chapter-item"><a href="../chapters10/ecosphere.html">react的生态圈</a></li><li class="chapter-item"><a href="../chapters10/substitute-product.html">react和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters11/index.html">第十一章 webpack学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters11/history.html">webpack历史</a></li><li class="chapter-item"><a href="../chapters11/version-management.html">webpack版本管理</a></li><li class="chapter-item"><a href="../chapters11/advantages-and-disadvantages.html">webpack优势与劣势</a></li><li class="chapter-item"><a href="../chapters11/base-config.html">webpack项目基础配置</a></li><li class="chapter-item"><a href="../chapters11/common-package.html">webpack常用组件包</a></li><li class="chapter-item"><a href="../chapters11/ecosphere.html">webpack的生态圈</a></li><li class="chapter-item"><a href="../chapters11/substitute-product.html">webpack和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters12/index.html">第十二章 微信小程序学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters12/history.html">微信小程序历史</a></li><li class="chapter-item"><a href="../chapters12/version-management.html">微信小程序版本管理</a></li><li class="chapter-item"><a href="../chapters12/advantages-and-disadvantages.html">微信小程序优势与劣势</a></li><li class="chapter-item"><a href="../chapters12/base.html">微信小程序基础学习</a></li><li class="chapter-item"><a href="../chapters12/common-ui-package.html">微信小程序常用UI库</a></li><li class="chapter-item"><a href="../chapters12/ecosphere.html">微信小程序的生态圈</a></li><li class="chapter-item"><a href="../chapters12/cross-platform.html">微信小程序跨平台</a></li><li class="chapter-item"><a href="../chapters12/substitute-product.html">微信小程序和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters13/index.html">第十三章 web安全方案</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters13/common-web-risks.html">常见web风险</a></li><li class="chapter-item"><a href="../chapters13/monitoring-system.html">前端监控体系</a></li><li class="chapter-item"><a href="../chapters13/performance-optimization.html">前端性能优化</a></li><li class="chapter-item"><a href="../chapters13/security-prevention-and-control.html">前端安全防控</a></li><li class="chapter-item"><a href="../chapters13/test-system.html">前端测试体系</a></li></ul></ul></div><div class="progress-indicator"></div><!-- SCRIPTS --><script>var LOPPO={current_path:"chapters04/instance-function-extend.md",relative_root_path:"../",article_toc:'<ul class="markdownIt-TOC">\n<li><a href="#codepointat">codePointAt()</a>\n<ul>\n<li><a href="#%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0">产生原因</a></li>\n<li><a href="#%E4%BC%98%E5%8C%96%E6%95%88%E6%9E%9C">优化效果</a></li>\n<li><a href="#%E7%BB%93%E5%90%88for-of">结合for-of</a></li>\n<li><a href="#%E8%BF%9B%E5%88%B6%E8%BD%AC%E6%8D%A2">进制转换</a></li>\n<li><a href="#%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E6%98%AF%E5%A4%9A%E5%AD%97%E8%8A%82">判断是否是多字节</a></li>\n</ul>\n</li>\n<li><a href="#normalize">normalize()</a>\n<ul>\n<li><a href="#%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0-1">产生原因</a></li>\n<li><a href="#%E4%BC%98%E5%8C%96%E6%95%88%E6%9E%9C-1">优化效果</a></li>\n<li><a href="#%E5%8F%82%E6%95%B0%E8%AF%A6%E8%A7%A3">参数详解</a></li>\n</ul>\n</li>\n<li><a href="#%E5%88%A4%E6%96%AD%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%85%E5%90%AB">判断字符串包含</a></li>\n<li><a href="#repeat">repeat</a>\n<ul>\n<li><a href="#%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8">基础使用</a></li>\n<li><a href="#%E7%89%B9%E6%AE%8A%E5%BD%A2%E5%8F%82%E5%80%BC%E5%A4%84%E7%90%86">特殊形参值处理</a></li>\n</ul>\n</li>\n<li><a href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E8%A1%A5%E5%85%A8">字符串补全</a>\n<ul>\n<li><a href="#%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8-1">基础使用</a></li>\n<li><a href="#%E6%9C%80%E5%A4%A7%E9%95%BF%E5%BA%A6%E5%80%BC%E5%BF%BD%E7%95%A5%E6%83%85%E5%86%B5">最大长度值忽略情况</a></li>\n<li><a href="#%E8%A1%A5%E5%85%A8%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%88%AA%E5%8F%96">补全字符串截取</a></li>\n<li><a href="#%E8%A1%A5%E5%85%A8%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%BF%BD%E7%95%A5">补全字符串忽略</a></li>\n<li><a href="#%E5%B8%B8%E8%A7%81%E7%94%A8%E9%80%94">常见用途</a></li>\n</ul>\n</li>\n<li><a href="#matchall">matchAll</a>\n<ul>\n<li><a href="#%E4%BA%A7%E7%94%9F%E5%8E%9F%E5%9B%A0-2">产生原因</a></li>\n<li><a href="#%E4%BC%98%E5%8C%96%E7%BB%93%E6%9E%9C">优化结果</a></li>\n<li><a href="#%E9%81%8D%E5%8E%86%E5%99%A8%E8%BD%AC%E6%8D%A2">遍历器转换</a></li>\n</ul>\n</li>\n</ul>\n'}</script><script src="../assets/js/app.js"></script></body></html>

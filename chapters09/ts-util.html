@@ -1,0 +1,410 @@
+<!DOCTYPE html><html><head><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta charset="utf-8"><title>ts 高级工具用法 - learn es6</title><meta name="description" content=""><meta name="author" content=""><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1"><link rel="stylesheet" href="../assets/css/bulma.min.css"><link rel="stylesheet" href="../assets/css/app.css"><!--[if lt IE 9]>
+<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]--><link rel="shortcut icon" href=""></head><body dir="ltr"><nav class="columns navbar"><div class="column logo is-3 is-offset-1"><a class="is-brand" href="../index.html">learn es6</a></div></nav><div class="columns content"><div class="column is-2-desktop is-3-widescreen is-hidden-touch"></div><div class="column article-container is-11-tablet is-8-desktop is-6-widescreen"><div class="breadcrumb-area"><a href="../index.html" class="breadcrumb-item">Home</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters09/index.html" class="breadcrumb-item">第九章 ts学习</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters09/ts-util.html" class="breadcrumb-item">ts 高级工具用法</a></div><h1 class="article-title">ts 高级工具用法</h1><div class="article"><h1 id="ts相关内置工具介绍">ts相关内置工具介绍 <a class="markdownIt-Anchor" href="#ts相关内置工具介绍">#</a></h1><h2 id="可选操作链optional-chaining">可选操作链(optional-chaining) <a class="markdownIt-Anchor" href="#可选操作链optional-chaining">#</a></h2><h3 id="基础介绍">基础介绍 <a class="markdownIt-Anchor" href="#基础介绍">#</a></h3><p><a href="https://github.com/tc39/proposal-optional-chaining" target="_blank" rel="noopener">可选操作链</a>，目前处于<a href="https://github.com/tc39/proposals/blob/master/finished-proposals.md" target="_blank" rel="noopener">stage 4</a>，</p><p>许多<code>API</code>返回一个对象或<code>null</code> / <code>undefined</code>，并且可能仅在结果不为<code>null</code>时才希望从结果中提取属性，<code>Optional Chaining Operator</code>允许开发人员处理许多情况，而无需重复自己和/或在临时变量中分配中间结果，<code>TS</code>中可以直接使用该<code>运算符</code>。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+<span class="hljs-keyword">let</span> test = <span class="hljs-built_in">Math</span>.random() &gt; <span class="hljs-number">0.5</span> ? [<span class="hljs-string">'ssss'</span>] : <span class="hljs-literal">null</span>;
+
+log(test?.length);
+
+<span class="hljs-comment">// 1</span>
+<span class="hljs-comment">// undefined</span>
+<span class="hljs-comment">// undefined</span>
+<span class="hljs-comment">// 1</span>
+</code></pre><hr><h3 id="相关案例">相关案例 <a class="markdownIt-Anchor" href="#相关案例">#</a></h3><blockquote><p>基础案例</p></blockquote><p><code>?.</code>运算符左侧(<code>LHS</code>)的值为<code>undefined</code>或<code>null</code>，则表达式的值为<code>undefined</code>。否则，将正常执行后续<code>属性</code>访问，<code>方法</code>或<code>函数</code>调用。</p><pre class="hljs"><code>a?.b                          <span class="hljs-comment">// undefined if `a` is null/undefined, `a.b` otherwise.</span>
+<span class="hljs-comment">// a == null ? undefined : a.b</span>
+
+a?.[x]                        <span class="hljs-comment">// undefined if `a` is null/undefined, `a[x]` otherwise.</span>
+<span class="hljs-comment">// a == null ? undefined : a[x]</span>
+
+a?.b()                        <span class="hljs-comment">// undefined if `a` is null/undefined</span>
+<span class="hljs-comment">// a == null ? undefined : a.b()</span>
+<span class="hljs-comment">// throws a TypeError if `a.b` is not a function</span>
+<span class="hljs-comment">// otherwise, evaluates to `a.b()`</span>
+
+a?.()                        <span class="hljs-comment">// undefined if `a` is null/undefined</span>
+<span class="hljs-comment">// a == null ? undefined : a()  </span>
+<span class="hljs-comment">// throws a TypeError if `a` is neither null/undefined, nor a function</span>
+<span class="hljs-comment">// invokes the function `a` otherwise</span>
+</code></pre><table><thead><tr><th style="text-align:left"></th><th style="text-align:left"><code>a</code> is <code>null</code>/<code>undefined</code></th><th style="text-align:left"><code>a</code> is not <code>null</code>/<code>undefined</code></th></tr></thead><tbody><tr><td style="text-align:left">a?.b</td><td style="text-align:left"><code>undefined</code></td><td style="text-align:left"><code>a.b</code></td></tr><tr><td style="text-align:left">a?.[x]</td><td style="text-align:left"><code>undefined</code></td><td style="text-align:left"><code>a[x]</code></td></tr><tr><td style="text-align:left">a?.b()</td><td style="text-align:left"><code>undefined</code></td><td style="text-align:left"><code>a.b()</code></td></tr><tr><td style="text-align:left">a?.()</td><td style="text-align:left"><code>undefined</code></td><td style="text-align:left"><code>a()</code></td></tr></tbody></table><hr><blockquote><p>短路</p></blockquote><p>如果，运算符左侧(<code>LHS</code>)，<code>?.</code>评估为<code>null</code>/<code>undefined</code>，则不评估运算符右侧(<code>RHS</code>)，这个过程称为<code>短路(Short-circuiting)</code>。</p><pre class="hljs"><code>a?.[++x]         <span class="hljs-comment">// `x` is incremented if and only if `a` is not null/undefined</span>
+<span class="hljs-comment">// a == null ? undefined : a[++x]</span>
+</code></pre><hr><blockquote><p>长时间短路</p></blockquote><p>实际上，<code>短路</code>在被触发时不仅会跳过当前的<code>属性</code>访问，<code>方法</code>或<code>函数</code>调用，而且还会直接跳过<code>可选链接</code>运算符之后的<code>属性</code>访问，<code>方法</code>或<code>函数</code>调用的整个<code>执行链</code>。</p><pre class="hljs"><code>a?.b.c(++x).d  <span class="hljs-comment">// if `a` is null/undefined, evaluates to undefined. Variable `x` is not incremented.</span>
+               <span class="hljs-comment">// otherwise, evaluates to a.b.c(++x).d.</span>
+<span class="hljs-comment">// a == null ? undefined : a.b.c(++x).d</span>
+</code></pre><p>因为先对<code>a</code>和<code>null</code>进行匹配检查。</p><ul><li>如果，<code>a</code>为<code>null</code>，则直接短路返回<code>undefined</code>。</li><li>如果，<code>a</code>不为<code>null</code>，但<code>a.b</code>为空，则在试图访问<code>a.b</code>的<code>c</code>属性时，就会抛出一个<code>TypeError</code>错误。</li></ul><p>该功能由例如<code>C#</code>和<code>CoffeeScript</code>来实现；参见<a href="https://github.com/tc39/proposal-optional-chaining#prior-art" target="_blank" rel="noopener">现有技术</a>。</p><hr><blockquote><p>可选链堆</p></blockquote><p><code>Optional Chain</code>是<code>Optional Chaining</code>运算符，后跟一系列<code>属性</code>访问，<code>方法</code>或<code>函数</code>调用。即<code>可选链</code>之后可以跟随另一个<code>可选链</code>。</p><pre class="hljs"><code>a?.b[<span class="hljs-number">3</span>].c?.(x).d
+<span class="hljs-comment">// a == null ? undefined : a.b[3].c == null ? undefined : a.b[3].c(x).d</span>
+<span class="hljs-comment">// (as always, except that `a` and `a.b[3].c` are evaluated only once)</span>
+</code></pre><hr><blockquote><p>边缘限制</p></blockquote><p>使用<code>括号运算符</code>可以限制了<code>短路</code>的判断范围。</p><pre class="hljs"><code>(a?.b).c
+<span class="hljs-comment">// (a == null ? undefined : a.b).c</span>
+
+</code></pre><p>因为先对<code>a</code>和<code>null</code>进行匹配检查。</p><ul><li>如果，<code>a</code>为<code>null</code>，则直接短路返回<code>undefined</code>。</li><li>如果，<code>a</code>不为<code>null</code>，但<code>a.b</code>为空，则直接短路返回<code>undefined</code>，后续即访问<code>undefined</code>的<code>c</code>，就会抛出一个<code>TypeError</code>错误。</li></ul><hr><blockquote><p>可选链 &amp;&amp; 删除</p></blockquote><p><code>可选链</code>可以和<code>delete</code>运算符，用于限制<code>delete</code>运算符直接操作的内容范围。</p><pre class="hljs"><code><span class="hljs-keyword">delete</span> a?.b
+<span class="hljs-comment">// a == null ? true : delete a.b</span>
+
+</code></pre><hr><h3 id="不支持">不支持 <a class="markdownIt-Anchor" href="#不支持">#</a></h3><p>尽管可以出于完整性考虑将它们包括在内，但由于缺乏实际用例或其他令人信服的原因，因此不支持以下内容</p><blockquote><p>有关讨论，请参见<a href="https://github.com/tc39/proposal-optional-chaining/issues/22" target="_blank" rel="noopener">第22期</a>和<a href="https://github.com/tc39/proposal-optional-chaining/issues/54" target="_blank" rel="noopener">第54期</a>：</p></blockquote><ul><li>可选结构： <code>new a?.()</code></li><li>可选模板文字： <code>a?.\</code>string``</li><li>构造函数或模板文字中/任选的链后：<code>new a?.b()</code>，<code>a?.b\</code>string``</li></ul><blockquote><p>尽管以下内容有一些用例，但不支持以下内容：参见<a href="https://github.com/tc39/proposal-optional-chaining/issues/18" target="_blank" rel="noopener">第18期</a>的讨论：</p></blockquote><ul><li>可选的属性分配： <code>a?.b = c</code></li></ul><blockquote><p>至少在实践中不支持以下内容，因为它没有多大意义，参见<a href="https://github.com/tc39/proposal-optional-chaining/issues/4" target="_blank" rel="noopener">问题＃4（评论）</a>：</p></blockquote><ul><li>可选父类继承：<code>super?.()</code>，<code>super?.foo</code>。</li><li>任何类似于属性访问或函数调用的内容，<code>new?.target</code>和<code>import?.('foo')</code>等不包含在内。</li></ul><p>语法或静态语义将禁止上述所有情况，以便稍后添加支持。</p><hr><h3 id="常见问题">常见问题 <a class="markdownIt-Anchor" href="#常见问题">#</a></h3><blockquote><p>obj?.[expr]和func?.(arg)看起来很丑陋。为什么不使用obj?[expr]和func?(arg)一样&lt;语言X&gt;？</p></blockquote><p>我们不使用<code>obj?[expr]</code>和 <code>func?(arg)</code>语法，因为解析器很难有效地将这些形式，与条件运算符（例如<code>obj?[expr].filter(fun)</code>和<code>func?(x - 2) + 3</code>区分开。</p><p>这两种情况的替代语法各有其缺陷。而决定哪一个看上去最糟则主要是个人品味的问题。这是我们做出选择的方式：</p><ul><li>选择最适合这种<code>obj?.prop</code>情况的语法，这种语法最常出现</li><li>将可识别<code>?.</code>的字符序列的使用扩展到其他情况：<code>obj?.[expr]</code>，<code>func?.(arg)</code>。</li></ul><p>至于<code>&lt;language X&gt;</code>，它具有与<code>JavaScript</code>不同的语法约束，这是因为<code>&lt;X不支持某些构造或X中的工作方式不同&gt;</code>。</p><blockquote><p>为什么<code>(null)?.b</code>会默认返回<code>undefined</code>，而不是<code>null</code>？</p></blockquote><p><code>a?.b</code>是<code>a</code>变量下是否有<code>b</code>属性，如果没有找到对应的<code>b</code>属性，则返回<code>undefined</code>，即因为<code>a.b = undefined</code>，所以，<code>a?.b = undefined</code>。</p><p>特别是，该值<code>null</code>被认为没有属性。因此，<code>(null)?.b</code>是返回<code>undefined</code>。</p><blockquote><p>为什么<code>foo?.()</code>，会在在foo为<code>undefined</code> 或者 <code>null</code>时，抛出错误？</p></blockquote><p>想象一下一个库，它将<code>onChange</code>在用户提供处理程序时调用它，例如。如果用户提供的是数字<code>3</code>而不是函数，则该库很可能会抛出错误的用法并通知用户。这正是所建议的语义要<code>onChange?.()</code>实现的。</p><p>此外，这确保了<code>?.</code>在所有情况下都具有一致的含义，无需在我们进行检查的特殊情况下，需要先执行<code>typeof foo === 'function'</code>，再执行后续值有效性校验，只需全面检查<code>foo == null</code>即可。</p><p>最后，请记住，可选链接不是<a href="https://github.com/tc39/proposal-optional-chaining#is-this-error-suppression" target="_blank" rel="noopener">错误抑制机制</a>。</p><p>可选操作只会检测，对应的值是<code>undefined</code> 或者 <code>null</code>，不会捕获或抑制通过评估周围的代码引发的错误。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+<span class="hljs-meta">    "use strict"</span>
+    undeclared_var?.b    <span class="hljs-comment">// ReferenceError: undeclared_var is not defined</span>
+    <span class="hljs-built_in">arguments</span>?.callee    <span class="hljs-comment">// TypeError: 'callee' may not be accessed in strict mode</span>
+    <span class="hljs-built_in">arguments</span>.callee?.() <span class="hljs-comment">// TypeError: 'callee' may not be accessed in strict mode</span>
+    <span class="hljs-literal">true</span>?.()             <span class="hljs-comment">// TypeError: true is not a function</span>
+})()
+
+</code></pre><blockquote><p>更多疑问请查看<a href="https://github.com/tc39/proposal-optional-chaining#faq" target="_blank" rel="noopener">optional-chaining QA</a></p></blockquote><hr><h2 id="空合并运算符nullish-coalescing">空合并运算符(nullish-coalescing) <a class="markdownIt-Anchor" href="#空合并运算符nullish-coalescing">#</a></h2><h3 id="前因说明">前因说明 <a class="markdownIt-Anchor" href="#前因说明">#</a></h3><p>执行属性访问时，通常希望提供<code>默认值</code>，如果该属性访问的结果为<code>null</code>或<code>undefined</code>。</p><p>当前，在<code>JavaScript</code>中表达此意图的典型方法是使用<code>||</code>运算符。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> response = {
+  settings: {
+    nullValue: <span class="hljs-literal">null</span>,
+    height: <span class="hljs-number">400</span>,
+    animationDuration: <span class="hljs-number">0</span>,
+    headerText: <span class="hljs-string">''</span>,
+    showSplashScreen: <span class="hljs-literal">false</span>
+  }
+};
+
+<span class="hljs-keyword">const</span> undefinedValue = response.settings.undefinedValue || <span class="hljs-string">'some other default'</span>; <span class="hljs-comment">// result: 'some other default'</span>
+<span class="hljs-keyword">const</span> nullValue = response.settings.nullValue || <span class="hljs-string">'some other default'</span>; <span class="hljs-comment">// result: 'some other default'</span>
+</code></pre><p>这在<code>null</code>和<code>undefined</code>值的常见情况下效果很好，但是有一些虚假的值可能会产生令人惊讶的结果：</p><pre class="hljs"><code><span class="hljs-keyword">const</span> headerText = response.settings.headerText || <span class="hljs-string">'Hello, world!'</span>; <span class="hljs-comment">// Potentially unintended. '' is falsy, result: 'Hello, world!'</span>
+<span class="hljs-keyword">const</span> animationDuration = response.settings.animationDuration || <span class="hljs-number">300</span>; <span class="hljs-comment">// Potentially unintended. 0 is falsy, result: 300</span>
+<span class="hljs-keyword">const</span> showSplashScreen = response.settings.showSplashScreen || <span class="hljs-literal">true</span>; <span class="hljs-comment">// Potentially unintended. false is falsy, result: true</span>
+
+</code></pre><p><a href="https://github.com/tc39/proposal-nullish-coalescing" target="_blank" rel="noopener">无效合并运算符</a>旨在更好地处理这些情况，并用作对无效值（<code>null</code>或<code>undefined</code>）的相等性检查。</p><h3 id="语法">语法 <a class="markdownIt-Anchor" href="#语法">#</a></h3><p>主要使用<code>??</code>运算符，如果左侧的表达式值为<code>undefined</code>或<code>null</code>的时候，则返回其右侧表达式值。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> response = {
+  settings: {
+    nullValue: <span class="hljs-literal">null</span>,
+    height: <span class="hljs-number">400</span>,
+    animationDuration: <span class="hljs-number">0</span>,
+    headerText: <span class="hljs-string">''</span>,
+    showSplashScreen: <span class="hljs-literal">false</span>
+  }
+};
+
+<span class="hljs-keyword">const</span> undefinedValue = response.settings.undefinedValue ?? <span class="hljs-string">'some other default'</span>; <span class="hljs-comment">// 'some other default'</span>
+<span class="hljs-keyword">const</span> nullValue = response.settings.nullValue ?? <span class="hljs-string">'some other default'</span>; <span class="hljs-comment">// 'some other default'</span>
+<span class="hljs-keyword">const</span> headerText = response.settings.headerText ?? <span class="hljs-string">'Hello, world!'</span>; <span class="hljs-comment">// ''</span>
+<span class="hljs-keyword">const</span> animationDuration = response.settings.animationDuration ?? <span class="hljs-number">300</span>; <span class="hljs-comment">// 0</span>
+<span class="hljs-keyword">const</span> showSplashScreen = response.settings.showSplashScreen ?? <span class="hljs-literal">true</span>; <span class="hljs-comment">// false</span>
+</code></pre><hr><h2 id="装饰器decorator">装饰器(decorator) <a class="markdownIt-Anchor" href="#装饰器decorator">#</a></h2><h3 id="基础介绍-1">基础介绍 <a class="markdownIt-Anchor" href="#基础介绍-1">#</a></h3><p>设计模式中有种模式是<code>装饰者模式</code>，<code>decorator</code>的实现和这个设计模式很相近，主要做一些<code>非侵入式</code>的能力扩展。</p><p>在 <code>ES6</code> 之前，<code>装饰器</code>可能并没有那么重要，因为你只需要加一层 <code>wrapper</code> 就好了，但是现在，由于语法糖 <code>class</code> 的出现，它们不支持<code>类</code>所需的一些常见行为，这个时候想要去在多个<code>类</code>之间共享或者扩展一些<code>方法</code>的时候，代码会变得错综复杂，难以维护，而这，也正式我们 <code>decorator</code> 的用武之地。</p><p>注意目前<a href="https://tc39.es/proposal-decorators/" target="_blank" rel="noopener">decorators</a>，还处于第二阶段中，之后语法可能会变化，注意及时关注<a href="https://github.com/tc39/proposal-decorators" target="_blank" rel="noopener">decorators-github</a>查看最新进度。</p><p>如果需要开启 <code>decorator</code>这项<code>experimental</code>支持,需要手动开启<code>experimentalDecorators</code>选项。</p><pre class="hljs"><code>tsc --target ES5 --experimentalDecorators
+tsconfig.json:
+</code></pre><p>或者修改<code>tsconfig.json</code>配置。</p><pre class="hljs"><code>{
+  <span class="hljs-attr">"compilerOptions"</span>: {
+    <span class="hljs-attr">"target"</span>: <span class="hljs-string">"ES5"</span>,
+    <span class="hljs-attr">"experimentalDecorators"</span>: <span class="hljs-literal">true</span>
+  }
+}
+</code></pre><hr><h3 id="原理">原理 <a class="markdownIt-Anchor" href="#原理">#</a></h3><p><code>decorator</code>其实是一个语法糖，背后通过拦截<code>es5</code>的<code>Object.defineProperty(target,name,descriptor)</code>进行装饰功能，详细了解<code>Object.defineProperty</code>可以查看<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty" target="_blank" rel="noopener">MDN文档</a>。</p><pre class="hljs"><code><span class="hljs-keyword">class</span> Melon(){
+  <span class="hljs-meta">@readonly</span>
+  name
+}
+
+</code></pre><p>在属性上的修饰符，会在<code>Object.defineProperty</code>为<code>Melon</code>原型上注册对应属性之前，执行以下代码。</p><pre class="hljs"><code><span class="hljs-keyword">let</span> descriptor = {
+  value:specifiedFunction,
+  enumerable:<span class="hljs-literal">false</span>,
+  configurable:<span class="hljs-literal">true</span>,
+  writeable:<span class="hljs-literal">true</span>
+};
+
+descriptor = readonly(Melon.prototype,<span class="hljs-string">'name'</span>,descriptor) || descriptor;
+<span class="hljs-built_in">Object</span>.defineProperty(Melon.prototype,<span class="hljs-string">'name'</span>,descriptor);
+</code></pre><p>从上面的伪代码我们可以看出，<code>decorator</code>只是在<code>Object.defineProperty</code>为<code>Melon.prototype</code>注册<code>属性</code>之前，执行了一个<code>装饰函数</code>，属于一个类对<code>Object.defineProperty</code>的拦截。</p><p>也就是说在利用<code>decorator</code>进行能力扩展时，主要是根据<code>装饰</code>的<code>目标</code>不同，取到对应的<code>target</code>,<code>name</code>,和<code>descriptor</code>实参，做相关修改和扩展。</p><blockquote><p>target</p></blockquote><p>要在其上定义属性的对象。</p><blockquote><p>name</p></blockquote><p>要定义或修改的属性的名称。</p><blockquote><p>descriptor中主要有<code>configurable</code>,<code>enumerable</code>,<code>value</code>,<code>writable</code>,<code>get</code>,和<code>set</code>属性可配置</p></blockquote><table><thead><tr><th style="text-align:left">属性名</th><th style="text-align:left">属性描述</th></tr></thead><tbody><tr><td style="text-align:left">configurable</td><td style="text-align:left">通用配置项，当且仅当该属性的 <code>configurable</code> 为 <code>true</code> 时，该属性描述符才能够被改变，同时该属性也能从对应的对象上被删除。默认为 <code>false</code>。</td></tr><tr><td style="text-align:left">enumerable</td><td style="text-align:left">通用配置项，当且仅当该属性的<code>enumerable</code>为<code>true</code>时，该属性才能够出现在对象的枚举属性中。默认为 <code>false</code>。</td></tr><tr><td style="text-align:left">value</td><td style="text-align:left">数据描述专有配置项，该属性对应的值。可以是任何有效的 <code>JavaScript</code> 值（数值，对象，函数等）。默认为 <code>undefined</code>。</td></tr><tr><td style="text-align:left"><code>writable</code></td><td style="text-align:left">数据描述专有配置项，当且仅当该属性的<code>writable</code>为<code>true</code>时，<code>value</code>才能被赋值运算符改变。默认为 <code>false</code>。</td></tr><tr><td style="text-align:left">get</td><td style="text-align:left">数据存取专有配置项，一个给属性提供 <code>getter</code> 的方法，如果没有 <code>getter</code> 则为 <code>undefined</code>。当访问该属性时，该方法会被执行，方法执行时没有参数传入，但是会传入<code>this</code>对象（由于继承关系，这里的<code>this</code>并不一定是定义该属性的对象）。默认为 <code>undefined</code>。</td></tr><tr><td style="text-align:left">set</td><td style="text-align:left">数据存取专有配置项，一个给属性提供 <code>setter</code> 的方法，如果没有 <code>setter</code> 则为 <code>undefined</code>。当属性值修改时，触发执行该方法。该方法将接受唯一参数，即该属性新的参数值。默认为 <code>undefined</code>。</td></tr></tbody></table><p><code>descriptor</code>中主要分两种形式来做<code>数据描述符</code>和<code>存取描述符</code>。</p><ul><li>通过<code>Object.defineProperty</code>方法做具体属性值定义，称为<code>数据描述符</code>行为，比如<code>装饰器</code>中对于<code>类属性</code>的复写，就是属于这种情况。</li><li>通过<code>Object.defineProperty</code>方法做属性的访问器相关定义，称为<code>存取描述符</code>行为，比如<code>装饰器</code>中对于<code>类整体</code>和<code>类方法</code>的复写，就是属于这种情况。vue 2.x之前的版本数据双向观测联动也是通过这个来实现的。</li></ul><table><thead><tr><th style="text-align:left"></th><th style="text-align:left">configurable</th><th style="text-align:left">enumerable</th><th style="text-align:left">value</th><th style="text-align:left">writable</th><th style="text-align:left">get</th><th style="text-align:left">set</th></tr></thead><tbody><tr><td style="text-align:left">数据描述符</td><td style="text-align:left">Yes</td><td style="text-align:left">Yes</td><td style="text-align:left">Yes</td><td style="text-align:left">Yes</td><td style="text-align:left">No</td><td style="text-align:left">No</td></tr><tr><td style="text-align:left">存取描述符</td><td style="text-align:left">Yes</td><td style="text-align:left">Yes</td><td style="text-align:left">No</td><td style="text-align:left">No</td><td style="text-align:left">Yes</td><td style="text-align:left">Yes</td></tr></tbody></table><hr><h3 id="语法说明">语法说明 <a class="markdownIt-Anchor" href="#语法说明">#</a></h3><p><code>decorator</code>是一种特殊种类的声明，可被附连到一个<code>类声明</code>，<code>方法</code>，<code>访问器</code>，<code>属性</code>，或<code>参数</code>。</p><p>装饰器使用形式是<code>@expression</code>，在其中<code>expression</code>必须是一个函数，该函数将在运行时使用有关修饰声明的信息来调用。</p><p>在一行上使用多个装饰器。</p><pre class="hljs"><code>@f @g x
+</code></pre><p>在多行上使用多个装饰器。</p><pre class="hljs"><code>@f
+@g
+x
+</code></pre><p>当多个修饰符应用于一个声明时，它们的求值类似于数学中的函数组成。</p><p>上述代码中，是将<code>f</code> 和<code>g</code>两个方法进行能力组合, 组合结果是 <code>f(g(x))</code>。</p><p>因此，在<code>TypeScript</code>中的单个声明上评估多个装饰器时，将执行以下步骤：</p><ul><li>从顶部到底部评估每个装饰器的表达式。</li><li>然后将结果从下到上称为函数。</li></ul><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params"></span>) </span>{
+    log(<span class="hljs-string">"f(): evaluated"</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">target, propertyKey: <span class="hljs-built_in">string</span>, descriptor: PropertyDescriptor</span>) </span>{
+        log(target, propertyKey, <span class="hljs-string">"f(): called"</span>);
+    };
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">g</span>(<span class="hljs-params"></span>) </span>{
+    log(<span class="hljs-string">"g(): evaluated"</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">target, propertyKey: <span class="hljs-built_in">string</span>, descriptor: PropertyDescriptor</span>) </span>{
+        log(target, propertyKey, <span class="hljs-string">"g(): called"</span>);
+    };
+}
+
+<span class="hljs-keyword">class</span> C {
+    <span class="hljs-meta">@f</span>()
+    <span class="hljs-meta">@g</span>()
+    method() { }
+}
+
+<span class="hljs-keyword">const</span> testObj: C = <span class="hljs-keyword">new</span> C();
+testObj.method();
+
+<span class="hljs-comment">// f(): evaluated</span>
+<span class="hljs-comment">// g(): evaluated</span>
+<span class="hljs-comment">// {},  'method',  g(): called</span>
+<span class="hljs-comment">// {},  'method',  f(): called</span>
+</code></pre><hr><h3 id="代码示例">代码示例 <a class="markdownIt-Anchor" href="#代码示例">#</a></h3><p><code>decorator</code>是一种特殊种类的声明，可被附连到一个<code>类声明</code>，<code>类方法</code>，<code>类访问器</code>，<code>类属性</code>，或<code>类方法参数</code>。</p><p>装饰器使用形式是<code>@expression</code>，在其中<code>expression</code>必须是一个函数，该函数将在运行时使用有关修饰声明的信息来调用。</p><blockquote><p>class declaration &amp;&amp; decorator</p></blockquote><p>在类声明之前声明一个<code>类装饰器</code>。</p><p><code>类装饰器</code>应用于类的<code>构造函数</code>，可用于<code>观察</code>，<code>修改</code>或<code>替换</code>类定义。</p><p>不能在<code>声明文件</code>，或任何其他环境上下文（例如，在<code>declare</code>类中）中使用<code>类装饰器</code>。</p><p><code>类装饰器</code>的表达式将在运行时作为函数调用，装饰类的<code>构造函数</code>为其唯一参数。</p><p>下面是一个有关如何重写<code>构造函数</code>的示例。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">classDecorator</span>&lt;<span class="hljs-title">T</span> <span class="hljs-title">extends</span> </span>{ <span class="hljs-keyword">new</span> (...args: <span class="hljs-built_in">any</span>[]): {} }&gt;(
+  <span class="hljs-keyword">constructor</span>: T
+) {
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">class</span> <span class="hljs-keyword">extends</span> <span class="hljs-keyword">constructor</span> {
+    newProperty = <span class="hljs-string">"new property"</span>;
+    hello = <span class="hljs-string">"override"</span>;
+  };
+}
+
+<span class="hljs-meta">@classDecorator</span>
+<span class="hljs-keyword">class</span> Greeter {
+  property = <span class="hljs-string">"property"</span>;
+  hello: <span class="hljs-built_in">string</span>;
+  <span class="hljs-keyword">constructor</span>(<span class="hljs-params">m: <span class="hljs-built_in">string</span></span>) {
+    <span class="hljs-keyword">this</span>.hello = m;
+  }
+}
+
+<span class="hljs-built_in">console</span>.log(<span class="hljs-keyword">new</span> Greeter(<span class="hljs-string">"world"</span>));
+
+</code></pre><p>如果，<code>类装饰器</code>返回一个值，它将用提供的<code>构造函数</code>替换类声明。</p><p>注意，如果是选择返回新的<code>构造函数</code>，则必须注意维护<code>原始原型</code>，运行时应用装饰器的逻辑不会为执行此操作。</p><hr><blockquote><p>property declaration &amp;&amp; decorator</p></blockquote><p><code>属性装饰器</code>是在属性声明之前声明。</p><p><code>属性装饰器</code>不能在<code>声明文件</code>，<code>重载</code>或任何其他环境上下文（例如在<code>declare</code>类中）中使用。</p><p>属性装饰器的表达式将在运行时作为函数调用，并带有以下两个参数：</p><ul><li>静态成员的类的构造函数或实例成员的类的原型。</li><li>成员的名称。</li></ul><p>注意，由于在<code>TypeScript</code>中未初始化<code>属性装饰器</code>，因此未将<code>属性描述符</code>作为<code>参数</code>提供给<code>属性装饰器</code>。</p><p>这是因为当前在定义原型成员时没有描述<code>实例属性</code>的机制，也没有<code>观察</code>或<code>修改</code>该属性的<code>初始化程序</code>的方法。</p><p><code>返回值</code>也将被忽略。因此，<code>属性装饰器</code>只能用于<code>观察</code>已为类声明了<code>特定名称</code>的<code>属性</code>。</p><p>可以使用此信息来记录有关该属性的<code>元数据</code>，<code>@format</code>装饰器和<code>getFormat</code>函数应用于<code>Greeter</code>类上方法的<code>属性装饰器</code>的示例。</p><pre class="hljs"><code><span class="hljs-keyword">import</span> <span class="hljs-string">"reflect-metadata"</span>;
+
+<span class="hljs-keyword">const</span> formatMetadataKey = Symbol(<span class="hljs-string">"format"</span>);
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">format</span>(<span class="hljs-params">formatString: <span class="hljs-built_in">string</span></span>) </span>{
+  <span class="hljs-keyword">return</span> Reflect.metadata(formatMetadataKey, formatString);
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getFormat</span>(<span class="hljs-params">target: <span class="hljs-built_in">any</span>, propertyKey: <span class="hljs-built_in">string</span></span>) </span>{
+  <span class="hljs-keyword">return</span> Reflect.getMetadata(formatMetadataKey, target, propertyKey);
+}
+
+<span class="hljs-keyword">class</span> Greeter {
+  <span class="hljs-meta">@format</span>(<span class="hljs-string">"Hello, %s"</span>)
+  greeting: <span class="hljs-built_in">string</span>;
+
+  <span class="hljs-keyword">constructor</span>(<span class="hljs-params">message: <span class="hljs-built_in">string</span></span>) {
+    <span class="hljs-keyword">this</span>.greeting = message;
+  }
+  greet() {
+    <span class="hljs-keyword">let</span> formatString = getFormat(<span class="hljs-keyword">this</span>, <span class="hljs-string">"greeting"</span>);
+    <span class="hljs-keyword">return</span> formatString.replace(<span class="hljs-string">"%s"</span>, <span class="hljs-keyword">this</span>.greeting);
+  }
+}
+</code></pre><p>当<code>@format(&quot;Hello, %s&quot;)</code>被调用时，通过<code>Reflect.metadata</code>函数，增加了使用属性元数据条目。</p><p>当<code>getFormat</code>被调用时，它读取的格式中的<code>元数据值</code>。</p><p>注意此示例需要<code>reflect-metadata</code>库。有关库的更多信息，请参见元数据<a href="https://www.typescriptlang.org/v2/docs/handbook/decorators.html#metadata" target="_blank" rel="noopener">reflect-metadata</a>。</p><hr><blockquote><p>method declaration &amp;&amp; decorator</p></blockquote><p>在<code>方法</code>声明之前声明<code>方法装饰器</code>。<code>装饰器</code>将应用于方法的属性描述符，并可用于观察，修改或替换方法定义。</p><p><code>方法装饰器</code>不能在<code>声明文件</code>，<code>重载</code>或任何其他环境上下文（例如在<code>declare</code>类中）中使用。</p><p><code>方法装饰器</code>的表达式将在运行时作为函数调用，并带有以下三个参数</p><ul><li>静态成员的类的构造函数或实例成员的类的原型。</li><li>成员的名称。</li><li>成员的属性描述符。</li></ul><p>注：如果你的<code>js</code>编译版本低于是小于<code>ES5</code>，属性描述将会是<code>undefined</code>。</p><p>如果<code>方法装饰器</code>返回一个值，它将用作<code>方法</code>的<code>属性描述符</code>。</p><p>以下是<code>@enumerable</code>应用于<code>Greeter</code>类上方法的<code>方法装饰器</code>的示例</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">enumerable</span>(<span class="hljs-params">value: <span class="hljs-built_in">boolean</span></span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">
+    target: <span class="hljs-built_in">any</span>,
+    propertyKey: <span class="hljs-built_in">string</span>,
+    descriptor: PropertyDescriptor
+  </span>) </span>{
+    descriptor.enumerable = value;
+  };
+}
+
+<span class="hljs-keyword">class</span> Greeter {
+  greeting: <span class="hljs-built_in">string</span>;
+  <span class="hljs-keyword">constructor</span>(<span class="hljs-params">message: <span class="hljs-built_in">string</span></span>) {
+    <span class="hljs-keyword">this</span>.greeting = message;
+  }
+
+  <span class="hljs-meta">@enumerable</span>(<span class="hljs-literal">false</span>)
+  greet() {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">"Hello, "</span> + <span class="hljs-keyword">this</span>.greeting;
+  }
+}
+
+<span class="hljs-keyword">const</span> testObj: Greeter = <span class="hljs-keyword">new</span> Greeter(<span class="hljs-string">'melon'</span>);
+log(testObj.greet());<span class="hljs-comment">// Hello, melon</span>
+log(testObj.greeting);<span class="hljs-comment">// melon</span>
+</code></pre><p>我们可以<code>@enumerable</code>使用以下函数声明来定义<code>方法装饰器</code>，当<code>@enumerable(false)</code>装饰器被调用时，它修改<code>enumerable</code>的属性描述符的属性。</p><hr><blockquote><p>accessor declaration &amp;&amp; decorator</p></blockquote><p>在<code>访问器</code>声明之前，就声明了一个<code>访问器装饰器</code>。<code>访问器修饰符</code>应用于<code>访问器</code>的属性描述符，可用于<code>观察</code>，<code>修改</code>或<code>替换访问器</code>的定义。</p><p><code>访问装饰器</code>不能在<code>声明文件</code>，<code>重载</code>或任何其他环境上下文（例如在<code>declare</code>类中）中使用。</p><p>注意，<code>TypeScript</code>不允许装饰单个成员的<code>get</code>和<code>set</code>访问器。而是，该成员的所有装饰器必须应用于按文档顺序指定的第一个访问器。</p><p>这是因为<code>访问器装饰器</code>适用于<code>Property Descriptor</code>，它组合了<code>get</code>和<code>set</code>访问器，而不是分别合并每个声明。</p><p><code>访问器装饰器</code>的表达式将在运行时作为函数调用，并带有以下三个参数</p><ul><li>静态成员的类的构造函数或实例成员的类的原型。</li><li>成员的名称。</li><li>成员的属性描述符。</li></ul><p>注：如果你的<code>js</code>编译版本低于是小于<code>ES5</code>，属性描述将会是<code>undefined</code>。</p><p>如果<code>访问器装饰器</code>返回一个值，它将用作<code>成员</code>的<code>属性描述符</code>。</p><p>以下是<code>@configurable</code>应用于<code>Point</code>类成员的访问器修饰符的示例</p><pre class="hljs"><code><span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">configurable</span>(<span class="hljs-params">value: <span class="hljs-built_in">boolean</span></span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">
+    target: <span class="hljs-built_in">any</span>,
+    propertyKey: <span class="hljs-built_in">string</span>,
+    descriptor: PropertyDescriptor
+  </span>) </span>{
+    descriptor.configurable = value;
+  };
+}
+
+<span class="hljs-keyword">class</span> Point {
+  <span class="hljs-keyword">private</span> _x: <span class="hljs-built_in">number</span>;
+  <span class="hljs-keyword">private</span> _y: <span class="hljs-built_in">number</span>;
+  <span class="hljs-keyword">constructor</span>(<span class="hljs-params">x: <span class="hljs-built_in">number</span>, y: <span class="hljs-built_in">number</span></span>) {
+    <span class="hljs-keyword">this</span>._x = x;
+    <span class="hljs-keyword">this</span>._y = y;
+  }
+
+  <span class="hljs-meta">@configurable</span>(<span class="hljs-literal">false</span>)
+  <span class="hljs-keyword">get</span> x() {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._x;
+  }
+
+  <span class="hljs-meta">@configurable</span>(<span class="hljs-literal">false</span>)
+  <span class="hljs-keyword">get</span> y() {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._y;
+  }
+}
+
+<span class="hljs-keyword">const</span> testObj: Point = <span class="hljs-keyword">new</span> Point(<span class="hljs-number">3</span>,<span class="hljs-number">4</span>);
+log(testObj.x);<span class="hljs-comment">// 3</span>
+log(testObj.y);<span class="hljs-comment">// 4</span>
+
+testObj.x = <span class="hljs-number">4</span>;<span class="hljs-comment">// Cannot assign to 'x' because it is a read-only property.</span>
+testObj.y = <span class="hljs-number">5</span>;<span class="hljs-comment">// Cannot assign to 'y' because it is a read-only property.</span>
+
+</code></pre><hr><blockquote><p>parameter declaration &amp;&amp; decorator</p></blockquote><p>在<code>参数</code>声明之前声明<code>参数装饰器</code>。<code>参数装饰器</code>应用于类构造函数，或方法声明的函数。</p><p><code>参数装饰器</code>不能在<code>声明文件</code>，<code>重载</code>或任何其他环境上下文（例如在<code>declare</code>类中）中使用。</p><p><code>参数装饰器</code>的表达式将在运行时作为函数调用，并带有以下三个参数</p><ul><li>静态成员的类的构造函数或实例成员的类的原型。</li><li>成员的名称。</li><li>函数的参数列表中参数的序号索引。</li></ul><p>注意，<code>参数装饰器</code>只能用于观察已在方法上声明了的<code>参数</code>，<code>参数装饰器</code>的返回值将被忽略。</p><p>以下是<code>@required</code>应用于<code>Greeter</code>类上方法的<code>参数装饰器</code>的示例</p><pre class="hljs"><code><span class="hljs-keyword">import</span> <span class="hljs-string">"reflect-metadata"</span>;
+
+<span class="hljs-keyword">const</span> requiredMetadataKey = Symbol(<span class="hljs-string">"required"</span>);
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">required</span>(<span class="hljs-params">
+  target: <span class="hljs-built_in">Object</span>,
+  propertyKey: <span class="hljs-built_in">string</span> | symbol,
+  parameterIndex: <span class="hljs-built_in">number</span>
+</span>) </span>{
+  <span class="hljs-keyword">let</span> existingRequiredParameters: <span class="hljs-built_in">number</span>[] =
+    Reflect.getOwnMetadata(requiredMetadataKey, target, propertyKey) || [];
+  existingRequiredParameters.push(parameterIndex);
+  Reflect.defineMetadata(
+    requiredMetadataKey,
+    existingRequiredParameters,
+    target,
+    propertyKey
+  );
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">validate</span>(<span class="hljs-params">
+  target: <span class="hljs-built_in">any</span>,
+  propertyName: <span class="hljs-built_in">string</span>,
+  descriptor: TypedPropertyDescriptor&lt;<span class="hljs-built_in">Function</span>&gt;
+</span>) </span>{
+  <span class="hljs-keyword">let</span> method = descriptor.value;
+  descriptor.value = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">let</span> requiredParameters: <span class="hljs-built_in">number</span>[] = Reflect.getOwnMetadata(
+      requiredMetadataKey,
+      target,
+      propertyName
+    );
+    <span class="hljs-keyword">if</span> (requiredParameters) {
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> parameterIndex of requiredParameters) {
+        <span class="hljs-keyword">if</span> (
+          parameterIndex &gt;= <span class="hljs-built_in">arguments</span>.length ||
+          <span class="hljs-built_in">arguments</span>[parameterIndex] === <span class="hljs-literal">undefined</span>
+        ) {
+          <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">"Missing required argument."</span>);
+        }
+      }
+    }
+
+    <span class="hljs-keyword">return</span> method.apply(<span class="hljs-keyword">this</span>, <span class="hljs-built_in">arguments</span>);
+  };
+}
+
+<span class="hljs-keyword">class</span> Greeter {
+  greeting: <span class="hljs-built_in">string</span>;
+
+  <span class="hljs-keyword">constructor</span>(<span class="hljs-params">message: <span class="hljs-built_in">string</span></span>) {
+    <span class="hljs-keyword">this</span>.greeting = message;
+  }
+
+  <span class="hljs-meta">@validate</span>
+  greet(<span class="hljs-meta">@required</span> name: <span class="hljs-built_in">string</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">"Hello "</span> + name + <span class="hljs-string">", "</span> + <span class="hljs-keyword">this</span>.greeting;
+  }
+}
+</code></pre><p>该<code>@required</code>装饰器用于标记该参数的<code>元数据条目</code>。然后，<code>@validate</code>装饰器是将现有<code>greet</code>方法包装在一个函数中，该函数在调用原始方法之前先验证<code>参数</code>。</p><p>注意此示例需要<code>reflect-metadata</code>库。有关库的更多信息，请参见元数据<a href="https://www.typescriptlang.org/v2/docs/handbook/decorators.html#metadata" target="_blank" rel="noopener">reflect-metadata</a>。</p><hr><h3 id="注意事项">注意事项 <a class="markdownIt-Anchor" href="#注意事项">#</a></h3><p>因为存在函数提升，这边目前<code>装饰器</code>更多是应用于修改一个<code>类声明</code>，<code>类方法</code>，<code>类访问器</code>，<code>类属性</code>，或<code>类方法参数</code>中，不能直接装饰具体<code>方法</code>。</p><pre class="hljs"><code><span class="hljs-keyword">let</span> counter = <span class="hljs-number">0</span>;
+
+<span class="hljs-keyword">const</span> add = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  counter++;
+};
+
+<span class="hljs-meta">@add</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params"></span>) </span>{
+}
+</code></pre><p>上面的代码，意图是执行后<code>counter</code>等于 <code>1</code>，但是实际上结果是<code>counter</code>等于 <code>0</code>。因为<code>函数提升</code>，使得实际执行的代码是下面这样。</p><pre class="hljs"><code><span class="hljs-meta">@add</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params"></span>) </span>{
+}
+
+<span class="hljs-keyword">let</span> counter;
+<span class="hljs-keyword">let</span> add;
+
+counter = <span class="hljs-number">0</span>;
+
+add = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  counter++;
+};
+
+</code></pre><p>下面是另一个例子。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> readOnly = <span class="hljs-built_in">require</span>(<span class="hljs-string">"some-decorator"</span>);
+
+<span class="hljs-meta">@readOnly</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params"></span>) </span>{
+}
+</code></pre><p>上面代码也有问题，因为实际执行是下面这样。</p><pre class="hljs"><code><span class="hljs-keyword">let</span> readOnly;
+
+<span class="hljs-meta">@readOnly</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params"></span>) </span>{
+}
+
+readOnly = <span class="hljs-built_in">require</span>(<span class="hljs-string">"some-decorator"</span>);
+</code></pre><p>总之，由于存在函数提升，使得<code>装饰器</code>不能用于函数。类是不会存在<code>函数提升</code>的，所以就没有这方面的问题。</p><blockquote><p>另一方面，如果一定要装饰函数，可以采用高阶函数的形式直接执行。</p></blockquote><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">doSomething</span>(<span class="hljs-params">name</span>) </span>{
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Hello, '</span> + name);
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">loggingDecorator</span>(<span class="hljs-params">wrapped</span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Starting'</span>);
+    <span class="hljs-keyword">const</span> result = wrapped.apply(<span class="hljs-keyword">this</span>, <span class="hljs-built_in">arguments</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Finished'</span>);
+    <span class="hljs-keyword">return</span> result;
+  }
+}
+
+<span class="hljs-keyword">const</span> wrapped = loggingDecorator(doSomething);
+</code></pre><hr><h2 id="mixins">mixins <a class="markdownIt-Anchor" href="#mixins">#</a></h2><hr><h2 id="dom-manipulation">DOM Manipulation <a class="markdownIt-Anchor" href="#dom-manipulation">#</a></h2><h3 id="基础介绍-2">基础介绍 <a class="markdownIt-Anchor" href="#基础介绍-2">#</a></h3><p>自标准化以来的20多年来，<code>JavaScript</code>已经走了很长一段路。尽管在2020年，<code>JavaScript</code>可以在<code>服务器</code>，<code>数据科学</code>甚至<code>IoT设备</code>上使用，但更多的场景还是在Web浏览器。</p><p>网站由<code>HTML</code>或<code>XML</code>文档组成。这些文档是静态的，它们不会更改。document对象模型（<code>DOM</code>）是<code>浏览器</code>，为了方便操作静态页面提供的编程接口。</p><p>很多相关UI库这边都是<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLElement" target="_blank" rel="noopener">DOM API</a>可用于更改文档结构，样式和内容，实现相关操作。</p><p><code>TypeScript</code>是<code>JavaScript</code>的类型化超集，它附带<code>DOM API</code>的类型定义。这些定义可以在任何默认的<code>TypeScript</code>项目中轻松获得，在<code>TypeScript</code>可以通过<code>HTMLElement</code>类型进行<code>DOM</code>相关操作。</p><p>在此处探索<code>DOM</code>类型定义的源代码：<a href="https://github.com/microsoft/TypeScript/blob/master/lib/lib.dom.d.ts" target="_blank" rel="noopener">HTMLElement 实现</a>。</p><hr><h3 id="代码案例">代码案例 <a class="markdownIt-Anchor" href="#代码案例">#</a></h3><p>下面示例，如何在<code>TypeScript</code>中，将<code>&lt;p&gt;Hello, World&lt;/p&gt;</code>元素添加到<code>#app</code>元素中。</p><pre class="hljs"><code><span class="hljs-comment">// 1. Select the div element using the id property</span>
+<span class="hljs-keyword">const</span> app = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">"app"</span>);
+
+<span class="hljs-comment">// 2. Create a new &lt;p&gt;&lt;/p&gt; element programmatically</span>
+<span class="hljs-keyword">const</span> p = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">"p"</span>);
+
+<span class="hljs-comment">// 3. Add the text content</span>
+p.textContent = <span class="hljs-string">"Hello, World!"</span>;
+
+<span class="hljs-comment">// 4. Append the p element to the div element</span>
+app?.appendChild(p);
+</code></pre><p>编译并运行<code>index.html</code>页面后，生成的<code>HTML</code>将为</p><pre class="hljs"><code><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"app"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>Hello, World!<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+</code></pre><hr><h3 id="接口介绍">接口介绍 <a class="markdownIt-Anchor" href="#接口介绍">#</a></h3><p><code>TypeScript</code>代码的第一行使用全局变量<code>document</code>，检查该变量是否显示它是由<code>lib.dom.d.ts</code>文件中的<code>Document</code>接口定义的。</p><blockquote><p>Document.getElementById</p></blockquote><p>向其传递元素<code>ID</code>字符串，如果能够在页面上找到对应元素，将返回<code>HTMLElement</code>，如果找不到，则会返回<code>null</code>。</p><pre class="hljs"><code>getElementById(elementId: <span class="hljs-built_in">string</span>): HTMLElement | <span class="hljs-literal">null</span>;
+</code></pre><p>它充当所有其他元素接口的基础接口，例如，<code>p</code>代码示例中变量的<code>类型</code>为<code>HTMLParagraphElement</code>。</p><p>因为，该方法<code>返回值</code>无法在运行前确定，所以，可以结合<code>可选链</code>运算符来调用<code>HTMLElement</code>接口。</p><hr><blockquote><p>Document.createElement</p></blockquote><p>向其传递元素任何内容<code>string</code>，将返回标准<code>HTMLElement</code>。开发人员可以通过这个接口是创建唯一的<code>HTML</code>元素标签。</p><p>例如</p><ul><li><code>document.createElement('a')</code>，那么它将是<code>type</code>的元素<code>HTMLAnchorElement</code>。</li><li><code>document.createElement('xyz')</code>返回一个<code>&lt;xyz&gt;&lt;/xyz&gt;</code>元素，显然不是<code>HTML</code>规范指定的元素。</li></ul><pre class="hljs"><code>createElement&lt;K <span class="hljs-keyword">extends</span> keyof HTMLElementTagNameMap&gt;(tagName: K, options?: ElementCreationOptions): HTMLElementTagNameMap[K];
+createElement(tagName: <span class="hljs-built_in">string</span>, options?: ElementCreationOptions): HTMLElement;
+</code></pre><p>上面是一个重载的函数定义。第二个重载是最简单的，并且与该<code>getElementById</code>方法非常相似。</p><p>对于<code>createElement</code>的第一个定义，它使用了一些高级通用模式，最好将其分解为多块。</p><ul><li>从通用表达式开始：<code>&lt;K extends keyof HTMLElementTagNameMap&gt;</code>。该表达式定义了一个通用参数<code>K</code>，该参数被限制在接口的键上<code>HTMLElementTagNameMap</code>。</li></ul><p><code>HTMLElementTagNameMap</code>映射接口包含每个指定的<code>HTML</code>标记名称及其对应的类型接口，例如，这是前5个映射值：</p><pre class="hljs"><code><span class="hljs-keyword">interface</span> HTMLElementTagNameMap {
+    <span class="hljs-string">"a"</span>: HTMLAnchorElement;
+    <span class="hljs-string">"abbr"</span>: HTMLElement;
+    <span class="hljs-string">"address"</span>: HTMLElement;
+    <span class="hljs-string">"applet"</span>: HTMLAppletElement;
+    <span class="hljs-string">"area"</span>: HTMLAreaElement;
+        ...
+}
+
+</code></pre><p>有些元素不具有唯一的属性，因此它们只是返回<code>HTMLElement</code>，而其他类型的确具有唯一的属性和方法，因此它们返回其特定的接口（将从扩展或实现<code>HTMLElement</code>）。</p><ul><li>现在，在<code>createElement</code>定义的其余部分：<code>(tagName: K, options?: ElementCreationOptions): HTMLElementTagNameMap[K]</code>。</li></ul><p>第一个参数<code>tagName</code>定义为通用参数<code>K</code>。<code>TypeScript</code>解释器足够聪明，可以从此参数推断出通用参数。这意味着开发人员在使用该方法时实际上不必指定泛型参数。传递给<code>tagName</code>参数的任何值都将被推断为<code>K</code>，因此可以在定义的其余部分中使用。</p><p>返回值<code>HTMLElementTagNameMap[K]</code>接受<code>tagName</code>参数，并使用它返回相应的<code>类型</code>。</p><hr><blockquote><p>Node.appendChild</p></blockquote><p>具体<code>HTMLElement</code>对象执行<code>appendChild</code>方法，向其传递元素任何内容<code>string</code>，将返回标准<code>HTMLElement</code>。</p><pre class="hljs"><code>appendChild&lt;T <span class="hljs-keyword">extends</span> Node&gt;(newChild: T): T;
+</code></pre><p>此方法的工作方式与从<code>createElement</code>参数<code>T</code>推断出通用参数的方法类似<code>newChild</code>。<code>T</code>被限制在另一个基本接口上<code>Node</code>。</p><hr><blockquote><p>querySelector &amp;&amp; querySelectorAll</p></blockquote><p>这两种方法都是获取适合更多唯一约束的<code>dom</code>元素列表的出色工具。它们在<code>lib.dom.d.ts</code>中定义为</p><pre class="hljs"><code><span class="hljs-comment">/**
+ * Returns the first element that is a descendant of node that matches selectors.
+ */</span>
+querySelector&lt;K <span class="hljs-keyword">extends</span> keyof HTMLElementTagNameMap&gt;(selectors: K): HTMLElementTagNameMap[K] | <span class="hljs-literal">null</span>;
+querySelector&lt;K <span class="hljs-keyword">extends</span> keyof SVGElementTagNameMap&gt;(selectors: K): SVGElementTagNameMap[K] | <span class="hljs-literal">null</span>;
+querySelector&lt;E <span class="hljs-keyword">extends</span> Element = Element&gt;(selectors: <span class="hljs-built_in">string</span>): E | <span class="hljs-literal">null</span>;
+
+<span class="hljs-comment">/**
+ * Returns all element descendants of node that match selectors.
+ */</span>
+querySelectorAll&lt;K <span class="hljs-keyword">extends</span> keyof HTMLElementTagNameMap&gt;(selectors: K): NodeListOf&lt;HTMLElementTagNameMap[K]&gt;;
+querySelectorAll&lt;K <span class="hljs-keyword">extends</span> keyof SVGElementTagNameMap&gt;(selectors: K): NodeListOf&lt;SVGElementTagNameMap[K]&gt;;
+querySelectorAll&lt;E <span class="hljs-keyword">extends</span> Element = Element&gt;(selectors: <span class="hljs-built_in">string</span>): NodeListOf&lt;E&gt;;
+</code></pre><p>该<code>querySelectorAll</code>定义类似于<code>getElementByTagName</code>，但它返回一个新类型：<code>NodeListOf</code>。</p><p>此返回类型本质上是标准<code>JavaScript list</code>元素的自定义实现。可以说，替换<code>NodeListOf&lt;E&gt;</code>为<code>E[]</code>会带来非常相似的用户体验。</p><p><code>NodeListOf</code>只有实现了以下属性和方法：<code>length</code>，<code>item(index)</code>，<code>forEach((value, key, parent) =&gt; void)</code>，和<code>数字索引</code>。</p><p>注意，此方法返回<code>元素列表</code>，而不是<code>节点列表</code>，这是<code>NodeList</code>是取的<code>Node.childNodes</code>属性。</p><p>要查看实际使用的这些方法，请将现有代码修改为：</p><pre class="hljs"><code><span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>First :)<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>Second!<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>Third times a charm.<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>;
+
+const first = document.querySelector("li"); // returns the first li element
+const all = document.querySelectorAll("li"); // returns the list of all li elements
+</code></pre><hr><h2 id="类型断言">类型断言 <a class="markdownIt-Anchor" href="#类型断言">#</a></h2><p>有时候你会遇到这样的情况，你会比<code>TypeScript</code>更了解某个值的详细信息。</p><p>通常这会发生在你清楚地知道一个<code>实体</code>具有比它现有类型更确切的<code>类型</code>。</p><p>通过<code>类型断言</code>这种方式可以告诉编译器，&quot;相信我，我知道自己在干什么&quot;。</p><p><code>类型断言</code>好比其它语言里的<code>类型转换</code>，或者类型装箱，但是不进行特殊的<code>数据检查</code>和<code>解构</code>。</p><p>它没有运行时的影响，只是在<code>编译阶段</code>起作用。 <code>TypeScript</code>会假设你已经进行了必须的检查。</p><p><code>类型断言</code>有两种形式。</p><blockquote><p>其一是&quot;尖括号&quot;语法：</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">const</span> someValue: <span class="hljs-built_in">any</span> = <span class="hljs-string">"this is a string"</span>;
+
+<span class="hljs-keyword">const</span> strLength: <span class="hljs-built_in">number</span> = (&lt;<span class="hljs-built_in">string</span>&gt;someValue).length;
+
+<span class="hljs-comment">// 当然直接写也是可以的。</span>
+<span class="hljs-keyword">const</span> strLength2: <span class="hljs-built_in">number</span> = someValue.length;<span class="hljs-comment">// 16</span>
+
+</code></pre><blockquote><p>另一个为as语法：</p></blockquote><pre class="hljs"><code><span class="hljs-keyword">const</span> someValue: <span class="hljs-built_in">any</span> = <span class="hljs-string">"this is a string"</span>;
+
+<span class="hljs-keyword">const</span> strLength: <span class="hljs-built_in">number</span> = (someValue <span class="hljs-keyword">as</span> <span class="hljs-built_in">string</span>).length;
+</code></pre><p>两种形式是等价的。 至于使用哪个大多数情况下是凭个人喜好；然而，当你在<code>TypeScript</code>里使用<code>JSX</code>时，只有<code>as</code>语法断言是被允许的。</p><hr><h2 id="类型校验">类型校验 <a class="markdownIt-Anchor" href="#类型校验">#</a></h2><hr><h2 id="泛型">泛型 <a class="markdownIt-Anchor" href="#泛型">#</a></h2><hr><h2 id="高级类型">高级类型 <a class="markdownIt-Anchor" href="#高级类型">#</a></h2><hr><h2 id="utility-types">Utility Types <a class="markdownIt-Anchor" href="#utility-types">#</a></h2><hr></div><div dir="ltr" class="level article-bar is-mobile"><div class="level-item has-text-centered"><a title="previous page" class="previouse-article-link" href="../chapters09/Class.html"><span class="icon icon-previous" data-icon="previous"></span><span class="link-content">&laquo; Previous</span></a></div><div class="level-item has-text-centered"><a title="font size" class="link-item link-item-size"><span class="icon icon-size" data-icon="size"></span></a></div><div class="level-item has-text-centered"><a title="table of content" class="link-item link-item-toc"><span class="icon icon-toc" data-icon="toc"></span></a></div><div class="level-item has-text-centered"><a title="top" href="#"><span class="icon icon-up" data-icon="up"></span> <span class="link-content">⤊ Top</span></a></div><div class="level-item has-text-centered"><a title="next page" class="next-article-link" href="../chapters10/index.html"><span class="icon icon-next" data-icon="next"></span><span class="link-content">Next &raquo;</span></a></div></div></div><div class="column is-2-widescreen is-hidden"></div></div><div class="columns foot"><div class="column is-3 is-offset-9 build-by">Build by <a href="https://github.com/ruanyf/loppo" target="_blank">Loppo</a> 0.6.16</div></div><div class="book-toc notification is-warning is-hidden"><h3>Table of chapters &nbsp;<span class="title-close"><a class="button is-danger"> Close</a></span></h3><ul class="chapter-area"><li class="chapter-item"><a href="../chapters01/index.html">第一章 ECMAScript 6 简介</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters01/base-js.html">js基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/base-es.html">es基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/Babel.html">通过Babel使用ES6</a></li><li class="chapter-item"><a href="../chapters01/Traceur.html">通过Traceur使用ES6</a></li><li class="chapter-item"><a href="../chapters01/stage-00.html">Strawman 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-01.html">Proposal 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-02.html">Draft 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/active-proposals.html">Candidate 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-04.html">Finished 阶段的 proposals</a></li></ul><li class="chapter-item"><a href="../chapters02/index.html">第二章 let和const命令</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters02/base.html">前置知识了解</a></li><li class="chapter-item"><a href="../chapters02/let.html">let 命令</a></li><li class="chapter-item"><a href="../chapters02/const.html">const 命令</a></li><li class="chapter-item"><a href="../chapters02/statement-details.html">语句进阶说明</a></li></ul><li class="chapter-item"><a href="../chapters03/index.html">第三章 变量的解构赋值</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters03/base.html">基础数据结构</a></li><li class="chapter-item"><a href="../chapters03/complex.html">复杂数据结构</a></li><li class="chapter-item"><a href="../chapters03/parentheses.html">圆括号问题</a></li><li class="chapter-item"><a href="../chapters03/use.html">用途</a></li></ul><li class="chapter-item"><a href="../chapters04/index.html">第四章 字符串的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters04/unicode.html">字符的 Unicode 表示法</a></li><li class="chapter-item"><a href="../chapters04/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/template-string.html">模板字符串</a></li><li class="chapter-item"><a href="../chapters04/string-Iterator.html">字符串的遍历器接口</a></li><li class="chapter-item"><a href="../chapters04/tag-template.html">标签模板</a></li></ul><li class="chapter-item"><a href="../chapters05/index.html">第五章 正则的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters05/constructor.html">RegExp 构造函数</a></li><li class="chapter-item"><a href="../chapters05/base.html">RegExp 基础使用</a></li><li class="chapter-item"><a href="../chapters05/prototype-attribute.html">RegExp 原型属性</a></li><li class="chapter-item"><a href="../chapters05/modifier.html">RegExp 修饰符</a></li><li class="chapter-item"><a href="../chapters05/assert.html">RegExp 断言</a></li><li class="chapter-item"><a href="../chapters05/string-with-regExp.html">String中正则相关方法</a></li><li class="chapter-item"><a href="../chapters05/named-group-matching.html">具名组匹配</a></li><li class="chapter-item"><a href="../chapters05/unicode-attribute-class.html">Unicode 属性类</a></li></ul><li class="chapter-item"><a href="../chapters06/index.html">第六章 数值的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters06/base-notation.html">Number 进制表示法</a></li><li class="chapter-item"><a href="../chapters06/prototype-attribute.html">Number 原型属性</a></li><li class="chapter-item"><a href="../chapters06/base-function-extend.html">Number 对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/prototype-function-extend.html">Number 原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/math-extension.html">math 对象扩展</a></li><li class="chapter-item"><a href="../chapters06/exponent-operator.html">指数运算符</a></li></ul><li class="chapter-item"><a href="../chapters07/index.html">第七章 函数的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters07/arrow-function.html">箭头函数</a></li><li class="chapter-item"><a href="../chapters07/strict-mode.html">严格模式</a></li><li class="chapter-item"><a href="../chapters07/function-parameter-improvement.html">函数参数改进</a></li><li class="chapter-item"><a href="../chapters07/the-name-attribute-of-the-function.html">函数的name属性</a></li><li class="chapter-item"><a href="../chapters07/tail-call-optimization.html">尾调用优化</a></li></ul><li class="chapter-item"><a href="../chapters08/index.html">第八章 数组的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters08/extension-operator.html">扩展运算符</a></li><li class="chapter-item"><a href="../chapters08/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/empty-space-processing-of-array.html">数组的空位处理</a></li><li class="chapter-item"><a href="../chapters08/pipeline-optimization-of-arrays.html">数组的管道运算优化</a></li></ul><li class="chapter-item"><a href="../chapters09/index.html">第九章 ts学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-collapse" data-icon="collapse"></span></a></li><ul class="chapter-level-1 chapter-level-1-current"><li class="chapter-item"><a href="../chapters09/history.html">ts历史</a></li><li class="chapter-item"><a href="../chapters09/advantages-and-disadvantages.html">ts优势与劣势</a></li><li class="chapter-item"><a href="../chapters09/learn-primitive-type.html">基础类型学习</a></li><li class="chapter-item"><a href="../chapters09/learn-derivative-type.html">衍生类型基础学习</a></li><li class="chapter-item"><a href="../chapters09/Enum.html">衍生类型之Enum</a></li><li class="chapter-item"><a href="../chapters09/interface.html">衍生类型之interface</a></li><li class="chapter-item"><a href="../chapters09/Class.html">衍生类型之Class</a></li><li class="chapter-item chapter-item-current"><a href="../chapters09/ts-util.html">ts 高级工具用法</a></li></ul><li class="chapter-item"><a href="../chapters10/index.html">第十章 react学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters10/history.html">react历史</a></li><li class="chapter-item"><a href="../chapters10/version-management.html">react版本管理</a></li><li class="chapter-item"><a href="../chapters10/advantages-and-disadvantages.html">react优势与劣势</a></li><li class="chapter-item"><a href="../chapters10/base.html">react基础语法</a></li><li class="chapter-item"><a href="../chapters10/common-package.html">react常用组件包</a></li><li class="chapter-item"><a href="../chapters10/family-bucket.html">react全家桶</a></li><li class="chapter-item"><a href="../chapters10/ecosphere.html">react的生态圈</a></li><li class="chapter-item"><a href="../chapters10/substitute-product.html">react和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters11/index.html">第十一章 webpack学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters11/history.html">webpack历史</a></li><li class="chapter-item"><a href="../chapters11/version-management.html">webpack版本管理</a></li><li class="chapter-item"><a href="../chapters11/advantages-and-disadvantages.html">webpack优势与劣势</a></li><li class="chapter-item"><a href="../chapters11/base-config.html">webpack项目基础配置</a></li><li class="chapter-item"><a href="../chapters11/common-package.html">webpack常用组件包</a></li><li class="chapter-item"><a href="../chapters11/ecosphere.html">webpack的生态圈</a></li><li class="chapter-item"><a href="../chapters11/substitute-product.html">webpack和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters12/index.html">第十二章 微信小程序学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters12/history.html">微信小程序历史</a></li><li class="chapter-item"><a href="../chapters12/version-management.html">微信小程序版本管理</a></li><li class="chapter-item"><a href="../chapters12/advantages-and-disadvantages.html">微信小程序优势与劣势</a></li><li class="chapter-item"><a href="../chapters12/base.html">微信小程序基础学习</a></li><li class="chapter-item"><a href="../chapters12/common-ui-package.html">微信小程序常用UI库</a></li><li class="chapter-item"><a href="../chapters12/ecosphere.html">微信小程序的生态圈</a></li><li class="chapter-item"><a href="../chapters12/cross-platform.html">微信小程序跨平台</a></li><li class="chapter-item"><a href="../chapters12/substitute-product.html">微信小程序和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters13/index.html">第十三章 web安全方案</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters13/common-web-risks.html">常见web风险</a></li><li class="chapter-item"><a href="../chapters13/monitoring-system.html">前端监控体系</a></li><li class="chapter-item"><a href="../chapters13/performance-optimization.html">前端性能优化</a></li><li class="chapter-item"><a href="../chapters13/security-prevention-and-control.html">前端安全防控</a></li><li class="chapter-item"><a href="../chapters13/test-system.html">前端测试体系</a></li></ul></ul></div><div class="progress-indicator"></div><!-- SCRIPTS --><script>var LOPPO={current_path:"chapters09/ts-util.md",relative_root_path:"../",article_toc:'<ul class="markdownIt-TOC">\n<li><a href="#%E5%8F%AF%E9%80%89%E6%93%8D%E4%BD%9C%E9%93%BEoptional-chaining">可选操作链(optional-chaining)</a>\n<ul>\n<li><a href="#%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D">基础介绍</a></li>\n<li><a href="#%E7%9B%B8%E5%85%B3%E6%A1%88%E4%BE%8B">相关案例</a></li>\n<li><a href="#%E4%B8%8D%E6%94%AF%E6%8C%81">不支持</a></li>\n<li><a href="#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98">常见问题</a></li>\n</ul>\n</li>\n<li><a href="#%E7%A9%BA%E5%90%88%E5%B9%B6%E8%BF%90%E7%AE%97%E7%AC%A6nullish-coalescing">空合并运算符(nullish-coalescing)</a>\n<ul>\n<li><a href="#%E5%89%8D%E5%9B%A0%E8%AF%B4%E6%98%8E">前因说明</a></li>\n<li><a href="#%E8%AF%AD%E6%B3%95">语法</a></li>\n</ul>\n</li>\n<li><a href="#%E8%A3%85%E9%A5%B0%E5%99%A8decorator">装饰器(decorator)</a>\n<ul>\n<li><a href="#%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D-1">基础介绍</a></li>\n<li><a href="#%E5%8E%9F%E7%90%86">原理</a></li>\n<li><a href="#%E8%AF%AD%E6%B3%95%E8%AF%B4%E6%98%8E">语法说明</a></li>\n<li><a href="#%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B">代码示例</a></li>\n<li><a href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9">注意事项</a></li>\n</ul>\n</li>\n<li><a href="#mixins">mixins</a></li>\n<li><a href="#dom-manipulation">DOM Manipulation</a>\n<ul>\n<li><a href="#%E5%9F%BA%E7%A1%80%E4%BB%8B%E7%BB%8D-2">基础介绍</a></li>\n<li><a href="#%E4%BB%A3%E7%A0%81%E6%A1%88%E4%BE%8B">代码案例</a></li>\n<li><a href="#%E6%8E%A5%E5%8F%A3%E4%BB%8B%E7%BB%8D">接口介绍</a></li>\n</ul>\n</li>\n<li><a href="#%E7%B1%BB%E5%9E%8B%E6%96%AD%E8%A8%80">类型断言</a></li>\n<li><a href="#%E7%B1%BB%E5%9E%8B%E6%A0%A1%E9%AA%8C">类型校验</a></li>\n<li><a href="#%E6%B3%9B%E5%9E%8B">泛型</a></li>\n<li><a href="#%E9%AB%98%E7%BA%A7%E7%B1%BB%E5%9E%8B">高级类型</a></li>\n<li><a href="#utility-types">Utility Types</a></li>\n</ul>\n'}</script><script src="../assets/js/app.js"></script></body></html>

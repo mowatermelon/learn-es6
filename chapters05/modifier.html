@@ -1,0 +1,196 @@
+<!DOCTYPE html><html><head><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta charset="utf-8"><title>RegExp 修饰符 - learn es6</title><meta name="description" content=""><meta name="author" content=""><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1"><link rel="stylesheet" href="../assets/css/bulma.min.css"><link rel="stylesheet" href="../assets/css/app.css"><!--[if lt IE 9]>
+<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]--><link rel="shortcut icon" href=""></head><body dir="ltr"><nav class="columns navbar"><div class="column logo is-3 is-offset-1"><a class="is-brand" href="../index.html">learn es6</a></div></nav><div class="columns content"><div class="column is-2-desktop is-3-widescreen is-hidden-touch"></div><div class="column article-container is-11-tablet is-8-desktop is-6-widescreen"><div class="breadcrumb-area"><a href="../index.html" class="breadcrumb-item">Home</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters05/index.html" class="breadcrumb-item">第五章 正则的扩展</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters05/modifier.html" class="breadcrumb-item">RegExp 修饰符</a></div><h1 class="article-title">RegExp 修饰符</h1><div class="article"><h2 id="g-修饰符">g 修饰符 <a class="markdownIt-Anchor" href="#g-修饰符">#</a></h2><h3 id="基础说明">基础说明 <a class="markdownIt-Anchor" href="#基础说明">#</a></h3><p>全局匹配，找到所有匹配，而不是在第一个匹配后停止。</p><p>请注意只有开启了<code>g</code>修饰符，<code>lastIndex</code>的值才会被维护，和设置及时生效。</p><hr><h3 id="举例">举例 <a class="markdownIt-Anchor" href="#举例">#</a></h3><p>下面案例中详细说明了，设置了<code>g</code>修饰符和未设置的区别。</p><p>当设置了<code>g</code>修饰符，<code>exec</code>会自动找到下一个<code>匹配项</code>，但是如果没有设置过，则不会寻找下一个<code>匹配项</code>。</p><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> str = <span class="hljs-string">'ababa'</span>;
+    <span class="hljs-keyword">const</span> reg1 = <span class="hljs-regexp">/a/</span>;
+    <span class="hljs-keyword">const</span> reg2 = <span class="hljs-regexp">/a/g</span>;
+    log(reg1.exec(str)); <span class="hljs-comment">// ["a", index: 0, input: "ababa", groups: undefined]</span>
+    log(reg1.lastIndex);  <span class="hljs-comment">// 0</span>
+
+    reg1.lastIndex = <span class="hljs-number">1</span>;
+
+    log(reg1.exec(str)); <span class="hljs-comment">// ["a", index: 0, input: "ababa", groups: undefined]</span>
+    log(reg1.lastIndex);  <span class="hljs-comment">// 1</span>
+
+    log(reg2.exec(str)); <span class="hljs-comment">// ["a", index: 0, input: "ababa", groups: undefined]</span>
+    log(reg2.lastIndex);  <span class="hljs-comment">// 1</span>
+
+    reg2.lastIndex = <span class="hljs-number">1</span>;
+
+    log(reg2.exec(str)); <span class="hljs-comment">// ["a", index: 2, input: "ababa", groups: undefined]</span>
+    log(reg2.lastIndex);  <span class="hljs-comment">// 3</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><hr><h2 id="i-修饰符">i 修饰符 <a class="markdownIt-Anchor" href="#i-修饰符">#</a></h2><h3 id="基础说明-1">基础说明 <a class="markdownIt-Anchor" href="#基础说明-1">#</a></h3><p>忽略需要匹配项中的字母大小写</p><hr><h3 id="举例-1">举例 <a class="markdownIt-Anchor" href="#举例-1">#</a></h3><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> str = <span class="hljs-string">'aba'</span>;
+    <span class="hljs-keyword">const</span> reg1 = <span class="hljs-regexp">/aB/</span>;
+    <span class="hljs-keyword">const</span> reg2 = <span class="hljs-regexp">/aB/i</span>;
+    log(reg1.exec(str)); <span class="hljs-comment">// null</span>
+
+    log(reg2.exec(str)); <span class="hljs-comment">// ["ab", index: 0, input: "aba", groups: undefined]</span>
+
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><hr><h2 id="m-修饰符">m 修饰符 <a class="markdownIt-Anchor" href="#m-修饰符">#</a></h2><h3 id="基础说明-2">基础说明 <a class="markdownIt-Anchor" href="#基础说明-2">#</a></h3><p><code>m</code> 标志意味着一个<code>多行</code>输入字符串被看作<code>多行</code>。</p><p>例如，使用 <code>m</code>，<code>^</code> 和 <code>$</code> 将会从只匹配<code>正则字符串</code>的<code>开头</code>或<code>结尾</code>，变为匹配<code>字符串</code>中<code>任一行</code>的<code>开头</code>或<code>结尾</code>。</p><hr><h3 id="举例-2">举例 <a class="markdownIt-Anchor" href="#举例-2">#</a></h3><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> s = <span class="hljs-string">"Please yes\nmake my day!"</span>;
+    log(s.match(<span class="hljs-regexp">/yes.*day/</span>)); <span class="hljs-comment">// null</span>
+    log(s.match(<span class="hljs-regexp">/yes[^]*day/</span>)); <span class="hljs-comment">// ["yes↵make my day", index: 7, input: "Please yes↵make my day!", groups: undefined]</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><hr><h2 id="u-修饰符">u 修饰符 <a class="markdownIt-Anchor" href="#u-修饰符">#</a></h2><h3 id="基础说明-3">基础说明 <a class="markdownIt-Anchor" href="#基础说明-3">#</a></h3><p>正常情况下<code>\w</code> 或 <code>\W</code> 只会匹配基本的 <code>ASCII</code> 字符，如 <code>a</code> 到 <code>z</code>'、 <code>A</code> 到 <code>Z</code>、 <code>0</code> 到 <code>9</code> 及 <code>_</code>。</p><p>为了匹配其他语言中的字符，如<code>西里尔（Cyrillic）</code>或 <code>希伯来语（Hebrew）</code>，要使用 <code>\uhhhh</code>，<code>hhhh</code> 表示以<code>十六进制</code>表示的字符的 <code>Unicode</code> 值。</p><p><code>ES6</code> 对<code>正则表达式</code>添加了<code>u</code>修饰符，含义为<code>Unicode 模式</code>，用来正确处理大于<code>\uFFFF</code>的 <code>Unicode</code> 字符。也就是说，会正确处理四个字节的 <code>UTF-16</code> 编码。</p><p>一旦加上<code>u</code>修饰符号，就会修改下面这些正则表达式的行为。</p><hr><h3 id="unicode-字符表示法">Unicode 字符表示法 <a class="markdownIt-Anchor" href="#unicode-字符表示法">#</a></h3><p><code>ES6</code> 新增了使用<code>大括号</code>表示 <code>Unicode</code> 字符，这种<code>表示法</code>在<code>正则表达式</code>中必须加上<code>u</code>修饰符，才能识别当中的<code>大括号</code>，否则会被解读为前一个<code>匹配项</code>的<code>量词</code>。</p><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    log(<span class="hljs-regexp">/\u{61}/</span>.test(<span class="hljs-string">'a'</span>)); <span class="hljs-comment">// false</span>
+    log(<span class="hljs-regexp">/\u{61}/u</span>.test(<span class="hljs-string">'a'</span>)); <span class="hljs-comment">// true</span>
+    log(<span class="hljs-regexp">/\u{20BB7}/u</span>.test(<span class="hljs-string">'𠮷'</span>)); <span class="hljs-comment">// true</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><p>上面代码表示，如果不加<code>u</code>修饰符，<code>正则表达式</code>无法识别<code>\u{61}</code>这种表示法，只会认为这匹配 <code>61</code> 个连续的<code>u</code>。</p><hr><h3 id="举例-3">举例 <a class="markdownIt-Anchor" href="#举例-3">#</a></h3><h4 id="正确处理utf-16-编码值">正确处理UTF-16 编码值 <a class="markdownIt-Anchor" href="#正确处理utf-16-编码值">#</a></h4><pre class="hljs"><code>/^\uD83D/u.test(<span class="hljs-string">'\uD83D\uDC2A'</span>) <span class="hljs-comment">// false</span>
+/^\uD83D/.test(<span class="hljs-string">'\uD83D\uDC2A'</span>) <span class="hljs-comment">// true</span>
+</code></pre><p>上面代码中，<code>\uD83D\uDC2A</code>是一个四个字节的 <code>UTF-16</code> 编码，代表一个<code>字符</code>。</p><p>加了<code>u</code>修饰符以后，<code>ES6</code> 就会识别其为一个<code>字符</code>，所以第一行代码结果为<code>false</code>。</p><p>但是，<code>ES5</code> 不支持四个字节的 <code>UTF-16</code> 编码，会将其识别为两个<code>字符</code>，导致第二行代码结果为<code>true</code>。</p><hr><h4 id="分离出unicode字符">分离出Unicode字符 <a class="markdownIt-Anchor" href="#分离出unicode字符">#</a></h4><p>展示了怎样从一个<code>单词</code>中分离出 <code>Unicode</code> 字符。</p><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> text = <span class="hljs-string">"Образец text на русском языке"</span>;
+    <span class="hljs-keyword">const</span> regex = <span class="hljs-regexp">/[\u0400-\u04FF]+/g</span>;
+
+    <span class="hljs-keyword">const</span> match = regex.exec(text);
+    log(match[<span class="hljs-number">0</span>]);  <span class="hljs-comment">// logs "Образец"</span>
+    log(regex.lastIndex);  <span class="hljs-comment">// logs "7"</span>
+
+    <span class="hljs-keyword">const</span> match2 = regex.exec(text);
+    log(match2[<span class="hljs-number">0</span>]);  <span class="hljs-comment">// logs "на" [did not log "text"]</span>
+    log(regex.lastIndex);  <span class="hljs-comment">// logs "15"</span>
+
+    <span class="hljs-comment">// and so on</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><p>这里有一个外部资源，用来获取 <code>Unicode</code> 中的不同区块范围：<code>Regexp-unicode-block</code></p><hr><h4 id="从-url-中提取子域名节">从 URL 中提取子域名节 <a class="markdownIt-Anchor" href="#从-url-中提取子域名节">#</a></h4><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> url = <span class="hljs-string">"http://xxx.domain.com"</span>;
+    log(<span class="hljs-regexp">/[^.]+/</span>.exec(url)[<span class="hljs-number">0</span>].substr(<span class="hljs-number">7</span>)); <span class="hljs-comment">// logs "xxx"</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><hr><h4 id="结合点字符">结合点字符 <a class="markdownIt-Anchor" href="#结合点字符">#</a></h4><p>点（<code>.</code>）字符在<code>正则表达式</code>中，含义是除了<code>换行符</code>以外的任意单个<code>字符</code>。对于<code>码点</code>大于<code>0xFFFF</code>的 <code>Unicode</code> 字符，<code>点字符</code>不能识别，必须加上<code>u</code>修饰符。</p><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> s = <span class="hljs-string">'𠮷'</span>;
+
+    log(<span class="hljs-regexp">/^.$/</span>.test(s)); <span class="hljs-comment">// false</span>
+    log(<span class="hljs-regexp">/^.$/u</span>.test(s)); <span class="hljs-comment">// true</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><p>上面代码表示，如果不添加<code>u</code>修饰符，<code>正则表达式</code>就会认为字符串为两个<code>字符</code>，从而匹配失败。</p><hr><h4 id="量词解析">量词解析 <a class="markdownIt-Anchor" href="#量词解析">#</a></h4><p>使用<code>u</code>修饰符后，所有<code>量词</code>都会正确识别码点大于<code>0xFFFF</code>的 <code>Unicode</code> 字符。</p><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    log(<span class="hljs-regexp">/a{2}/</span>.test(<span class="hljs-string">'aa'</span>)); <span class="hljs-comment">// true</span>
+    log(<span class="hljs-regexp">/a{2}/u</span>.test(<span class="hljs-string">'aa'</span>)); <span class="hljs-comment">// true</span>
+    log(<span class="hljs-regexp">/𠮷{2}/</span>.test(<span class="hljs-string">'𠮷𠮷'</span>)); <span class="hljs-comment">// false</span>
+    log(<span class="hljs-regexp">/𠮷{2}/u</span>.test(<span class="hljs-string">'𠮷𠮷'</span>)); <span class="hljs-comment">// true</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><hr><h4 id="影响预定义模式">影响预定义模式 <a class="markdownIt-Anchor" href="#影响预定义模式">#</a></h4><p><code>u</code>修饰符也影响到<code>预定义模式</code>，能否正确识别码点大于<code>0xFFFF</code>的 <code>Unicode</code> 字符。</p><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    log(<span class="hljs-regexp">/^\S$/</span>.test(<span class="hljs-string">'𠮷'</span>)); <span class="hljs-comment">// false</span>
+    log(<span class="hljs-regexp">/^\S$/u</span>.test(<span class="hljs-string">'𠮷'</span>)); <span class="hljs-comment">// true</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><p>上面代码的<code>\S</code>是预定义模式，匹配所有<code>非空白字符</code>。只有加了<code>u</code>修饰符，它才能正确匹配码点大于<code>0xFFFF</code>的 <code>Unicode</code> 字符。</p><p>利用这一点，可以写出一个正确返回字符串长度的函数。</p><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> codePointLength = <span class="hljs-function">(<span class="hljs-params">text</span>) =&gt;</span> {
+      <span class="hljs-keyword">let</span> result = text.match(<span class="hljs-regexp">/[\s\S]/gu</span>);
+      <span class="hljs-keyword">return</span> result ? result.length : <span class="hljs-number">0</span>;
+    }
+
+    <span class="hljs-keyword">const</span> s = <span class="hljs-string">'𠮷𠮷'</span>;
+
+    log(s.length); <span class="hljs-comment">// 4</span>
+    log(codePointLength(s)); <span class="hljs-comment">// 2</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><hr><h4 id="影响-i-修饰符">影响 i 修饰符 <a class="markdownIt-Anchor" href="#影响-i-修饰符">#</a></h4><p>有些 <code>Unicode</code> 字符的编码不同，但是字型很相近，比如，<code>\u004B</code>与<code>\u212A</code>都是大写的<code>K</code>。</p><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    log(<span class="hljs-regexp">/[a-z]/i</span>.test(<span class="hljs-string">'\u212A'</span>)); <span class="hljs-comment">// false</span>
+    log(<span class="hljs-regexp">/[a-z]/iu</span>.test(<span class="hljs-string">'\u212A'</span>)); <span class="hljs-comment">// true</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><p>上面代码中，不加<code>u</code>修饰符，就无法识别<code>非规范</code>的<code>K</code>字符。</p><h2 id="y-修饰符">y 修饰符 <a class="markdownIt-Anchor" href="#y-修饰符">#</a></h2><h3 id="基础说明-4">基础说明 <a class="markdownIt-Anchor" href="#基础说明-4">#</a></h3><p><code>ES6</code> 还为正则表达式添加了<code>y</code>修饰符，叫做<code>粘连</code>（sticky）修饰符。</p><p><code>y</code>修饰符的作用与<code>g</code>修饰符类似，也是<code>全局匹配</code>，后一次匹配都从上一次匹配成功的下一个位置开始。</p><p>不同之处在于，<code>g</code>修饰符只要<code>剩余位置</code>中存在<code>匹配</code>就可，而<code>y</code>修饰符确保匹配必须从<code>剩余</code>的第一个位置开始，这也就是<code>粘连</code>的涵义。</p><hr><h3 id="与g修饰符关联">与<code>g</code>修饰符关联 <a class="markdownIt-Anchor" href="#与g修饰符关联">#</a></h3><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> s = <span class="hljs-string">'aaa_aa_a'</span>;
+    <span class="hljs-keyword">const</span> r1 = <span class="hljs-regexp">/a+/g</span>;
+    <span class="hljs-keyword">const</span> r2 = <span class="hljs-regexp">/a+/y</span>;
+
+    log(r1.exec(s)); <span class="hljs-comment">// ["aaa", index: 0, input: "aaa_aa_a", groups: undefined]</span>
+    log(r2.exec(s)); <span class="hljs-comment">// ["aaa", index: 0, input: "aaa_aa_a", groups: undefined]</span>
+
+    log(r1.exec(s)); <span class="hljs-comment">// ["aa", index: 4, input: "aaa_aa_a", groups: undefined]</span>
+    log(r2.exec(s)); <span class="hljs-comment">// null</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><p>上面代码有两个正则表达式，一个使用<code>g</code>修饰符，另一个使用<code>y</code>修饰符。</p><p>这两个正则表达式各执行了两次，第一次执行的时候，两者行为相同，剩余字符串都是<code>_aa_a</code>。</p><p>由于<code>g</code>修饰没有位置要求，所以第二次执行会返回结果，而<code>y</code>修饰符要求匹配必须从头部开始，所以返回<code>null</code>。</p><h3 id="举例-4">举例 <a class="markdownIt-Anchor" href="#举例-4">#</a></h3><h4 id="头部匹配">头部匹配 <a class="markdownIt-Anchor" href="#头部匹配">#</a></h4><p>实际上，<code>y</code>修饰符号隐含了头部匹配的标志<code>^</code>。</p><p>即保证每次都能<code>头部匹配</code>，<code>y</code>修饰符就会返回结果了。</p><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    log(<span class="hljs-regexp">/b/y</span>.exec(<span class="hljs-string">'aba'</span>)); <span class="hljs-comment">// null</span>
+
+    <span class="hljs-keyword">const</span> s = <span class="hljs-string">'aaa_aa_a'</span>;
+    <span class="hljs-keyword">const</span> r = <span class="hljs-regexp">/a+_/y</span>;
+
+    log(r.exec(s)); <span class="hljs-comment">// ["aaa_", index: 0, input: "aaa_aa_a", groups: undefined]</span>
+    log(r.exec(s)); <span class="hljs-comment">// ["aa_", index: 4, input: "aaa_aa_a", groups: undefined]</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><p><code>第一段代码</code>由于不能保证<code>头部匹配</code>，所以返回<code>null</code>。<code>y</code>修饰符的设计本意，就是让<code>头部匹配</code>的标志<code>^</code>在<code>全局匹配</code>中都有效。</p><h4 id="关联lastindex属性">关联lastIndex属性 <a class="markdownIt-Anchor" href="#关联lastindex属性">#</a></h4><p>下面代码中，<code>lastIndex</code>属性指定每次搜索的开始位置，<code>g</code>修饰符从这个位置开始向后搜索，直到发现匹配为止。</p><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> REGEX = <span class="hljs-regexp">/a/y</span>;
+
+    <span class="hljs-comment">// 指定从2号位置开始匹配</span>
+    REGEX.lastIndex = <span class="hljs-number">2</span>;
+
+    <span class="hljs-comment">// 不是粘连，匹配失败</span>
+    log(REGEX.exec(<span class="hljs-string">'xaya'</span>)); <span class="hljs-comment">// null</span>
+
+    <span class="hljs-comment">// 指定从3号位置开始匹配</span>
+    REGEX.lastIndex = <span class="hljs-number">3</span>;
+
+    <span class="hljs-comment">// 3号位置是粘连，匹配成功</span>
+    <span class="hljs-keyword">const</span> match = REGEX.exec(<span class="hljs-string">'xaya'</span>);
+    log(match.index); <span class="hljs-comment">// 3</span>
+    log(REGEX.lastIndex);<span class="hljs-comment">// 4</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><hr><h4 id="结合replace">结合replace <a class="markdownIt-Anchor" href="#结合replace">#</a></h4><p>下面代码中，最后一个<code>a</code>因为不是出现在下一次匹配的<code>头部</code>，所以不会被替换。</p><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> REGEX = <span class="hljs-regexp">/a/gy</span>;
+    log(<span class="hljs-string">'aaxa'</span>.replace(REGEX, <span class="hljs-string">'-'</span>)); <span class="hljs-comment">// '--xa'4</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><hr><h4 id="结合match">结合match <a class="markdownIt-Anchor" href="#结合match">#</a></h4><p>单单一个<code>y</code>修饰符对<code>match</code>方法，只能返回第一个<code>匹配</code>，必须与<code>g</code>修饰符联用，才能返回所有匹配。</p><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    log(<span class="hljs-string">'a1a2a3'</span>.match(<span class="hljs-regexp">/a\d/y</span>)); <span class="hljs-comment">// ["a1"]</span>
+    log(<span class="hljs-string">'a1a2a3'</span>.match(<span class="hljs-regexp">/a\d/gy</span>)); <span class="hljs-comment">// ["a1", "a2", "a3"]</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><hr><h4 id="结合sticky">结合sticky <a class="markdownIt-Anchor" href="#结合sticky">#</a></h4><p>结合<code>正则表达式</code>上使用 <code>sticky</code> 标志，用来匹配多行输入的单独行。</p><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> text = <span class="hljs-string">"First line\nsecond line"</span>;
+    <span class="hljs-keyword">const</span> regex = <span class="hljs-regexp">/(\S+) line.?/y</span>s;
+
+    <span class="hljs-keyword">const</span> match = regex.exec(text);
+    log(match);  <span class="hljs-comment">// ["First line↵", "First", index: 0, input: "First line↵second line", groups: undefined]</span>
+    log(match[<span class="hljs-number">1</span>]);  <span class="hljs-comment">// "First"</span>
+    log(regex.lastIndex); <span class="hljs-comment">// 11</span>
+
+    <span class="hljs-keyword">const</span> match2 = regex.exec(text);
+    log(match2); <span class="hljs-comment">// ["second line", "second", index: 11, input: "First line↵second line", groups: undefined]</span>
+    log(match2[<span class="hljs-number">1</span>]);  <span class="hljs-comment">// "Second"</span>
+    log(regex.lastIndex); <span class="hljs-comment">// "22"</span>
+
+    <span class="hljs-keyword">const</span> match3 = regex.exec(text);
+    log(match3 === <span class="hljs-literal">null</span>); <span class="hljs-comment">// "true"</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><hr><h4 id="提取token">提取token <a class="markdownIt-Anchor" href="#提取token">#</a></h4><p>是从字符串提取 <code>token</code>（词元），<code>y</code>修饰符确保了匹配之间不会有漏掉的<code>字符</code>。</p><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> tokenize = <span class="hljs-function">(<span class="hljs-params">TOKEN_REGEX, str</span>) =&gt;</span> {
+        <span class="hljs-keyword">const</span> result = [];
+        <span class="hljs-keyword">let</span> match;
+        <span class="hljs-keyword">while</span> (match = TOKEN_REGEX.exec(str)) {
+            result.push(match[<span class="hljs-number">1</span>]);
+        }
+        <span class="hljs-keyword">return</span> result;
+    }
+    <span class="hljs-keyword">const</span> TOKEN_Y = <span class="hljs-regexp">/\s*(\+|[0-9]+)\s*/y</span>;
+    <span class="hljs-keyword">const</span> TOKEN_G  = <span class="hljs-regexp">/\s*(\+|[0-9]+)\s*/g</span>;
+
+    log(tokenize(TOKEN_Y, <span class="hljs-string">'3 + 4'</span>));
+    <span class="hljs-comment">// [ '3', '+', '4' ]</span>
+    log(tokenize(TOKEN_G, <span class="hljs-string">'3 + 4'</span>));
+    <span class="hljs-comment">// [ '3', '+', '4' ]</span>
+
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><p>上面代码中，如果字符串里面没有非法字符，<code>y</code>修饰符与<code>g</code>修饰符的提取结果是一样的。</p><p>但是，一旦出现非法字符，两者的行为就不一样了。</p><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    <span class="hljs-keyword">const</span> tokenize = <span class="hljs-function">(<span class="hljs-params">TOKEN_REGEX, str</span>) =&gt;</span> {
+        <span class="hljs-keyword">const</span> result = [];
+        <span class="hljs-keyword">let</span> match;
+        <span class="hljs-keyword">while</span> (match = TOKEN_REGEX.exec(str)) {
+            result.push(match[<span class="hljs-number">1</span>]);
+        }
+        <span class="hljs-keyword">return</span> result;
+    }
+    <span class="hljs-keyword">const</span> TOKEN_Y = <span class="hljs-regexp">/\s*(\+|[0-9]+)\s*/y</span>;
+    <span class="hljs-keyword">const</span> TOKEN_G  = <span class="hljs-regexp">/\s*(\+|[0-9]+)\s*/g</span>;
+
+    log(tokenize(TOKEN_Y, <span class="hljs-string">'3x + 4'</span>));
+    <span class="hljs-comment">// [ '3' ]</span>
+    log(tokenize(TOKEN_G, <span class="hljs-string">'3x + 4'</span>));
+    <span class="hljs-comment">// [ '3', '+', '4' ]</span>
+
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><p>上面代码中，<code>g</code>修饰符会忽略非法字符，而<code>y</code>修饰符不会，这样就很容易发现错误。</p><hr><h2 id="s-修饰符">s 修饰符 <a class="markdownIt-Anchor" href="#s-修饰符">#</a></h2><h3 id="基础说明-5">基础说明 <a class="markdownIt-Anchor" href="#基础说明-5">#</a></h3><p><code>s</code>修饰符表示，特殊字符<code>.</code>应另外匹配字符串中的下述行终结符（<code>line terminator characters</code>），否则将会失配：</p><ul><li>U+000A 换行符（<code>\n</code>）</li><li>U+000D 回车符（<code>\r</code>）</li><li>U+2028 行分隔符（line separator）</li><li>U+2029 段分隔符（paragraph separator）</li></ul><p>这实际上意味着<code>.</code>将会匹配任意的单个<code>Unicode Basic Multilingual Plane</code> (<code>BMP</code>)字符。</p><p>若要使其与<code>astral</code>字符（大于<code>\uFFFF</code>的<code>Unicode</code>字符）匹配，你应当使用<code>u</code>（<code>Unicode</code>）修饰符。</p><p>一起使用这两个<code>修饰符</code>，<code>.</code>将无一例外地匹配任意<code>Unicode</code>字符。</p><hr><h3 id="举例-5">举例 <a class="markdownIt-Anchor" href="#举例-5">#</a></h3><pre class="hljs"><code>(<span class="hljs-function">(<span class="hljs-params">log</span>) =&gt;</span> {
+    log(<span class="hljs-regexp">/foo.bar/</span>.test(<span class="hljs-string">'foo\nbar'</span>)); <span class="hljs-comment">// false</span>
+    log(<span class="hljs-regexp">/foo.bar/</span>s.test(<span class="hljs-string">'foo\nbar'</span>)); <span class="hljs-comment">// true</span>
+})(<span class="hljs-built_in">console</span>.log)
+</code></pre><hr></div><div dir="ltr" class="level article-bar is-mobile"><div class="level-item has-text-centered"><a title="previous page" class="previouse-article-link" href="../chapters05/prototype-attribute.html"><span class="icon icon-previous" data-icon="previous"></span><span class="link-content">&laquo; Previous</span></a></div><div class="level-item has-text-centered"><a title="font size" class="link-item link-item-size"><span class="icon icon-size" data-icon="size"></span></a></div><div class="level-item has-text-centered"><a title="table of content" class="link-item link-item-toc"><span class="icon icon-toc" data-icon="toc"></span></a></div><div class="level-item has-text-centered"><a title="top" href="#"><span class="icon icon-up" data-icon="up"></span> <span class="link-content">⤊ Top</span></a></div><div class="level-item has-text-centered"><a title="next page" class="next-article-link" href="../chapters05/assert.html"><span class="icon icon-next" data-icon="next"></span><span class="link-content">Next &raquo;</span></a></div></div></div><div class="column is-2-widescreen is-hidden"></div></div><div class="columns foot"><div class="column is-3 is-offset-9 build-by">Build by <a href="https://github.com/ruanyf/loppo" target="_blank">Loppo</a> 0.6.16</div></div><div class="book-toc notification is-warning is-hidden"><h3>Table of chapters &nbsp;<span class="title-close"><a class="button is-danger"> Close</a></span></h3><ul class="chapter-area"><li class="chapter-item"><a href="../chapters01/index.html">第一章 ECMAScript 6 简介</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters01/base-js.html">js基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/base-es.html">es基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/Babel.html">通过Babel使用ES6</a></li><li class="chapter-item"><a href="../chapters01/Traceur.html">通过Traceur使用ES6</a></li><li class="chapter-item"><a href="../chapters01/stage-00.html">Strawman 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-01.html">Proposal 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-02.html">Draft 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/active-proposals.html">Candidate 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-04.html">Finished 阶段的 proposals</a></li></ul><li class="chapter-item"><a href="../chapters02/index.html">第二章 let和const命令</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters02/base.html">前置知识了解</a></li><li class="chapter-item"><a href="../chapters02/let.html">let 命令</a></li><li class="chapter-item"><a href="../chapters02/const.html">const 命令</a></li><li class="chapter-item"><a href="../chapters02/statement-details.html">语句进阶说明</a></li></ul><li class="chapter-item"><a href="../chapters03/index.html">第三章 变量的解构赋值</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters03/base.html">基础数据结构</a></li><li class="chapter-item"><a href="../chapters03/complex.html">复杂数据结构</a></li><li class="chapter-item"><a href="../chapters03/parentheses.html">圆括号问题</a></li><li class="chapter-item"><a href="../chapters03/use.html">用途</a></li></ul><li class="chapter-item"><a href="../chapters04/index.html">第四章 字符串的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters04/unicode.html">字符的 Unicode 表示法</a></li><li class="chapter-item"><a href="../chapters04/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/template-string.html">模板字符串</a></li><li class="chapter-item"><a href="../chapters04/string-Iterator.html">字符串的遍历器接口</a></li><li class="chapter-item"><a href="../chapters04/tag-template.html">标签模板</a></li></ul><li class="chapter-item"><a href="../chapters05/index.html">第五章 正则的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-collapse" data-icon="collapse"></span></a></li><ul class="chapter-level-1 chapter-level-1-current"><li class="chapter-item"><a href="../chapters05/constructor.html">RegExp 构造函数</a></li><li class="chapter-item"><a href="../chapters05/base.html">RegExp 基础使用</a></li><li class="chapter-item"><a href="../chapters05/prototype-attribute.html">RegExp 原型属性</a></li><li class="chapter-item chapter-item-current"><a href="../chapters05/modifier.html">RegExp 修饰符</a></li><li class="chapter-item"><a href="../chapters05/assert.html">RegExp 断言</a></li><li class="chapter-item"><a href="../chapters05/string-with-regExp.html">String中正则相关方法</a></li><li class="chapter-item"><a href="../chapters05/named-group-matching.html">具名组匹配</a></li><li class="chapter-item"><a href="../chapters05/unicode-attribute-class.html">Unicode 属性类</a></li></ul><li class="chapter-item"><a href="../chapters06/index.html">第六章 数值的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters06/base-notation.html">Number 进制表示法</a></li><li class="chapter-item"><a href="../chapters06/prototype-attribute.html">Number 原型属性</a></li><li class="chapter-item"><a href="../chapters06/base-function-extend.html">Number 对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/prototype-function-extend.html">Number 原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/math-extension.html">math 对象扩展</a></li><li class="chapter-item"><a href="../chapters06/exponent-operator.html">指数运算符</a></li></ul><li class="chapter-item"><a href="../chapters07/index.html">第七章 函数的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters07/arrow-function.html">箭头函数</a></li><li class="chapter-item"><a href="../chapters07/strict-mode.html">严格模式</a></li><li class="chapter-item"><a href="../chapters07/function-parameter-improvement.html">函数参数改进</a></li><li class="chapter-item"><a href="../chapters07/the-name-attribute-of-the-function.html">函数的name属性</a></li><li class="chapter-item"><a href="../chapters07/tail-call-optimization.html">尾调用优化</a></li></ul><li class="chapter-item"><a href="../chapters08/index.html">第八章 数组的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters08/extension-operator.html">扩展运算符</a></li><li class="chapter-item"><a href="../chapters08/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/empty-space-processing-of-array.html">数组的空位处理</a></li><li class="chapter-item"><a href="../chapters08/pipeline-optimization-of-arrays.html">数组的管道运算优化</a></li></ul><li class="chapter-item"><a href="../chapters09/index.html">第九章 ts学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters09/history.html">ts历史</a></li><li class="chapter-item"><a href="../chapters09/advantages-and-disadvantages.html">ts优势与劣势</a></li><li class="chapter-item"><a href="../chapters09/learn-primitive-type.html">基础类型学习</a></li><li class="chapter-item"><a href="../chapters09/learn-derivative-type.html">衍生类型基础学习</a></li><li class="chapter-item"><a href="../chapters09/Enum.html">衍生类型之Enum</a></li><li class="chapter-item"><a href="../chapters09/interface.html">衍生类型之interface</a></li><li class="chapter-item"><a href="../chapters09/Class.html">衍生类型之Class</a></li><li class="chapter-item"><a href="../chapters09/ts-util.html">ts 高级工具用法</a></li></ul><li class="chapter-item"><a href="../chapters10/index.html">第十章 react学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters10/history.html">react历史</a></li><li class="chapter-item"><a href="../chapters10/version-management.html">react版本管理</a></li><li class="chapter-item"><a href="../chapters10/advantages-and-disadvantages.html">react优势与劣势</a></li><li class="chapter-item"><a href="../chapters10/base.html">react基础语法</a></li><li class="chapter-item"><a href="../chapters10/common-package.html">react常用组件包</a></li><li class="chapter-item"><a href="../chapters10/family-bucket.html">react全家桶</a></li><li class="chapter-item"><a href="../chapters10/ecosphere.html">react的生态圈</a></li><li class="chapter-item"><a href="../chapters10/substitute-product.html">react和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters11/index.html">第十一章 webpack学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters11/history.html">webpack历史</a></li><li class="chapter-item"><a href="../chapters11/version-management.html">webpack版本管理</a></li><li class="chapter-item"><a href="../chapters11/advantages-and-disadvantages.html">webpack优势与劣势</a></li><li class="chapter-item"><a href="../chapters11/base-config.html">webpack项目基础配置</a></li><li class="chapter-item"><a href="../chapters11/common-package.html">webpack常用组件包</a></li><li class="chapter-item"><a href="../chapters11/ecosphere.html">webpack的生态圈</a></li><li class="chapter-item"><a href="../chapters11/substitute-product.html">webpack和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters12/index.html">第十二章 微信小程序学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters12/history.html">微信小程序历史</a></li><li class="chapter-item"><a href="../chapters12/version-management.html">微信小程序版本管理</a></li><li class="chapter-item"><a href="../chapters12/advantages-and-disadvantages.html">微信小程序优势与劣势</a></li><li class="chapter-item"><a href="../chapters12/base.html">微信小程序基础学习</a></li><li class="chapter-item"><a href="../chapters12/common-ui-package.html">微信小程序常用UI库</a></li><li class="chapter-item"><a href="../chapters12/ecosphere.html">微信小程序的生态圈</a></li><li class="chapter-item"><a href="../chapters12/cross-platform.html">微信小程序跨平台</a></li><li class="chapter-item"><a href="../chapters12/substitute-product.html">微信小程序和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters13/index.html">第十三章 web安全方案</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters13/common-web-risks.html">常见web风险</a></li><li class="chapter-item"><a href="../chapters13/monitoring-system.html">前端监控体系</a></li><li class="chapter-item"><a href="../chapters13/performance-optimization.html">前端性能优化</a></li><li class="chapter-item"><a href="../chapters13/security-prevention-and-control.html">前端安全防控</a></li><li class="chapter-item"><a href="../chapters13/test-system.html">前端测试体系</a></li></ul></ul></div><div class="progress-indicator"></div><!-- SCRIPTS --><script>var LOPPO={current_path:"chapters05/modifier.md",relative_root_path:"../",article_toc:'<ul class="markdownIt-TOC">\n<li><a href="#g-%E4%BF%AE%E9%A5%B0%E7%AC%A6">g 修饰符</a>\n<ul>\n<li><a href="#%E5%9F%BA%E7%A1%80%E8%AF%B4%E6%98%8E">基础说明</a></li>\n<li><a href="#%E4%B8%BE%E4%BE%8B">举例</a></li>\n</ul>\n</li>\n<li><a href="#i-%E4%BF%AE%E9%A5%B0%E7%AC%A6">i 修饰符</a>\n<ul>\n<li><a href="#%E5%9F%BA%E7%A1%80%E8%AF%B4%E6%98%8E-1">基础说明</a></li>\n<li><a href="#%E4%B8%BE%E4%BE%8B-1">举例</a></li>\n</ul>\n</li>\n<li><a href="#m-%E4%BF%AE%E9%A5%B0%E7%AC%A6">m 修饰符</a>\n<ul>\n<li><a href="#%E5%9F%BA%E7%A1%80%E8%AF%B4%E6%98%8E-2">基础说明</a></li>\n<li><a href="#%E4%B8%BE%E4%BE%8B-2">举例</a></li>\n</ul>\n</li>\n<li><a href="#u-%E4%BF%AE%E9%A5%B0%E7%AC%A6">u 修饰符</a>\n<ul>\n<li><a href="#%E5%9F%BA%E7%A1%80%E8%AF%B4%E6%98%8E-3">基础说明</a></li>\n<li><a href="#unicode-%E5%AD%97%E7%AC%A6%E8%A1%A8%E7%A4%BA%E6%B3%95">Unicode 字符表示法</a></li>\n<li><a href="#%E4%B8%BE%E4%BE%8B-3">举例</a></li>\n</ul>\n</li>\n<li><a href="#y-%E4%BF%AE%E9%A5%B0%E7%AC%A6">y 修饰符</a>\n<ul>\n<li><a href="#%E5%9F%BA%E7%A1%80%E8%AF%B4%E6%98%8E-4">基础说明</a></li>\n<li><a href="#%E4%B8%8Eg%E4%BF%AE%E9%A5%B0%E7%AC%A6%E5%85%B3%E8%81%94">与<code>g</code>修饰符关联</a></li>\n<li><a href="#%E4%B8%BE%E4%BE%8B-4">举例</a></li>\n</ul>\n</li>\n<li><a href="#s-%E4%BF%AE%E9%A5%B0%E7%AC%A6">s 修饰符</a>\n<ul>\n<li><a href="#%E5%9F%BA%E7%A1%80%E8%AF%B4%E6%98%8E-5">基础说明</a></li>\n<li><a href="#%E4%B8%BE%E4%BE%8B-5">举例</a></li>\n</ul>\n</li>\n</ul>\n'}</script><script src="../assets/js/app.js"></script></body></html>

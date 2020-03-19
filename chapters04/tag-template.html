@@ -1,0 +1,224 @@
+<!DOCTYPE html><html><head><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta charset="utf-8"><title>标签模板 - learn es6</title><meta name="description" content=""><meta name="author" content=""><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1"><link rel="stylesheet" href="../assets/css/bulma.min.css"><link rel="stylesheet" href="../assets/css/app.css"><!--[if lt IE 9]>
+<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]--><link rel="shortcut icon" href=""></head><body dir="ltr"><nav class="columns navbar"><div class="column logo is-3 is-offset-1"><a class="is-brand" href="../index.html">learn es6</a></div></nav><div class="columns content"><div class="column is-2-desktop is-3-widescreen is-hidden-touch"></div><div class="column article-container is-11-tablet is-8-desktop is-6-widescreen"><div class="breadcrumb-area"><a href="../index.html" class="breadcrumb-item">Home</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters04/index.html" class="breadcrumb-item">第四章 字符串的扩展</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters04/tag-template.html" class="breadcrumb-item">标签模板</a></div><h1 class="article-title">标签模板</h1><div class="article"><h1 id="标签模板">标签模板 <a class="markdownIt-Anchor" href="#标签模板">#</a></h1><p><code>模板字符串</code>的功能，不仅仅是上面这些。它可以紧跟在一个<code>函数名</code>后面，该函数将被调用来处理这个<code>模板字符串</code>。这被称为<code>标签模板</code>功能（<code>tagged template</code>）。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    log <span class="hljs-string">`123`</span>;<span class="hljs-comment">// [ '123' ]</span>
+    <span class="hljs-comment">// 等同于</span>
+    log(<span class="hljs-number">123</span>);<span class="hljs-comment">// 123</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><p><code>标签模板</code>其实不是<code>模板</code>，而是<code>函数调用</code>的一种<code>特殊形式</code>。<code>标签</code>指的就是<code>函数</code>，紧跟在后面的<code>模板字符串</code>就是它的<code>参数</code>。</p><hr><h2 id="基础说明">基础说明 <a class="markdownIt-Anchor" href="#基础说明">#</a></h2><h3 id="第一个参数raw属性">第一个参数raw属性 <a class="markdownIt-Anchor" href="#第一个参数raw属性">#</a></h3><p><code>模板处理函数</code>的第一个<code>参数</code>（<code>模板字符串</code>数组），还有一个<code>raw</code>属性。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    log <span class="hljs-string">`123`</span>;<span class="hljs-comment">// ["123", raw: Array[1]]</span>
+    <span class="hljs-comment">// 等同于</span>
+    log(<span class="hljs-number">123</span>);<span class="hljs-comment">// 123</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><p>上面代码中，<code>console.log</code>接受的参数，实际上是一个<code>数组</code>。</p><p>该<code>数组</code>有一个<code>raw属性</code>，保存的是<code>转义</code>后的<code>原字符串</code>。</p><p>请看下面的例子。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">tag</span>(<span class="hljs-params">strings</span>) </span>{
+        <span class="hljs-keyword">const</span> currRaw = strings.raw;
+        log(strings);
+        log(currRaw);
+        log(<span class="hljs-keyword">typeof</span> currRaw);
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">const</span> item <span class="hljs-keyword">of</span> currRaw){
+            log(item);
+        }
+    }
+    tag<span class="hljs-string">`First line\nSecond line`</span>;
+    <span class="hljs-comment">// [ 'First line\nSecond line' ]</span>
+    <span class="hljs-comment">// [ 'First line\\nSecond line' ]</span>
+    <span class="hljs-comment">// object</span>
+    <span class="hljs-comment">// strings.raw[0] 为 "First line\\nSecond line"</span>
+    <span class="hljs-comment">// First line</span>
+    <span class="hljs-comment">// Second line</span>
+
+    <span class="hljs-comment">// tag('First line\nSecond line');</span>
+    <span class="hljs-comment">// undefined</span>
+    <span class="hljs-comment">// undefined</span>
+    <span class="hljs-comment">// TypeError: currRaw is not iterable</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><p>上面代码中，<code>tag</code>函数的第一个参数<code>strings</code>，有一个<code>raw</code>属性，也指向一个<code>数组</code>。</p><p>该<code>数组</code>的<code>成员</code>与<code>strings数组</code>完全一致。</p><p>比如，<code>strings数组</code>是<code>[&quot;First line\nSecond line&quot;]</code>，那么<code>strings.raw</code>数组就是<code>[&quot;First line\\nSecond line&quot;]</code>。</p><p>两者唯一的区别，就是<code>字符串</code>里面的<code>斜杠</code>都被<code>转义</code>了。</p><p>比如，<code>strings.raw</code> 数组会将<code>\n</code>视为<code>\\</code>和<code>n</code>两个<code>字符</code>，而不是<code>换行符</code>。</p><p>这是为了方便取得<code>转义</code>之前的<code>原始模板</code>而<code>设计</code>的。</p><hr><h3 id="使用变量">使用变量 <a class="markdownIt-Anchor" href="#使用变量">#</a></h3><p>但是，如果<code>模板字符</code>里面有<code>变量</code>，就不是简单的<code>调用</code>了，而是会将<code>模板字符串</code>先处理成多个<code>参数</code>，再调用<code>函数</code>。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">tag</span>(<span class="hljs-params">strings</span>) </span>{
+        <span class="hljs-keyword">const</span> currRaw = strings.raw;
+        log(strings);
+        log(currRaw);
+        log(<span class="hljs-keyword">typeof</span> currRaw);
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">const</span> item <span class="hljs-keyword">of</span> currRaw){
+            log(item);
+        }
+    }
+    <span class="hljs-keyword">const</span> a = <span class="hljs-number">5</span>;
+    <span class="hljs-keyword">const</span> b = <span class="hljs-number">10</span>;
+
+    tag<span class="hljs-string">`Hello <span class="hljs-subst">${ a + b }</span> world <span class="hljs-subst">${ a * b }</span>`</span>;
+    <span class="hljs-comment">// [ 'Hello ', ' world ', '' ]</span>
+    <span class="hljs-comment">// object</span>
+    <span class="hljs-comment">// Hello</span>
+    <span class="hljs-comment">//  world</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><p>上面代码中，模板字符串前面有一个标识名<code>tag</code>，它是一个<code>函数</code>。</p><hr><h3 id="其他参数说明">其他参数说明 <a class="markdownIt-Anchor" href="#其他参数说明">#</a></h3><p><code>tag</code>函数的其他<code>参数</code>，都是<code>模板字符串</code>各个变量被<code>替换</code>后的<code>值</code>。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> a = <span class="hljs-number">5</span>;
+<span class="hljs-keyword">const</span> b = <span class="hljs-number">10</span>;
+
+tag<span class="hljs-string">`Hello <span class="hljs-subst">${ a + b }</span> world <span class="hljs-subst">${ a * b }</span>`</span>;
+</code></pre><p>由于上面案例中，模板字符串含有两个<code>变量</code>，因此<code>tag</code>会接受到<code>value1</code>和<code>value2</code>两个<code>参数</code>。</p><p><code>tag</code>函数所有<code>参数</code>的<code>实际值</code>如下。</p><table><thead><tr><th>参数顺序标识</th><th>参数值说明</th></tr></thead><tbody><tr><td>第一个参数</td><td>['Hello ', ' world ', '']</td></tr><tr><td>第二个参数</td><td>15</td></tr><tr><td>第三个参数</td><td>50</td></tr></tbody></table><p>也就是说，<code>tag</code>函数实际上以下面的形式调用。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">tag</span>(<span class="hljs-params">strings</span>) </span>{
+        <span class="hljs-keyword">const</span> currRaw = strings.raw;
+        log(strings);
+        log(currRaw);
+        log(<span class="hljs-keyword">typeof</span> currRaw);
+        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">const</span> item <span class="hljs-keyword">of</span> currRaw){
+            log(item);
+        }
+    }
+    <span class="hljs-keyword">const</span> a = <span class="hljs-number">5</span>;
+    <span class="hljs-keyword">const</span> b = <span class="hljs-number">10</span>;
+
+    tag<span class="hljs-string">`Hello <span class="hljs-subst">${ a + b }</span> world <span class="hljs-subst">${ a * b }</span>`</span>;
+    <span class="hljs-comment">// [ 'Hello ', ' world ', '' ]</span>
+    <span class="hljs-comment">// object</span>
+    <span class="hljs-comment">// Hello</span>
+    <span class="hljs-comment">//  world</span>
+    <span class="hljs-comment">// 等同于</span>
+    tag([<span class="hljs-string">'Hello '</span>, <span class="hljs-string">' world '</span>, <span class="hljs-string">''</span>], <span class="hljs-number">15</span>, <span class="hljs-number">50</span>);
+    <span class="hljs-comment">// [ 'Hello ', ' world ', '' ]</span>
+    <span class="hljs-comment">// undefined</span>
+    <span class="hljs-comment">// undefined</span>
+    <span class="hljs-comment">// TypeError: currRaw is not iterable</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr><h2 id="返回值说明">返回值说明 <a class="markdownIt-Anchor" href="#返回值说明">#</a></h2><p>整个<code>表达式</code>的<code>返回值</code>，就是<code>tag</code>函数处理<code>模板字符串</code>后的<code>返回值</code>。</p><p>函数<code>tag</code>依次会接收到多个<code>参数</code>。</p><pre class="hljs"><code>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">tag</span>(<span class="hljs-params">stringArr, value1, value2</span>)</span>{
+  <span class="hljs-comment">// ...</span>
+}
+
+<span class="hljs-comment">// 等同于</span>
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">tag</span>(<span class="hljs-params">stringArr, ...values</span>)</span>{
+  <span class="hljs-comment">// ...</span>
+}
+</code></pre><p><code>tag</code>函数的第一个<code>参数</code>是一个<code>数组</code>，该<code>数组</code>的<code>成员</code>是<code>模板字符串</code>中那些没有<code>变量替换</code>的部分。</p><p>也就是说，<code>变量替换</code>只发生在<code>数组</code>的第一个<code>成员</code>与第二个<code>成员</code>之间、第二个<code>成员</code>与第三个<code>成员</code>之间，以此类推。</p><hr><h2 id="案例说明">案例说明 <a class="markdownIt-Anchor" href="#案例说明">#</a></h2><h3 id="自定义使用">自定义使用 <a class="markdownIt-Anchor" href="#自定义使用">#</a></h3><p>我们可以按照需要编写<code>tag</code>函数的代码。下面是<code>tag</code>函数的一种写法，以及运行结果。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+
+    <span class="hljs-keyword">const</span> a = <span class="hljs-number">5</span>;
+    <span class="hljs-keyword">const</span> b = <span class="hljs-number">10</span>;
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">tag</span>(<span class="hljs-params">s, v1, v2</span>) </span>{
+        log(s[<span class="hljs-number">0</span>]);
+        log(s[<span class="hljs-number">1</span>]);
+        log(s[<span class="hljs-number">2</span>]);
+        log(v1);
+        log(v2);
+        <span class="hljs-keyword">return</span> <span class="hljs-string">"OK"</span>;
+    }
+
+    log(tag <span class="hljs-string">`Hello <span class="hljs-subst">${ a + b }</span> world <span class="hljs-subst">${ a * b}</span>`</span>);
+    <span class="hljs-comment">// "Hello "</span>
+    <span class="hljs-comment">// " world "</span>
+    <span class="hljs-comment">// ""</span>
+    <span class="hljs-comment">// 15</span>
+    <span class="hljs-comment">// 50</span>
+    <span class="hljs-comment">// "OK"</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr><h3 id="复杂使用">复杂使用 <a class="markdownIt-Anchor" href="#复杂使用">#</a></h3><p>下面是一个更<code>复杂</code>的例子。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+
+    <span class="hljs-comment">// 注意不要使用箭头函数，否则会导致结果会是</span>
+    <span class="hljs-comment">// The total is function String() { [native code] } ( with tax)</span>
+    <span class="hljs-comment">// const passthru = (literals)=&gt;{</span>
+    <span class="hljs-keyword">const</span> passthru = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">literals</span>)</span>{
+        <span class="hljs-keyword">let</span> result = <span class="hljs-string">''</span>;
+        <span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>;
+        log(...literals);
+        <span class="hljs-keyword">while</span> (i &lt; literals.length) {
+            result += literals[i++];
+            <span class="hljs-keyword">if</span> (i &lt; <span class="hljs-built_in">arguments</span>.length) {
+                result += <span class="hljs-built_in">arguments</span>[i];
+            }
+        }
+
+        <span class="hljs-keyword">return</span> result;
+    }
+    <span class="hljs-keyword">const</span> total = <span class="hljs-number">30</span>;
+    <span class="hljs-keyword">const</span> msg = passthru <span class="hljs-string">`The total is <span class="hljs-subst">${total}</span> (<span class="hljs-subst">${total*<span class="hljs-number">1.05</span>}</span> with tax)`</span>;
+
+
+    log(msg);
+    <span class="hljs-comment">// The total is   (  with tax)</span>
+    <span class="hljs-comment">// "The total is 30 (31.5 with tax)"</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><p>上面这个<code>例子</code>展示了，如何将各个<code>参数</code>按照原来的位置<code>拼合</code>回去。</p><hr><h3 id="结合rest参数">结合rest参数 <a class="markdownIt-Anchor" href="#结合rest参数">#</a></h3><p><code>passthru</code>函数采用 <code>rest</code> 参数的写法如下。</p><pre class="hljs"><code>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">passthru</span>(<span class="hljs-params">literals, ...values</span>) </span>{
+  <span class="hljs-keyword">let</span> output = <span class="hljs-string">""</span>;
+  <span class="hljs-keyword">let</span> index;
+  <span class="hljs-keyword">for</span> (index = <span class="hljs-number">0</span>; index &lt; values.length; index++) {
+    output += literals[index] + values[index];
+  }
+
+  output += literals[index]
+  <span class="hljs-keyword">return</span> output;
+}
+</code></pre><hr><h3 id="过滤-html-字符串">过滤 HTML 字符串 <a class="markdownIt-Anchor" href="#过滤-html-字符串">#</a></h3><p><code>标签模板</code>的一个重要应用，就是过滤 <code>HTML</code> 字符串，防止用户输入恶意内容。</p><pre class="hljs"><code><span class="hljs-keyword">const</span> SaferHTML = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">templateData</span>) </span>{
+    <span class="hljs-keyword">let</span> s = templateData[<span class="hljs-number">0</span>];
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">1</span>; i &lt; <span class="hljs-built_in">arguments</span>.length; i++) {
+        <span class="hljs-keyword">const</span> arg = <span class="hljs-built_in">String</span>(<span class="hljs-built_in">arguments</span>[i]);
+
+        <span class="hljs-comment">// Escape special characters in the substitution.</span>
+        s += arg.replace(<span class="hljs-regexp">/&amp;/g</span>, <span class="hljs-string">"&amp;amp;"</span>)
+            .replace(<span class="hljs-regexp">/&lt;/g</span>, <span class="hljs-string">"&amp;lt;"</span>)
+            .replace(<span class="hljs-regexp">/&gt;/g</span>, <span class="hljs-string">"&amp;gt;"</span>);
+
+        <span class="hljs-comment">// Don't escape special characters in the template.</span>
+        s += templateData[i];
+    }
+    <span class="hljs-keyword">return</span> s;
+}
+<span class="hljs-keyword">const</span> message =
+        SaferHTML <span class="hljs-string">`&lt;p&gt;<span class="hljs-subst">${sender}</span> has sent you a message.&lt;/p&gt;`</span>;
+</code></pre><p>上面代码中，<code>sender</code>变量往往是用户提供的，经过<code>SaferHTML</code>函数处理，里面的特殊字符都会被转义。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">log, S</span>) </span>{
+    <span class="hljs-keyword">const</span> SaferHTML = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">templateData</span>) </span>{
+        <span class="hljs-keyword">let</span> s = templateData[<span class="hljs-number">0</span>];
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">1</span>; i &lt; <span class="hljs-built_in">arguments</span>.length; i++) {
+            <span class="hljs-keyword">const</span> arg = <span class="hljs-built_in">String</span>(<span class="hljs-built_in">arguments</span>[i]);
+
+            <span class="hljs-comment">// Escape special characters in the substitution.</span>
+            s += arg.replace(<span class="hljs-regexp">/&amp;/g</span>, <span class="hljs-string">"&amp;amp;"</span>)
+                .replace(<span class="hljs-regexp">/&lt;/g</span>, <span class="hljs-string">"&amp;lt;"</span>)
+                .replace(<span class="hljs-regexp">/&gt;/g</span>, <span class="hljs-string">"&amp;gt;"</span>);
+
+            <span class="hljs-comment">// Don't escape special characters in the template.</span>
+            s += templateData[i];
+        }
+        <span class="hljs-keyword">return</span> s;
+    }
+    <span class="hljs-keyword">const</span> sender = <span class="hljs-string">'&lt;script&gt;alert("abc")&lt;/script&gt;'</span>; <span class="hljs-comment">// 恶意代码</span>
+    <span class="hljs-keyword">const</span> message =
+        SaferHTML <span class="hljs-string">`&lt;p&gt;<span class="hljs-subst">${sender}</span> has sent you a message.&lt;/p&gt;`</span>;
+    log(message);<span class="hljs-comment">// &lt;p&gt;&amp;lt;script&amp;gt;alert("abc")&amp;lt;/script&amp;gt; has sent you a message.&lt;/p&gt;</span>
+})(<span class="hljs-built_in">console</span>.log, <span class="hljs-built_in">String</span>)
+</code></pre><hr><h3 id="多语言转换">多语言转换 <a class="markdownIt-Anchor" href="#多语言转换">#</a></h3><p><code>标签模板</code>的另一个应用，就是<code>多语言</code>转换（国际化处理）。</p><pre class="hljs"><code>
+i18n<span class="hljs-string">`Welcome to <span class="hljs-subst">${siteName}</span>, you are visitor number <span class="hljs-subst">${visitorNumber}</span>!`</span>
+
+<span class="hljs-comment">// "欢迎访问xxx，您是第xxxx位访问者！"</span>
+</code></pre><p>模板字符串本身并不能取代 <code>Mustache</code> 之类的模板库，因为没有<code>条件判断</code>和<code>循环</code>处理功能，但是通过<code>标签函数</code>，你可以自己添加这些功能。</p><pre class="hljs"><code>
+<span class="hljs-comment">// 下面的hashTemplate函数</span>
+<span class="hljs-comment">// 是一个自定义的模板处理函数</span>
+<span class="hljs-keyword">const</span> libraryHtml = hashTemplate<span class="hljs-string">`
+  &lt;ul&gt;
+    #for book in <span class="hljs-subst">${myBooks}</span>
+      &lt;li&gt;&lt;i&gt;#{book.title}&lt;/i&gt; by #{book.author}&lt;/li&gt;
+    #end
+  &lt;/ul&gt;
+`</span>;
+</code></pre><hr><h3 id="嵌入其他语言">嵌入其他语言 <a class="markdownIt-Anchor" href="#嵌入其他语言">#</a></h3><p>除此之外，你甚至可以使用<code>标签模板</code>，在 <code>JavaScript</code> 语言之中嵌入<code>其他语言</code>。</p><pre class="hljs"><code>
+jsx<span class="hljs-string">`
+  &lt;div&gt;
+    &lt;input
+      ref='input'
+      onChange='<span class="hljs-subst">${<span class="hljs-keyword">this</span>.handleChange}</span>'
+      defaultValue='<span class="hljs-subst">${<span class="hljs-keyword">this</span>.state.value}</span>' /&gt;
+      <span class="hljs-subst">${<span class="hljs-keyword">this</span>.state.value}</span>
+   &lt;/div&gt;
+`</span>
+</code></pre><p>上面的代码通过<code>jsx</code>函数，将一个 <code>DOM</code> 字符串转为 <code>React</code>对象。你可以在 <code>GitHub</code> 找到<code>jsx</code>函数的<a href="https://gist.github.com/lygaret/a68220defa69174bdec5" target="_blank" rel="noopener">具体实现</a>。</p><hr><h3 id="运行java代码">运行Java代码 <a class="markdownIt-Anchor" href="#运行java代码">#</a></h3><p>下面则是一个假想的例子，通过<code>java</code>函数，在 <code>JavaScript</code> 代码之中运行 <code>Java</code> 代码。</p><pre class="hljs"><code>java<span class="hljs-string">`
+class HelloWorldApp {
+  public static void main(String[] args) {
+    System.out.println("Hello World!"); // Display the string.
+  }
+}
+`</span>
+HelloWorldApp.main();
+</code></pre><hr></div><div dir="ltr" class="level article-bar is-mobile"><div class="level-item has-text-centered"><a title="previous page" class="previouse-article-link" href="../chapters04/string-Iterator.html"><span class="icon icon-previous" data-icon="previous"></span><span class="link-content">&laquo; Previous</span></a></div><div class="level-item has-text-centered"><a title="font size" class="link-item link-item-size"><span class="icon icon-size" data-icon="size"></span></a></div><div class="level-item has-text-centered"><a title="table of content" class="link-item link-item-toc"><span class="icon icon-toc" data-icon="toc"></span></a></div><div class="level-item has-text-centered"><a title="top" href="#"><span class="icon icon-up" data-icon="up"></span> <span class="link-content">⤊ Top</span></a></div><div class="level-item has-text-centered"><a title="next page" class="next-article-link" href="../chapters05/index.html"><span class="icon icon-next" data-icon="next"></span><span class="link-content">Next &raquo;</span></a></div></div></div><div class="column is-2-widescreen is-hidden"></div></div><div class="columns foot"><div class="column is-3 is-offset-9 build-by">Build by <a href="https://github.com/ruanyf/loppo" target="_blank">Loppo</a> 0.6.16</div></div><div class="book-toc notification is-warning is-hidden"><h3>Table of chapters &nbsp;<span class="title-close"><a class="button is-danger"> Close</a></span></h3><ul class="chapter-area"><li class="chapter-item"><a href="../chapters01/index.html">第一章 ECMAScript 6 简介</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters01/base-js.html">js基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/base-es.html">es基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/Babel.html">通过Babel使用ES6</a></li><li class="chapter-item"><a href="../chapters01/Traceur.html">通过Traceur使用ES6</a></li><li class="chapter-item"><a href="../chapters01/stage-00.html">Strawman 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-01.html">Proposal 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-02.html">Draft 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/active-proposals.html">Candidate 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-04.html">Finished 阶段的 proposals</a></li></ul><li class="chapter-item"><a href="../chapters02/index.html">第二章 let和const命令</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters02/base.html">前置知识了解</a></li><li class="chapter-item"><a href="../chapters02/let.html">let 命令</a></li><li class="chapter-item"><a href="../chapters02/const.html">const 命令</a></li><li class="chapter-item"><a href="../chapters02/statement-details.html">语句进阶说明</a></li></ul><li class="chapter-item"><a href="../chapters03/index.html">第三章 变量的解构赋值</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters03/base.html">基础数据结构</a></li><li class="chapter-item"><a href="../chapters03/complex.html">复杂数据结构</a></li><li class="chapter-item"><a href="../chapters03/parentheses.html">圆括号问题</a></li><li class="chapter-item"><a href="../chapters03/use.html">用途</a></li></ul><li class="chapter-item"><a href="../chapters04/index.html">第四章 字符串的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-collapse" data-icon="collapse"></span></a></li><ul class="chapter-level-1 chapter-level-1-current"><li class="chapter-item"><a href="../chapters04/unicode.html">字符的 Unicode 表示法</a></li><li class="chapter-item"><a href="../chapters04/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/template-string.html">模板字符串</a></li><li class="chapter-item"><a href="../chapters04/string-Iterator.html">字符串的遍历器接口</a></li><li class="chapter-item chapter-item-current"><a href="../chapters04/tag-template.html">标签模板</a></li></ul><li class="chapter-item"><a href="../chapters05/index.html">第五章 正则的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters05/constructor.html">RegExp 构造函数</a></li><li class="chapter-item"><a href="../chapters05/base.html">RegExp 基础使用</a></li><li class="chapter-item"><a href="../chapters05/prototype-attribute.html">RegExp 原型属性</a></li><li class="chapter-item"><a href="../chapters05/modifier.html">RegExp 修饰符</a></li><li class="chapter-item"><a href="../chapters05/assert.html">RegExp 断言</a></li><li class="chapter-item"><a href="../chapters05/string-with-regExp.html">String中正则相关方法</a></li><li class="chapter-item"><a href="../chapters05/named-group-matching.html">具名组匹配</a></li><li class="chapter-item"><a href="../chapters05/unicode-attribute-class.html">Unicode 属性类</a></li></ul><li class="chapter-item"><a href="../chapters06/index.html">第六章 数值的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters06/base-notation.html">Number 进制表示法</a></li><li class="chapter-item"><a href="../chapters06/prototype-attribute.html">Number 原型属性</a></li><li class="chapter-item"><a href="../chapters06/base-function-extend.html">Number 对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/prototype-function-extend.html">Number 原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/math-extension.html">math 对象扩展</a></li><li class="chapter-item"><a href="../chapters06/exponent-operator.html">指数运算符</a></li></ul><li class="chapter-item"><a href="../chapters07/index.html">第七章 函数的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters07/arrow-function.html">箭头函数</a></li><li class="chapter-item"><a href="../chapters07/strict-mode.html">严格模式</a></li><li class="chapter-item"><a href="../chapters07/function-parameter-improvement.html">函数参数改进</a></li><li class="chapter-item"><a href="../chapters07/the-name-attribute-of-the-function.html">函数的name属性</a></li><li class="chapter-item"><a href="../chapters07/tail-call-optimization.html">尾调用优化</a></li></ul><li class="chapter-item"><a href="../chapters08/index.html">第八章 数组的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters08/extension-operator.html">扩展运算符</a></li><li class="chapter-item"><a href="../chapters08/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/empty-space-processing-of-array.html">数组的空位处理</a></li><li class="chapter-item"><a href="../chapters08/pipeline-optimization-of-arrays.html">数组的管道运算优化</a></li></ul><li class="chapter-item"><a href="../chapters09/index.html">第九章 ts学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters09/history.html">ts历史</a></li><li class="chapter-item"><a href="../chapters09/advantages-and-disadvantages.html">ts优势与劣势</a></li><li class="chapter-item"><a href="../chapters09/learn-primitive-type.html">基础类型学习</a></li><li class="chapter-item"><a href="../chapters09/learn-derivative-type.html">衍生类型基础学习</a></li><li class="chapter-item"><a href="../chapters09/Enum.html">衍生类型之Enum</a></li><li class="chapter-item"><a href="../chapters09/interface.html">衍生类型之interface</a></li><li class="chapter-item"><a href="../chapters09/Class.html">衍生类型之Class</a></li><li class="chapter-item"><a href="../chapters09/ts-util.html">ts 高级工具用法</a></li></ul><li class="chapter-item"><a href="../chapters10/index.html">第十章 react学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters10/history.html">react历史</a></li><li class="chapter-item"><a href="../chapters10/version-management.html">react版本管理</a></li><li class="chapter-item"><a href="../chapters10/advantages-and-disadvantages.html">react优势与劣势</a></li><li class="chapter-item"><a href="../chapters10/base.html">react基础语法</a></li><li class="chapter-item"><a href="../chapters10/common-package.html">react常用组件包</a></li><li class="chapter-item"><a href="../chapters10/family-bucket.html">react全家桶</a></li><li class="chapter-item"><a href="../chapters10/ecosphere.html">react的生态圈</a></li><li class="chapter-item"><a href="../chapters10/substitute-product.html">react和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters11/index.html">第十一章 webpack学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters11/history.html">webpack历史</a></li><li class="chapter-item"><a href="../chapters11/version-management.html">webpack版本管理</a></li><li class="chapter-item"><a href="../chapters11/advantages-and-disadvantages.html">webpack优势与劣势</a></li><li class="chapter-item"><a href="../chapters11/base-config.html">webpack项目基础配置</a></li><li class="chapter-item"><a href="../chapters11/common-package.html">webpack常用组件包</a></li><li class="chapter-item"><a href="../chapters11/ecosphere.html">webpack的生态圈</a></li><li class="chapter-item"><a href="../chapters11/substitute-product.html">webpack和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters12/index.html">第十二章 微信小程序学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters12/history.html">微信小程序历史</a></li><li class="chapter-item"><a href="../chapters12/version-management.html">微信小程序版本管理</a></li><li class="chapter-item"><a href="../chapters12/advantages-and-disadvantages.html">微信小程序优势与劣势</a></li><li class="chapter-item"><a href="../chapters12/base.html">微信小程序基础学习</a></li><li class="chapter-item"><a href="../chapters12/common-ui-package.html">微信小程序常用UI库</a></li><li class="chapter-item"><a href="../chapters12/ecosphere.html">微信小程序的生态圈</a></li><li class="chapter-item"><a href="../chapters12/cross-platform.html">微信小程序跨平台</a></li><li class="chapter-item"><a href="../chapters12/substitute-product.html">微信小程序和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters13/index.html">第十三章 web安全方案</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters13/common-web-risks.html">常见web风险</a></li><li class="chapter-item"><a href="../chapters13/monitoring-system.html">前端监控体系</a></li><li class="chapter-item"><a href="../chapters13/performance-optimization.html">前端性能优化</a></li><li class="chapter-item"><a href="../chapters13/security-prevention-and-control.html">前端安全防控</a></li><li class="chapter-item"><a href="../chapters13/test-system.html">前端测试体系</a></li></ul></ul></div><div class="progress-indicator"></div><!-- SCRIPTS --><script>var LOPPO={current_path:"chapters04/tag-template.md",relative_root_path:"../",article_toc:'<ul class="markdownIt-TOC">\n<li><a href="#%E5%9F%BA%E7%A1%80%E8%AF%B4%E6%98%8E">基础说明</a>\n<ul>\n<li><a href="#%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%8F%82%E6%95%B0raw%E5%B1%9E%E6%80%A7">第一个参数raw属性</a></li>\n<li><a href="#%E4%BD%BF%E7%94%A8%E5%8F%98%E9%87%8F">使用变量</a></li>\n<li><a href="#%E5%85%B6%E4%BB%96%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E">其他参数说明</a></li>\n</ul>\n</li>\n<li><a href="#%E8%BF%94%E5%9B%9E%E5%80%BC%E8%AF%B4%E6%98%8E">返回值说明</a></li>\n<li><a href="#%E6%A1%88%E4%BE%8B%E8%AF%B4%E6%98%8E">案例说明</a>\n<ul>\n<li><a href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BD%BF%E7%94%A8">自定义使用</a></li>\n<li><a href="#%E5%A4%8D%E6%9D%82%E4%BD%BF%E7%94%A8">复杂使用</a></li>\n<li><a href="#%E7%BB%93%E5%90%88rest%E5%8F%82%E6%95%B0">结合rest参数</a></li>\n<li><a href="#%E8%BF%87%E6%BB%A4-html-%E5%AD%97%E7%AC%A6%E4%B8%B2">过滤 HTML 字符串</a></li>\n<li><a href="#%E5%A4%9A%E8%AF%AD%E8%A8%80%E8%BD%AC%E6%8D%A2">多语言转换</a></li>\n<li><a href="#%E5%B5%8C%E5%85%A5%E5%85%B6%E4%BB%96%E8%AF%AD%E8%A8%80">嵌入其他语言</a></li>\n<li><a href="#%E8%BF%90%E8%A1%8Cjava%E4%BB%A3%E7%A0%81">运行Java代码</a></li>\n</ul>\n</li>\n</ul>\n'}</script><script src="../assets/js/app.js"></script></body></html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html><html><head><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta charset="utf-8"><title>箭头函数 - learn es6</title><meta name="description" content=""><meta name="author" content=""><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1"><link rel="stylesheet" href="../assets/css/bulma.min.css"><link rel="stylesheet" href="../assets/css/app.css"><!--[if lt IE 9]>
+<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]--><link rel="shortcut icon" href=""></head><body dir="ltr"><nav class="columns navbar"><div class="column logo is-3 is-offset-1"><a class="is-brand" href="../index.html">learn es6</a></div></nav><div class="columns content"><div class="column is-2-desktop is-3-widescreen is-hidden-touch"></div><div class="column article-container is-11-tablet is-8-desktop is-6-widescreen"><div class="breadcrumb-area"><a href="../index.html" class="breadcrumb-item">Home</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters07/index.html" class="breadcrumb-item">第七章 函数的扩展</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters07/arrow-function.html" class="breadcrumb-item">箭头函数</a></div><h1 class="article-title">箭头函数</h1><div class="article"><h2 id="基本说明">基本说明 <a class="markdownIt-Anchor" href="#基本说明">#</a></h2><p><code>ES6</code> 允许使用<code>箭头</code>（<code>=&gt;</code>）定义函数。<code>箭头函数表达式</code>的<code>语法</code>比函数表达式更<code>简洁</code>，并且没有自己的<code>this</code>，<code>arguments</code>，<code>super</code>或 <code>new.target</code>。这些<code>函数表达式</code>更适用于那些本来需要<code>匿名函数</code>的地方，并且它们不能用作<code>构造函数</code>。</p><p><a href="https://github.com/getify/You-Dont-Know-JS/blob/master/es6%20%26%20beyond/fig1.png" target="_blank" rel="noopener">箭头函数基础分析图</a></p><hr><h3 id="基础语法">基础语法 <a class="markdownIt-Anchor" href="#基础语法">#</a></h3><pre class="hljs"><code>(param1, param2, …, paramN) =&gt; { statements }
+<span class="hljs-comment">// 等同于</span>
+<span class="hljs-comment">// function(param1, param2, …, paramN){ return {statements}; }</span>
+
+(param1, param2, …, paramN) =&gt; expression
+<span class="hljs-comment">// 等同于</span>
+<span class="hljs-comment">// function(param1, param2, …, paramN){ return expression; }</span>
+
+<span class="hljs-comment">// Parentheses are optional when there's only one parameter name:</span>
+<span class="hljs-comment">// 当只有一个参数时，圆括号是可选的</span>
+(singleParam) =&gt; { statements }
+singleParam =&gt; { statements }
+
+<span class="hljs-comment">// 等同于</span>
+<span class="hljs-comment">// function(singleParam){ return expression; }</span>
+
+<span class="hljs-comment">// The parameter list for a function with no parameters should be written with a pair of parentheses.</span>
+<span class="hljs-comment">// 没有参数的函数应该写成一对圆括号。</span>
+() =&gt; { statements }
+</code></pre><hr><h3 id="箭头函数变量作用域">箭头函数变量作用域 <a class="markdownIt-Anchor" href="#箭头函数变量作用域">#</a></h3><p><code>箭头函数</code>内定义的<code>变量</code>及其<code>作用域</code></p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-comment">// 常规写法</span>
+    <span class="hljs-keyword">const</span> greeting_1 = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {<span class="hljs-keyword">let</span> now = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(); <span class="hljs-keyword">return</span> (<span class="hljs-string">"Good"</span> + ((now.getHours() &gt; <span class="hljs-number">17</span>) ? <span class="hljs-string">" evening."</span> : <span class="hljs-string">" day."</span>));}
+    log(greeting_1());          <span class="hljs-comment">//"Good evening."</span>
+    log(now);    <span class="hljs-comment">// ReferenceError: now is not defined 标准的let作用域</span>
+
+    <span class="hljs-comment">// 参数括号内定义的变量是局部变量（默认参数）</span>
+    <span class="hljs-keyword">const</span> greeting_2 = <span class="hljs-function">(<span class="hljs-params">now=<span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(</span>)) =&gt;</span> <span class="hljs-string">"Good"</span> + (now.getHours() &gt; <span class="hljs-number">17</span> ? <span class="hljs-string">" evening."</span> : <span class="hljs-string">" day."</span>);
+    log(greeting_2());          <span class="hljs-comment">//"Good evening."</span>
+    log(now);    <span class="hljs-comment">// ReferenceError: now is not defined</span>
+
+    <span class="hljs-comment">// 对比：函数体内{}不使用var定义的变量是全局变量</span>
+    <span class="hljs-keyword">const</span> greeting_3 = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {now = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(); <span class="hljs-keyword">return</span> (<span class="hljs-string">"Good"</span> + ((now.getHours() &gt; <span class="hljs-number">17</span>) ? <span class="hljs-string">" evening."</span> : <span class="hljs-string">" day."</span>));}
+    log(greeting_3());           <span class="hljs-comment">//"Good evening."</span>
+    log(now);     <span class="hljs-comment">// Wed Apr 24 2019 23:02:07 GMT+0800 (中国标准时间)</span>
+
+    <span class="hljs-comment">// 对比：函数体内{} 用const定义的变量是局部变量</span>
+    <span class="hljs-keyword">const</span> greeting_4 = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {<span class="hljs-keyword">const</span> now = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(); <span class="hljs-keyword">return</span> (<span class="hljs-string">"Good"</span> + ((now.getHours() &gt; <span class="hljs-number">17</span>) ? <span class="hljs-string">" evening."</span> : <span class="hljs-string">" day."</span>));}
+    log(greeting_4()); <span class="hljs-comment">//"Good evening."</span>
+    log(now);    <span class="hljs-comment">// ReferenceError: now is not defined</span>
+})()
+</code></pre><hr><h3 id="高阶语法">高阶语法 <a class="markdownIt-Anchor" href="#高阶语法">#</a></h3><pre class="hljs"><code><span class="hljs-comment">// Parenthesize the body of function to return an object literal expression:</span>
+<span class="hljs-comment">// 加括号的函数体返回对象字面表达式：</span>
+params =&gt; ({<span class="hljs-attr">foo</span>: bar})
+
+<span class="hljs-comment">// Rest parameters and default parameters are supported</span>
+<span class="hljs-comment">// 支持剩余参数和默认参数</span>
+(param1, param2, ...rest) =&gt; { statements }
+(param1 = defaultValue1, param2, …, paramN = defaultValueN) =&gt; {
+statements }
+
+<span class="hljs-comment">// Destructuring within the parameter list is also supported</span>
+<span class="hljs-comment">// 同样支持参数列表解构</span>
+<span class="hljs-keyword">const</span> f = <span class="hljs-function">(<span class="hljs-params">[a, b] = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>], {x: c} = {x: a + b}</span>) =&gt;</span> a + b + c;
+f(); <span class="hljs-comment">// 6</span>
+</code></pre><p>如果<code>箭头函数</code>的<code>代码块</code>部分多于一条<code>语句</code>，就要使用<code>大括号</code>将它们括起来，并且使用<code>return</code>语句返回。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-keyword">const</span> sum = <span class="hljs-function">(<span class="hljs-params">num1, num2</span>) =&gt;</span> { <span class="hljs-keyword">return</span> num1 + num2; }
+})()
+</code></pre><hr><h3 id="与严格模式的关系">与严格模式的关系 <a class="markdownIt-Anchor" href="#与严格模式的关系">#</a></h3><p>鉴于 <code>this</code> 是词法层面上的，<code>严格模式</code>中与 <code>this</code> 相关的规则都将被忽略。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Person</span>(<span class="hljs-params"></span>) </span>{
+      <span class="hljs-keyword">this</span>.age = <span class="hljs-number">0</span>;
+      <span class="hljs-keyword">const</span> closure = <span class="hljs-string">"123"</span>
+      setInterval(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">growUp</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">this</span>.age++;
+        log(closure);
+      }, <span class="hljs-number">1000</span>);
+    }
+
+    <span class="hljs-keyword">const</span> p = <span class="hljs-keyword">new</span> Person();
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">PersonX</span>(<span class="hljs-params"></span>) </span>{
+      <span class="hljs-string">'use strict'</span>
+      <span class="hljs-keyword">this</span>.age = <span class="hljs-number">0</span>;
+      <span class="hljs-keyword">const</span> closure = <span class="hljs-string">"123"</span>
+      setInterval(<span class="hljs-function"><span class="hljs-params">()</span>=&gt;</span>{
+        <span class="hljs-keyword">this</span>.age++;
+        log(closure);
+      }, <span class="hljs-number">1000</span>);
+    }
+
+    <span class="hljs-keyword">const</span> px = <span class="hljs-keyword">new</span> PersonX();
+    log(px);<span class="hljs-comment">// PersonX {age: 0}</span>
+})()
+</code></pre><p><code>严格模式</code>的其他规则依然不变。</p><hr><h3 id="call--apply">call &amp; apply <a class="markdownIt-Anchor" href="#call--apply">#</a></h3><p>由于 <code>箭头函数</code>没有自己的<code>this</code>指针，通过 <code>call()</code> 或 <code>apply()</code> 方法调用一个<code>函数</code>时，只能传递参数（不能绑定<code>this</code>），他们的第一个参数会被<code>忽略</code>。（这种现象对于<code>bind</code>方法同样成立）</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-keyword">const</span> adder = {
+      <span class="hljs-attr">base</span> : <span class="hljs-number">1</span>,
+      <span class="hljs-attr">add</span> : <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">a</span>) </span>{
+        <span class="hljs-keyword">const</span> f = <span class="hljs-function"><span class="hljs-params">v</span> =&gt;</span> v + <span class="hljs-keyword">this</span>.base;
+        <span class="hljs-keyword">return</span> f(a);
+      },
+
+      <span class="hljs-attr">addThruCall</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">a</span>) </span>{
+        <span class="hljs-keyword">const</span> f = <span class="hljs-function"><span class="hljs-params">v</span> =&gt;</span> v + <span class="hljs-keyword">this</span>.base;
+        <span class="hljs-keyword">const</span> b = {
+          <span class="hljs-attr">base</span> : <span class="hljs-number">2</span>
+        };
+        <span class="hljs-keyword">return</span> f.call(b, a);
+      }
+    };
+
+    log(adder.add(<span class="hljs-number">1</span>));         <span class="hljs-comment">// 输出 2</span>
+    log(adder.addThruCall(<span class="hljs-number">1</span>)); <span class="hljs-comment">// 仍然输出 2（而不是3）</span>
+})()
+</code></pre><hr><h2 id="主要解决问题">主要解决问题 <a class="markdownIt-Anchor" href="#主要解决问题">#</a></h2><h3 id="视觉优化">视觉优化 <a class="markdownIt-Anchor" href="#视觉优化">#</a></h3><p>无参数<code>箭头函数</code>在视觉上容易分析</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    setTimeout( <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+      log(<span class="hljs-string">'I happen sooner'</span>);
+      setTimeout( <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+        <span class="hljs-comment">// deeper code</span>
+        log(<span class="hljs-string">'I happen later'</span>);
+      }, <span class="hljs-number">1</span>);
+    }, <span class="hljs-number">1</span>);
+})()
+</code></pre><hr><h3 id="更短的函数">更短的函数 <a class="markdownIt-Anchor" href="#更短的函数">#</a></h3><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-keyword">const</span> elements = [
+      <span class="hljs-string">'Hydrogen'</span>,
+      <span class="hljs-string">'Helium'</span>,
+      <span class="hljs-string">'Lithium'</span>,
+      <span class="hljs-string">'Beryllium'</span>
+    ];
+
+    log(elements.map(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">element</span>) </span>{ 
+      <span class="hljs-keyword">return</span> element.length; 
+    })); <span class="hljs-comment">// [8, 6, 7, 9]</span>
+
+    <span class="hljs-comment">// 上面的普通函数可以改写成如下的箭头函数</span>
+    log(elements.map(<span class="hljs-function">(<span class="hljs-params">element</span>) =&gt;</span> {
+      <span class="hljs-keyword">return</span> element.length;
+    })); <span class="hljs-comment">// [8, 6, 7, 9]</span>
+
+    <span class="hljs-comment">// 当箭头函数只有一个参数时，可以省略参数的圆括号</span>
+    log(elements.map(<span class="hljs-function"><span class="hljs-params">element</span> =&gt;</span> {
+    <span class="hljs-keyword">return</span> element.length;
+    })); <span class="hljs-comment">// [8, 6, 7, 9]</span>
+
+    <span class="hljs-comment">// 当箭头函数的函数体只有一个 `return` 语句时，可以省略 `return` 关键字和方法体的花括号</span>
+    log(elements.map(<span class="hljs-function"><span class="hljs-params">element</span> =&gt;</span> element.length)); <span class="hljs-comment">// [8, 6, 7, 9]</span>
+
+    <span class="hljs-comment">// 在这个例子中，因为我们只需要 `length` 属性，所以可以使用参数解构</span>
+    <span class="hljs-comment">// 需要注意的是字符串 `"length"` 是我们想要获得的属性的名称，而 `lengthFooBArX` 则只是个变量名，</span>
+    <span class="hljs-comment">// 可以替换成任意合法的变量名</span>
+    log(elements.map(<span class="hljs-function">(<span class="hljs-params">{ <span class="hljs-string">"length"</span>: lengthFooBArX }</span>) =&gt;</span> lengthFooBArX)); <span class="hljs-comment">// [8, 6, 7, 9]</span>
+})()
+</code></pre><hr><h3 id="不绑定this">不绑定this <a class="markdownIt-Anchor" href="#不绑定this">#</a></h3><p>在<code>箭头函数</code>出现之前，每个新定义的<code>函数</code>都有它自己的 <code>this</code>值（在构造函数的情况下是一个<code>新对象</code>，在<code>严格模式</code>的函数调用中为 <code>undefined</code>，如果该函数被作为<code>对象方法</code>调用则为<code>基础对象</code>等）。<code>This</code>被证明是令人厌烦的面向对象风格的编程。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Person</span>(<span class="hljs-params"></span>) </span>{
+      <span class="hljs-comment">// Person() 构造函数定义 `this`作为它自己的实例.</span>
+      <span class="hljs-keyword">this</span>.age = <span class="hljs-number">0</span>;
+
+      setInterval(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">growUp</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-comment">// 在非严格模式, growUp()函数定义 `this`作为全局对象, </span>
+        <span class="hljs-comment">// 与在 Person()构造函数中定义的 `this`并不相同.</span>
+        <span class="hljs-keyword">this</span>.age++;
+      }, <span class="hljs-number">1000</span>);
+    }
+
+    <span class="hljs-keyword">const</span> p = <span class="hljs-keyword">new</span> Person();
+    log(p);<span class="hljs-comment">// Person {age: 0}</span>
+})()
+</code></pre><p>在<code>ECMAScript 3/5</code>中，通过将<code>this</code>值分配给<code>封闭</code>的<code>变量</code>，可以解决<code>this</code>问题。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Person</span>(<span class="hljs-params"></span>) </span>{
+      <span class="hljs-keyword">const</span> that = <span class="hljs-keyword">this</span>;
+      that.age = <span class="hljs-number">0</span>;
+
+      setInterval(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">growUp</span>(<span class="hljs-params"></span>) </span>{
+        <span class="hljs-comment">//  回调引用的是`that`变量, 其值是预期的对象. </span>
+        that.age++;
+      }, <span class="hljs-number">1000</span>);
+    }
+})()
+</code></pre><p>或者，可以创建<code>绑定函数</code>，以便将预先分配的<code>this</code>值传递到绑定的<code>目标函数</code>（上述示例中的<code>growUp()</code>函数）。</p><p><code>箭头函数</code>不会创建自己的<code>this</code>,它只会从自己的作用域链的上一层继承<code>this</code>。因此，在下面的代码中，传递给<code>setInterval</code>的函数内的<code>this</code>与封闭函数中的<code>this</code>值相同：</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Person</span>(<span class="hljs-params"></span>)</span>{
+      <span class="hljs-keyword">this</span>.age = <span class="hljs-number">0</span>;
+
+      setInterval(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+        <span class="hljs-keyword">this</span>.age++; <span class="hljs-comment">// |this| 正确地指向 p 实例</span>
+      }, <span class="hljs-number">1000</span>);
+    }
+
+    <span class="hljs-keyword">const</span> p = <span class="hljs-keyword">new</span> Person();
+    log(p); <span class="hljs-comment">// Person {age: 0}</span>
+})()
+</code></pre><hr><h3 id="不绑定arguments">不绑定arguments <a class="markdownIt-Anchor" href="#不绑定arguments">#</a></h3><p>箭头函数不绑定<code>Arguments</code> 对象。因此，在本示例中，<code>arguments</code>只是引用了封闭作用域内的<code>arguments</code>：</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-keyword">const</span> <span class="hljs-built_in">arguments</span> = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>];
+    <span class="hljs-keyword">const</span> arr = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-built_in">arguments</span>[<span class="hljs-number">0</span>];
+
+    log(arr()); <span class="hljs-comment">// 1</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params">n</span>) </span>{
+      <span class="hljs-keyword">const</span> f = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-built_in">arguments</span>[<span class="hljs-number">0</span>] + n; <span class="hljs-comment">// 隐式绑定 foo 函数的 arguments 对象. arguments[0] 是 n</span>
+      <span class="hljs-keyword">return</span> f();
+    }
+
+    log(foo(<span class="hljs-number">1</span>)); <span class="hljs-comment">// 2</span>
+})()
+</code></pre><p>在大多数情况下，使用<code>剩余参数</code>是相较使用<code>arguments</code>对象的更好选择。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params">arg</span>) </span>{
+      <span class="hljs-keyword">const</span> f = <span class="hljs-function">(<span class="hljs-params">...args</span>) =&gt;</span> args[<span class="hljs-number">0</span>];
+      <span class="hljs-keyword">return</span> f(arg);
+    }
+    log(foo(<span class="hljs-number">1</span>)); <span class="hljs-comment">// undefined</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params">arg1,arg2</span>) </span>{
+        <span class="hljs-keyword">const</span> f = <span class="hljs-function">(<span class="hljs-params">...args</span>) =&gt;</span> args[<span class="hljs-number">1</span>];
+        <span class="hljs-keyword">return</span> f(arg1,arg2);
+    }
+    log(foo(<span class="hljs-number">1</span>,<span class="hljs-number">2</span>));  <span class="hljs-comment">//2</span>
+})()
+</code></pre><hr><h2 id="注意事项说明">注意事项说明 <a class="markdownIt-Anchor" href="#注意事项说明">#</a></h2><h3 id="方法函数">方法函数 <a class="markdownIt-Anchor" href="#方法函数">#</a></h3><p><code>箭头函数表达式</code>对<code>非方法函数</code>是最合适的。如果试着把它们作为<code>方法</code>时发生了什么。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-string">'use strict'</span>;
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-keyword">const</span> obj = {
+      <span class="hljs-attr">i</span>: <span class="hljs-number">10</span>,
+      <span class="hljs-attr">b</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> log(<span class="hljs-keyword">this</span>.i, <span class="hljs-keyword">this</span>),
+      <span class="hljs-attr">c</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+        log(<span class="hljs-keyword">this</span>.i,<span class="hljs-keyword">this</span>)
+      }
+    }
+    log(obj.b());
+    <span class="hljs-comment">// undefined Window {postMessage: ƒ, blur: ƒ, focus: ƒ, close: ƒ, frames: Window, …}</span>
+    <span class="hljs-comment">// undefined</span>
+    log(obj.c());
+    <span class="hljs-comment">// 10 {i: 10, b: ƒ, c: ƒ}</span>
+    <span class="hljs-comment">// undefined</span>
+})()
+</code></pre><p><code>箭头函数</code>没有定义<code>this</code>绑定。</p><hr><blockquote><p>Object.defineProperty()</p></blockquote><p>涉及<code>Object.defineProperty()</code>的示例</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-string">'use strict'</span>;
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-keyword">const</span> obj = {
+      <span class="hljs-attr">a</span>: <span class="hljs-number">10</span>
+    };
+
+    <span class="hljs-built_in">Object</span>.defineProperty(obj, <span class="hljs-string">"b"</span>, {
+      <span class="hljs-attr">get</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+        log(<span class="hljs-keyword">this</span>.a, <span class="hljs-keyword">typeof</span> <span class="hljs-keyword">this</span>.a, <span class="hljs-keyword">this</span>);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.a+<span class="hljs-number">10</span>; <span class="hljs-comment">// NaN</span>
+        <span class="hljs-comment">// 代表全局对象 'Window', 因此 'this.a' 返回 'undefined'</span>
+      }
+    });
+
+    log(obj.b); <span class="hljs-comment">// undefined   "undefined"   Window {postMessage: ƒ, blur: ƒ, focus: ƒ, close: ƒ, frames: Window, …}</span>
+})()
+</code></pre><hr><h3 id="new-操作符">new 操作符 <a class="markdownIt-Anchor" href="#new-操作符">#</a></h3><p>箭头函数不能用作构造器，和 new一起用会抛出错误。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-keyword">const</span> Foo = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {};
+    <span class="hljs-keyword">const</span> foo = <span class="hljs-keyword">new</span> Foo(); <span class="hljs-comment">// TypeError: Foo is not a constructor</span>
+})()
+</code></pre><hr><h3 id="prototype-属性">prototype 属性 <a class="markdownIt-Anchor" href="#prototype-属性">#</a></h3><p><code>箭头函数</code>没有<code>prototype</code>属性。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-keyword">const</span> Foo = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {};
+    log(Foo.prototype); <span class="hljs-comment">// undefined</span>
+})()
+</code></pre><hr><h3 id="yield">yield <a class="markdownIt-Anchor" href="#yield">#</a></h3><p><code>yield</code> 关键字通常不能在<code>箭头函数</code>中使用（除非是嵌套在允许使用的函数内）。因此，<code>箭头函数</code>不能用作<code>生成器</code>。</p><hr><h3 id="返回值为对象字面量">返回值为对象字面量 <a class="markdownIt-Anchor" href="#返回值为对象字面量">#</a></h3><p>记住用<code>params =&gt; {object:literal}</code>这种简单的语法返回<code>对象字面量</code>是行不通的。</p><p>由于<code>大括号</code>被解释为<code>代码块</code>，所以如果<code>箭头函数</code>直接返回一个对象，必须在<code>对象字面量</code>外面加上括号，否则会报错。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-comment">// 报错</span>
+    <span class="hljs-comment">// let getTempItem = id =&gt; { id: id, name: "Temp" };</span>
+
+    <span class="hljs-comment">// 不报错 但是没有取得指定返回值</span>
+    <span class="hljs-keyword">let</span> getTempItem_1 = <span class="hljs-function"><span class="hljs-params">id</span> =&gt;</span> { <span class="hljs-attr">id</span>: id };
+
+    <span class="hljs-comment">// 不报错 可以取得指定返回值</span>
+    <span class="hljs-keyword">let</span> getTempItem_2 = <span class="hljs-function"><span class="hljs-params">id</span> =&gt;</span> ({ <span class="hljs-attr">id</span>: id, <span class="hljs-attr">name</span>: <span class="hljs-string">"Temp"</span> });
+
+    log(getTempItem_1(<span class="hljs-number">123</span>));<span class="hljs-comment">// undefined</span>
+    log(getTempItem_2(<span class="hljs-number">12</span>));<span class="hljs-comment">// {id: 12, name: "Temp"}</span>
+})()
+</code></pre><p>上面代码<code>getTempItem_1</code>中，原始意图是返回一个对象<code>{ id: id }</code>，但是由于<code>引擎</code>认为<code>大括号</code>是<code>代码块</code>，所以执行了一行语句<code>id: id</code>。</p><p>这时，<code>id</code>可以被解释为<code>语句</code>的<code>标签</code>，因此实际执行的<code>语句</code>是<code>id</code>;，然后<code>函数</code>就结束了，没有返回值。</p><hr><h3 id="省略大括号">省略大括号 <a class="markdownIt-Anchor" href="#省略大括号">#</a></h3><p>如果<code>箭头函数</code>只有一行语句，且不需要返回值，可以采用下面的写法，就不用写<code>大括号</code>了。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-keyword">let</span> fn = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">void</span> doesNotReturn();
+})()
+</code></pre><hr><h3 id="换行">换行 <a class="markdownIt-Anchor" href="#换行">#</a></h3><p><code>箭头函数</code>在<code>参数</code>和<code>箭头</code>之间不能换行。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> func = <span class="hljs-function"><span class="hljs-params">()</span>
+            =&gt;</span> <span class="hljs-number">1</span>;
+  <span class="hljs-comment">// SyntaxError: expected expression, got '=&gt;'</span>
+})()
+</code></pre><hr><h3 id="解析顺序">解析顺序 <a class="markdownIt-Anchor" href="#解析顺序">#</a></h3><p>虽然<code>箭头函数</code>中的<code>箭头</code>不是<code>运算符</code>，但<code>箭头函数</code>具有与<code>常规函数</code>不同的特殊<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Operator_Precedence" target="_blank" rel="noopener">运算符优先级</a>解析规则。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-keyword">let</span> callback;
+
+    callback = callback || <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{}; <span class="hljs-comment">// ok</span>
+
+    callback = callback || <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {};
+    <span class="hljs-comment">// SyntaxError: invalid arrow-function arguments</span>
+
+    callback = callback || <span class="hljs-function">(<span class="hljs-params">(</span>) =&gt;</span> {});    <span class="hljs-comment">// ok</span>
+})()
+</code></pre><hr><h3 id="函数体">函数体 <a class="markdownIt-Anchor" href="#函数体">#</a></h3><p><code>箭头函数</code>可以有一个<code>简写体</code>或常见的<code>块体</code>。</p><p>在一个<code>简写体</code>中，只需要一个<code>表达式</code>，并附加一个<code>隐式</code>的<code>返回值</code>。在块体中，必须使用明确的<code>return</code>语句。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">var</span> func = <span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x * x;
+  <span class="hljs-comment">// 简写函数 省略return</span>
+
+  <span class="hljs-keyword">var</span> func = <span class="hljs-function">(<span class="hljs-params">x, y</span>) =&gt;</span> { <span class="hljs-keyword">return</span> x + y; };
+  <span class="hljs-comment">//常规编写 明确的返回值</span>
+})()
+</code></pre><hr><h2 id="使用案例说明">使用案例说明 <a class="markdownIt-Anchor" href="#使用案例说明">#</a></h2><h3 id="结合变量解构">结合变量解构 <a class="markdownIt-Anchor" href="#结合变量解构">#</a></h3><p><code>箭头函数</code>可以与<code>变量解构</code>结合使用。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> full = <span class="hljs-function">(<span class="hljs-params">{ first, last }</span>) =&gt;</span> first + <span class="hljs-string">' '</span> + last;
+
+    <span class="hljs-comment">// 等同于</span>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">full</span>(<span class="hljs-params">person</span>) </span>{
+        <span class="hljs-keyword">return</span> person.first + <span class="hljs-string">' '</span> + person.last;
+    }
+})()
+</code></pre><hr><h3 id="简洁基础函数">简洁基础函数 <a class="markdownIt-Anchor" href="#简洁基础函数">#</a></h3><p><code>箭头函数</code>使得表达更加简洁。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> isEven = <span class="hljs-function"><span class="hljs-params">n</span> =&gt;</span> n % <span class="hljs-number">2</span> === <span class="hljs-number">0</span>;
+  <span class="hljs-keyword">const</span> square = <span class="hljs-function"><span class="hljs-params">n</span> =&gt;</span> n * n;
+})()
+</code></pre><p>上面代码只用了两行，就定义了两个简单的<code>工具函数</code>。如果不用<code>箭头函数</code>，可能就要占用多行，而且还不如现在这样写醒目。</p><hr><h3 id="简洁回调函数">简洁回调函数 <a class="markdownIt-Anchor" href="#简洁回调函数">#</a></h3><blockquote><p><code>箭头函数</code>的一个用处是简化回调函数。</p></blockquote><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+  <span class="hljs-comment">// 正常函数写法</span>
+  [<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>].map(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">x</span>) </span>{
+    <span class="hljs-keyword">return</span> x * x;
+  });
+
+  <span class="hljs-comment">// 箭头函数写法</span>
+  [<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>].map(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x * x);
+})()
+</code></pre><blockquote><p>另一个例子是</p></blockquote><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-comment">// 正常函数写法</span>
+  <span class="hljs-keyword">const</span> result = values.sort(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">a, b</span>) </span>{
+    <span class="hljs-keyword">return</span> a - b;
+  });
+
+  <span class="hljs-comment">// 箭头函数写法</span>
+  <span class="hljs-keyword">const</span> result = values.sort(<span class="hljs-function">(<span class="hljs-params">a, b</span>) =&gt;</span> a - b);
+})()
+</code></pre><hr><h3 id="结合rest参数">结合<code>rest</code>参数 <a class="markdownIt-Anchor" href="#结合rest参数">#</a></h3><p>下面是 <code>rest</code> 参数与箭头函数结合的例子。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+  <span class="hljs-keyword">const</span> numbers = <span class="hljs-function">(<span class="hljs-params">...nums</span>) =&gt;</span> nums;
+
+  log(numbers(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>));
+  <span class="hljs-comment">// [1,2,3,4,5]</span>
+
+  <span class="hljs-keyword">const</span> headAndTail = <span class="hljs-function">(<span class="hljs-params">head, ...tail</span>) =&gt;</span> [head, tail];
+
+  log(headAndTail(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>));
+  <span class="hljs-comment">// [1,[2,3,4,5]]</span>
+})()
+</code></pre><hr><h3 id="λ演算">λ演算 <a class="markdownIt-Anchor" href="#λ演算">#</a></h3><p><code>Using arrows to pierce the dark heart of computer science</code></p><p><code>箭头函数</code>有许多实际用途。还有一个可能用例：<code>ES6 arrow</code>作为一种学习工具，可以发现深入了解<code>计算本质</code>的东西。</p><p><code>1936</code>年，<code>Alonzo Church和Alan Turing</code>独立开发了强大的<code>计算数学模型</code>。</p><p>图灵称他的模型为<code>a-machines</code>，但每个人都立即开始称他们为图灵机。教会写的是关于功能的。他的模型被称为<a href="https://en.wikipedia.org/wiki/Lambda_calculus" target="_blank" rel="noopener">λ演算</a>。</p><p>（<code>λ</code>是小写的希腊字母<code>lambda</code>。）这项工作是<code>Lisp</code>使用这个词<code>LAMBDA</code>来表示函数的原因，这就是我们今天将函数表达式称为<code>lambdas</code>的原因。</p><p>但什么是<a href="https://en.wikipedia.org/wiki/Lambda_calculus" target="_blank" rel="noopener">λ演算</a>？什么是<code>计算模型</code>应该是什么意思？</p><p>用几句话来解释很难，<a href="https://en.wikipedia.org/wiki/Lambda_calculus" target="_blank" rel="noopener">λ演算</a>是最早的编程语言之一。</p><p>它不是设计是一门<code>编程语言</code>，毕竟，存储程序计算机不会为十年或二十年，而是足够的<code>简单</code>，<code>精简</code>，语言的纯粹的数学思想，可以表达任何形式的一起走你希望做的计算。</p><p>教会希望这个<code>模型</code>能够证明一般的<code>计算方法</code>。</p><p>他发现他的系统只需要一件事：<code>functions</code>。</p><p>想想这个说法有多么特别。如果没有<code>对象</code>，没有<code>数组</code>，没有<code>数字</code>，没有<code>if语句</code>，<code>while循环</code>，<code>分号</code>，<code>赋值</code>，<code>逻辑运算符</code>或<code>事件循环</code>，就可以重建<code>JavaScript</code>只能使用<code>函数</code>从头开始执行的各种计算。</p><p>这是一个数学家可以使用<code>Church</code>的<code>λ</code>表示法编写的<code>程序</code>的例子：</p><p><code>fix = λf.(λx.f(λv.x(x)(v)))(λx.f(λv.x(x)(v)))</code></p><p>等效的<code>JavaScript</code>函数如下所示：</p><pre class="hljs"><code><span class="hljs-keyword">var</span> fix = <span class="hljs-function"><span class="hljs-params">f</span> =&gt;</span> (<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> f(<span class="hljs-function"><span class="hljs-params">v</span> =&gt;</span> x(x)(v)))
+               (<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> f(<span class="hljs-function"><span class="hljs-params">v</span> =&gt;</span> x(x)(v)));
+</code></pre><p>也就是说，<code>JavaScript</code>包含实际运行的<a href="https://en.wikipedia.org/wiki/Lambda_calculus" target="_blank" rel="noopener">λ演算</a>的实现。</p><p><a href="https://en.wikipedia.org/wiki/Lambda_calculus" target="_blank" rel="noopener">λ演算</a>是用<code>JavaScript</code>编写的。</p><p>关于<code>Alonzo Church</code>和后来的研究人员对<a href="https://en.wikipedia.org/wiki/Lambda_calculus" target="_blank" rel="noopener">λ演算</a>做了什么的故事，以及它如何悄悄地将自己暗示到几乎所有主要的编程语言，都超出了这篇文章的范围。</p><p>但是，如果你对<code>计算机科学</code>的基础感兴趣，或者你只是想看看除了<code>函数</code>之外什么都没有的语言可以做<code>循环</code>和<code>递归</code>之类的事情，那么你可能再看一下 <a href="https://en.wikipedia.org/wiki/Church_encoding" target="_blank" rel="noopener">Church numerals</a> 和 <a href="https://en.wikipedia.org/wiki/Fixed-point_combinator#Strict_fixed_point_combinator" target="_blank" rel="noopener">fixed-point combinators</a>。</p><p>借助<code>ES6箭头</code>的优势，<code>JavaScript</code>可以合理地声称是探索<a href="https://en.wikipedia.org/wiki/Lambda_calculus" target="_blank" rel="noopener">λ演算</a>的<code>最佳语言</code>。</p><hr><h3 id="promise">Promise <a class="markdownIt-Anchor" href="#promise">#</a></h3><p>更简明的<code>Promise</code>链</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  promise.then(<span class="hljs-function"><span class="hljs-params">a</span> =&gt;</span> {
+    <span class="hljs-comment">// ...</span>
+  }).then(<span class="hljs-function"><span class="hljs-params">b</span> =&gt;</span> {
+    <span class="hljs-comment">// ...</span>
+  });
+})()
+</code></pre><hr><h3 id="array相关">array相关 <a class="markdownIt-Anchor" href="#array相关">#</a></h3><p>方便数组<code>reduce</code>,<code>filter</code>,和<code>map</code>;</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-comment">// Easy array filtering, mapping, ...</span>
+
+    <span class="hljs-keyword">const</span> arr = [<span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">13</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">18</span>, <span class="hljs-number">23</span>];
+
+    <span class="hljs-keyword">const</span> sum = arr.reduce(<span class="hljs-function">(<span class="hljs-params">a, b</span>) =&gt;</span> a + b);  
+    log(sum); <span class="hljs-comment">// 66</span>
+
+    <span class="hljs-keyword">const</span> even = arr.filter(<span class="hljs-function"><span class="hljs-params">v</span> =&gt;</span> v % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>); 
+    log(even); <span class="hljs-comment">// [6, 0, 18]</span>
+
+    <span class="hljs-keyword">const</span> double = arr.map(<span class="hljs-function"><span class="hljs-params">v</span> =&gt;</span> v * <span class="hljs-number">2</span>);
+    log(double); <span class="hljs-comment">// [10, 12, 26, 0, 2, 36, 46]</span>
+})()
+</code></pre><hr><h3 id="iife">IIFE <a class="markdownIt-Anchor" href="#iife">#</a></h3><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-comment">// 空的箭头函数返回 undefined</span>
+    <span class="hljs-keyword">const</span> empty = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {};
+
+    log(<span class="hljs-function">(<span class="hljs-params">(</span>) =&gt;</span> <span class="hljs-string">'foobar'</span>)());<span class="hljs-comment">// foobar</span>
+    <span class="hljs-comment">// (这是一个立即执行函数表达式,可参阅 'IIFE'术语表)</span>
+})()
+</code></pre><hr><h3 id="三元运算符">三元运算符 <a class="markdownIt-Anchor" href="#三元运算符">#</a></h3><p><code>箭头函数</code>也可以使用条件（<code>三元</code>）<code>运算符</code></p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-keyword">const</span> simple = <span class="hljs-function"><span class="hljs-params">a</span> =&gt;</span> a &gt; <span class="hljs-number">15</span> ? <span class="hljs-number">15</span> : a;
+    log(simple(<span class="hljs-number">16</span>)); <span class="hljs-comment">// 15</span>
+    log(simple(<span class="hljs-number">10</span>)); <span class="hljs-comment">// 10</span>
+
+    <span class="hljs-keyword">let</span> max = <span class="hljs-function">(<span class="hljs-params">a, b</span>) =&gt;</span> a &gt; b ? a : b;
+    log(max(<span class="hljs-number">4</span>, <span class="hljs-number">5</span>));<span class="hljs-comment">// 5</span>
+})()
+</code></pre><hr><h3 id="闭包">闭包 <a class="markdownIt-Anchor" href="#闭包">#</a></h3><p><code>箭头函数</code>也可以使用<code>闭包</code></p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+  <span class="hljs-comment">// 标准的闭包函数</span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Add_1</span>(<span class="hljs-params"></span>)</span>{
+        <span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>;
+        <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">b</span>(<span class="hljs-params"></span>)</span>{
+                <span class="hljs-keyword">return</span> (++i);
+        };
+  };
+
+  <span class="hljs-keyword">const</span> v_1 = Add_1();
+  log(v_1());    <span class="hljs-comment">//1</span>
+  log(v_1());    <span class="hljs-comment">//2</span>
+
+
+  <span class="hljs-comment">//箭头函数体的闭包（ i=0 是默认参数）</span>
+  <span class="hljs-keyword">const</span> Add_2 = <span class="hljs-function">(<span class="hljs-params">i=<span class="hljs-number">0</span></span>) =&gt;</span> {<span class="hljs-keyword">return</span> <span class="hljs-function">(<span class="hljs-params">(</span>) =&gt;</span> (++i) )};
+  <span class="hljs-keyword">const</span> v_2 = Add_2();
+  log(v_2());           <span class="hljs-comment">//1</span>
+  log(v_2());           <span class="hljs-comment">//2</span>
+
+  <span class="hljs-comment">//因为仅有一个返回，return 及括号（）也可以省略</span>
+  <span class="hljs-keyword">const</span> Add_3 = <span class="hljs-function">(<span class="hljs-params">i=<span class="hljs-number">0</span></span>)=&gt;</span> <span class="hljs-function"><span class="hljs-params">()</span>=&gt;</span> ++i;
+
+  <span class="hljs-keyword">const</span> v_3 = Add_3();
+  log(v_3());    <span class="hljs-comment">//1</span>
+  log(v_3());    <span class="hljs-comment">//2</span>
+})()
+</code></pre><hr><h3 id="箭头函数递归">箭头函数递归 <a class="markdownIt-Anchor" href="#箭头函数递归">#</a></h3><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> { log } = <span class="hljs-built_in">console</span>;
+    <span class="hljs-keyword">const</span> fact = <span class="hljs-function">(<span class="hljs-params">x</span>) =&gt;</span> ( x==<span class="hljs-number">0</span> ?  <span class="hljs-number">1</span> : x*fact(x<span class="hljs-number">-1</span>) );
+    log(fact(<span class="hljs-number">5</span>));       <span class="hljs-comment">// 120</span>
+})()
+</code></pre><hr></div><div dir="ltr" class="level article-bar is-mobile"><div class="level-item has-text-centered"><a title="previous page" class="previouse-article-link" href="../chapters07/index.html"><span class="icon icon-previous" data-icon="previous"></span><span class="link-content">&laquo; Previous</span></a></div><div class="level-item has-text-centered"><a title="font size" class="link-item link-item-size"><span class="icon icon-size" data-icon="size"></span></a></div><div class="level-item has-text-centered"><a title="table of content" class="link-item link-item-toc"><span class="icon icon-toc" data-icon="toc"></span></a></div><div class="level-item has-text-centered"><a title="top" href="#"><span class="icon icon-up" data-icon="up"></span> <span class="link-content">⤊ Top</span></a></div><div class="level-item has-text-centered"><a title="next page" class="next-article-link" href="../chapters07/strict-mode.html"><span class="icon icon-next" data-icon="next"></span><span class="link-content">Next &raquo;</span></a></div></div></div><div class="column is-2-widescreen is-hidden"></div></div><div class="columns foot"><div class="column is-3 is-offset-9 build-by">Build by <a href="https://github.com/ruanyf/loppo" target="_blank">Loppo</a> 0.6.16</div></div><div class="book-toc notification is-warning is-hidden"><h3>Table of chapters &nbsp;<span class="title-close"><a class="button is-danger"> Close</a></span></h3><ul class="chapter-area"><li class="chapter-item"><a href="../chapters01/index.html">第一章 ECMAScript 6 简介</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters01/base-js.html">js基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/base-es.html">es基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/Babel.html">通过Babel使用ES6</a></li><li class="chapter-item"><a href="../chapters01/Traceur.html">通过Traceur使用ES6</a></li><li class="chapter-item"><a href="../chapters01/stage-00.html">Strawman 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-01.html">Proposal 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-02.html">Draft 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/active-proposals.html">Candidate 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-04.html">Finished 阶段的 proposals</a></li></ul><li class="chapter-item"><a href="../chapters02/index.html">第二章 let和const命令</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters02/base.html">前置知识了解</a></li><li class="chapter-item"><a href="../chapters02/let.html">let 命令</a></li><li class="chapter-item"><a href="../chapters02/const.html">const 命令</a></li><li class="chapter-item"><a href="../chapters02/statement-details.html">语句进阶说明</a></li></ul><li class="chapter-item"><a href="../chapters03/index.html">第三章 变量的解构赋值</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters03/base.html">基础数据结构</a></li><li class="chapter-item"><a href="../chapters03/complex.html">复杂数据结构</a></li><li class="chapter-item"><a href="../chapters03/parentheses.html">圆括号问题</a></li><li class="chapter-item"><a href="../chapters03/use.html">用途</a></li></ul><li class="chapter-item"><a href="../chapters04/index.html">第四章 字符串的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters04/unicode.html">字符的 Unicode 表示法</a></li><li class="chapter-item"><a href="../chapters04/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/template-string.html">模板字符串</a></li><li class="chapter-item"><a href="../chapters04/string-Iterator.html">字符串的遍历器接口</a></li><li class="chapter-item"><a href="../chapters04/tag-template.html">标签模板</a></li></ul><li class="chapter-item"><a href="../chapters05/index.html">第五章 正则的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters05/constructor.html">RegExp 构造函数</a></li><li class="chapter-item"><a href="../chapters05/base.html">RegExp 基础使用</a></li><li class="chapter-item"><a href="../chapters05/prototype-attribute.html">RegExp 原型属性</a></li><li class="chapter-item"><a href="../chapters05/modifier.html">RegExp 修饰符</a></li><li class="chapter-item"><a href="../chapters05/assert.html">RegExp 断言</a></li><li class="chapter-item"><a href="../chapters05/string-with-regExp.html">String中正则相关方法</a></li><li class="chapter-item"><a href="../chapters05/named-group-matching.html">具名组匹配</a></li><li class="chapter-item"><a href="../chapters05/unicode-attribute-class.html">Unicode 属性类</a></li></ul><li class="chapter-item"><a href="../chapters06/index.html">第六章 数值的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters06/base-notation.html">Number 进制表示法</a></li><li class="chapter-item"><a href="../chapters06/prototype-attribute.html">Number 原型属性</a></li><li class="chapter-item"><a href="../chapters06/base-function-extend.html">Number 对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/prototype-function-extend.html">Number 原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/math-extension.html">math 对象扩展</a></li><li class="chapter-item"><a href="../chapters06/exponent-operator.html">指数运算符</a></li></ul><li class="chapter-item"><a href="../chapters07/index.html">第七章 函数的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-collapse" data-icon="collapse"></span></a></li><ul class="chapter-level-1 chapter-level-1-current"><li class="chapter-item chapter-item-current"><a href="../chapters07/arrow-function.html">箭头函数</a></li><li class="chapter-item"><a href="../chapters07/strict-mode.html">严格模式</a></li><li class="chapter-item"><a href="../chapters07/function-parameter-improvement.html">函数参数改进</a></li><li class="chapter-item"><a href="../chapters07/the-name-attribute-of-the-function.html">函数的name属性</a></li><li class="chapter-item"><a href="../chapters07/tail-call-optimization.html">尾调用优化</a></li></ul><li class="chapter-item"><a href="../chapters08/index.html">第八章 数组的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters08/extension-operator.html">扩展运算符</a></li><li class="chapter-item"><a href="../chapters08/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/empty-space-processing-of-array.html">数组的空位处理</a></li><li class="chapter-item"><a href="../chapters08/pipeline-optimization-of-arrays.html">数组的管道运算优化</a></li></ul><li class="chapter-item"><a href="../chapters09/index.html">第九章 ts学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters09/history.html">ts历史</a></li><li class="chapter-item"><a href="../chapters09/advantages-and-disadvantages.html">ts优势与劣势</a></li><li class="chapter-item"><a href="../chapters09/learn-primitive-type.html">基础类型学习</a></li><li class="chapter-item"><a href="../chapters09/learn-derivative-type.html">衍生类型基础学习</a></li><li class="chapter-item"><a href="../chapters09/Enum.html">衍生类型之Enum</a></li><li class="chapter-item"><a href="../chapters09/interface.html">衍生类型之interface</a></li><li class="chapter-item"><a href="../chapters09/Class.html">衍生类型之Class</a></li><li class="chapter-item"><a href="../chapters09/ts-util.html">ts 高级工具用法</a></li></ul><li class="chapter-item"><a href="../chapters10/index.html">第十章 react学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters10/history.html">react历史</a></li><li class="chapter-item"><a href="../chapters10/version-management.html">react版本管理</a></li><li class="chapter-item"><a href="../chapters10/advantages-and-disadvantages.html">react优势与劣势</a></li><li class="chapter-item"><a href="../chapters10/base.html">react基础语法</a></li><li class="chapter-item"><a href="../chapters10/common-package.html">react常用组件包</a></li><li class="chapter-item"><a href="../chapters10/family-bucket.html">react全家桶</a></li><li class="chapter-item"><a href="../chapters10/ecosphere.html">react的生态圈</a></li><li class="chapter-item"><a href="../chapters10/substitute-product.html">react和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters11/index.html">第十一章 webpack学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters11/history.html">webpack历史</a></li><li class="chapter-item"><a href="../chapters11/version-management.html">webpack版本管理</a></li><li class="chapter-item"><a href="../chapters11/advantages-and-disadvantages.html">webpack优势与劣势</a></li><li class="chapter-item"><a href="../chapters11/base-config.html">webpack项目基础配置</a></li><li class="chapter-item"><a href="../chapters11/common-package.html">webpack常用组件包</a></li><li class="chapter-item"><a href="../chapters11/ecosphere.html">webpack的生态圈</a></li><li class="chapter-item"><a href="../chapters11/substitute-product.html">webpack和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters12/index.html">第十二章 微信小程序学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters12/history.html">微信小程序历史</a></li><li class="chapter-item"><a href="../chapters12/version-management.html">微信小程序版本管理</a></li><li class="chapter-item"><a href="../chapters12/advantages-and-disadvantages.html">微信小程序优势与劣势</a></li><li class="chapter-item"><a href="../chapters12/base.html">微信小程序基础学习</a></li><li class="chapter-item"><a href="../chapters12/common-ui-package.html">微信小程序常用UI库</a></li><li class="chapter-item"><a href="../chapters12/ecosphere.html">微信小程序的生态圈</a></li><li class="chapter-item"><a href="../chapters12/cross-platform.html">微信小程序跨平台</a></li><li class="chapter-item"><a href="../chapters12/substitute-product.html">微信小程序和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters13/index.html">第十三章 web安全方案</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters13/common-web-risks.html">常见web风险</a></li><li class="chapter-item"><a href="../chapters13/monitoring-system.html">前端监控体系</a></li><li class="chapter-item"><a href="../chapters13/performance-optimization.html">前端性能优化</a></li><li class="chapter-item"><a href="../chapters13/security-prevention-and-control.html">前端安全防控</a></li><li class="chapter-item"><a href="../chapters13/test-system.html">前端测试体系</a></li></ul></ul></div><div class="progress-indicator"></div><!-- SCRIPTS --><script>var LOPPO={current_path:"chapters07/arrow-function.md",relative_root_path:"../",article_toc:'<ul class="markdownIt-TOC">\n<li><a href="#%E5%9F%BA%E6%9C%AC%E8%AF%B4%E6%98%8E">基本说明</a>\n<ul>\n<li><a href="#%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95">基础语法</a></li>\n<li><a href="#%E7%AE%AD%E5%A4%B4%E5%87%BD%E6%95%B0%E5%8F%98%E9%87%8F%E4%BD%9C%E7%94%A8%E5%9F%9F">箭头函数变量作用域</a></li>\n<li><a href="#%E9%AB%98%E9%98%B6%E8%AF%AD%E6%B3%95">高阶语法</a></li>\n<li><a href="#%E4%B8%8E%E4%B8%A5%E6%A0%BC%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%85%B3%E7%B3%BB">与严格模式的关系</a></li>\n<li><a href="#call--apply">call &amp; apply</a></li>\n</ul>\n</li>\n<li><a href="#%E4%B8%BB%E8%A6%81%E8%A7%A3%E5%86%B3%E9%97%AE%E9%A2%98">主要解决问题</a>\n<ul>\n<li><a href="#%E8%A7%86%E8%A7%89%E4%BC%98%E5%8C%96">视觉优化</a></li>\n<li><a href="#%E6%9B%B4%E7%9F%AD%E7%9A%84%E5%87%BD%E6%95%B0">更短的函数</a></li>\n<li><a href="#%E4%B8%8D%E7%BB%91%E5%AE%9Athis">不绑定this</a></li>\n<li><a href="#%E4%B8%8D%E7%BB%91%E5%AE%9Aarguments">不绑定arguments</a></li>\n</ul>\n</li>\n<li><a href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%E8%AF%B4%E6%98%8E">注意事项说明</a>\n<ul>\n<li><a href="#%E6%96%B9%E6%B3%95%E5%87%BD%E6%95%B0">方法函数</a></li>\n<li><a href="#new-%E6%93%8D%E4%BD%9C%E7%AC%A6">new 操作符</a></li>\n<li><a href="#prototype-%E5%B1%9E%E6%80%A7">prototype 属性</a></li>\n<li><a href="#yield">yield</a></li>\n<li><a href="#%E8%BF%94%E5%9B%9E%E5%80%BC%E4%B8%BA%E5%AF%B9%E8%B1%A1%E5%AD%97%E9%9D%A2%E9%87%8F">返回值为对象字面量</a></li>\n<li><a href="#%E7%9C%81%E7%95%A5%E5%A4%A7%E6%8B%AC%E5%8F%B7">省略大括号</a></li>\n<li><a href="#%E6%8D%A2%E8%A1%8C">换行</a></li>\n<li><a href="#%E8%A7%A3%E6%9E%90%E9%A1%BA%E5%BA%8F">解析顺序</a></li>\n<li><a href="#%E5%87%BD%E6%95%B0%E4%BD%93">函数体</a></li>\n</ul>\n</li>\n<li><a href="#%E4%BD%BF%E7%94%A8%E6%A1%88%E4%BE%8B%E8%AF%B4%E6%98%8E">使用案例说明</a>\n<ul>\n<li><a href="#%E7%BB%93%E5%90%88%E5%8F%98%E9%87%8F%E8%A7%A3%E6%9E%84">结合变量解构</a></li>\n<li><a href="#%E7%AE%80%E6%B4%81%E5%9F%BA%E7%A1%80%E5%87%BD%E6%95%B0">简洁基础函数</a></li>\n<li><a href="#%E7%AE%80%E6%B4%81%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0">简洁回调函数</a></li>\n<li><a href="#%E7%BB%93%E5%90%88rest%E5%8F%82%E6%95%B0">结合<code>rest</code>参数</a></li>\n<li><a href="#%CE%BB%E6%BC%94%E7%AE%97">λ演算</a></li>\n<li><a href="#promise">Promise</a></li>\n<li><a href="#array%E7%9B%B8%E5%85%B3">array相关</a></li>\n<li><a href="#iife">IIFE</a></li>\n<li><a href="#%E4%B8%89%E5%85%83%E8%BF%90%E7%AE%97%E7%AC%A6">三元运算符</a></li>\n<li><a href="#%E9%97%AD%E5%8C%85">闭包</a></li>\n<li><a href="#%E7%AE%AD%E5%A4%B4%E5%87%BD%E6%95%B0%E9%80%92%E5%BD%92">箭头函数递归</a></li>\n</ul>\n</li>\n</ul>\n'}</script><script src="../assets/js/app.js"></script></body></html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html><html><head><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta charset="utf-8"><title>前置知识了解 - learn es6</title><meta name="description" content=""><meta name="author" content=""><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1"><link rel="stylesheet" href="../assets/css/bulma.min.css"><link rel="stylesheet" href="../assets/css/app.css"><!--[if lt IE 9]>
+<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]--><link rel="shortcut icon" href=""></head><body dir="ltr"><nav class="columns navbar"><div class="column logo is-3 is-offset-1"><a class="is-brand" href="../index.html">learn es6</a></div></nav><div class="columns content"><div class="column is-2-desktop is-3-widescreen is-hidden-touch"></div><div class="column article-container is-11-tablet is-8-desktop is-6-widescreen"><div class="breadcrumb-area"><a href="../index.html" class="breadcrumb-item">Home</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters02/index.html" class="breadcrumb-item">第二章 let和const命令</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters02/base.html" class="breadcrumb-item">前置知识了解</a></div><h1 class="article-title">前置知识了解</h1><div class="article"><h1 id="前置知识了解">前置知识了解 <a class="markdownIt-Anchor" href="#前置知识了解">#</a></h1><h2 id="块级作用域">块级作用域 <a class="markdownIt-Anchor" href="#块级作用域">#</a></h2><h3 id="为什么需要？">为什么需要？ <a class="markdownIt-Anchor" href="#为什么需要？">#</a></h3><p>ES5 只有<code>全局作用域</code>和<code>函数作用域</code>，没有<code>块级作用域</code>，这带来很多不合理的场景。</p><blockquote><p>第一种场景</p></blockquote><p>内层变量可能会覆盖外层变量。</p><pre class="hljs"><code><span class="hljs-keyword">var</span> tmp = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-built_in">console</span>.log(tmp);
+  <span class="hljs-keyword">if</span> (<span class="hljs-literal">false</span>) {
+    <span class="hljs-keyword">var</span> tmp = <span class="hljs-string">'hello world'</span>;
+  }
+}
+
+f(); <span class="hljs-comment">// undefined</span>
+</code></pre><p>上面代码的原意是，<code>if</code>代码块的外部使用外层的<code>tmp</code>变量，内部使用内层的<code>tmp</code>变量。</p><p>但是，函数<code>f</code>执行后，输出结果为<code>undefined</code>，原因在于变量提升，导致内层的<code>tmp</code>变量覆盖了外层的<code>tmp</code>变量。</p><hr><blockquote><p>第二种场景</p></blockquote><p>用来计数的循环变量泄露为全局变量。</p><pre class="hljs"><code><span class="hljs-keyword">var</span> s = <span class="hljs-string">'hello'</span>;
+
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; s.length; i++) {
+  <span class="hljs-built_in">console</span>.log(s[i]);
+}
+
+<span class="hljs-built_in">console</span>.log(i); <span class="hljs-comment">// 5</span>
+</code></pre><p>上面代码中，变量<code>i</code>只用来控制循环，但是循环结束后，它并没有消失，泄露成了全局变量。</p><hr><h3 id="es6-的块级作用域">ES6 的块级作用域 <a class="markdownIt-Anchor" href="#es6-的块级作用域">#</a></h3><p><code>let</code>实际上为 <code>JavaScript</code> 新增了<code>块级作用域</code>。</p><pre class="hljs"><code>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f1</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">let</span> n = <span class="hljs-number">5</span>;
+  <span class="hljs-keyword">if</span> (<span class="hljs-literal">true</span>) {
+    <span class="hljs-keyword">let</span> n = <span class="hljs-number">10</span>;
+  }
+  <span class="hljs-built_in">console</span>.log(n); <span class="hljs-comment">// 5</span>
+}
+</code></pre><p>上面的函数有两个代码块，都声明了变量<code>n</code>，运行后输出 <code>5</code>。这表示<code>外层代码块</code>不受<code>内层代码块</code>的影响。</p><p>如果两次都使用<code>var</code>定义变量<code>n</code>，最后输出的值才是 <code>10</code>。</p><blockquote><p>ES6 允许块级作用域的任意嵌套</p></blockquote><p>上面代码使用了一个五层的块级作用域。</p><pre class="hljs"><code>
+{{{{{<span class="hljs-keyword">let</span> insane = <span class="hljs-string">'Hello World'</span>}}}}};
+</code></pre><blockquote><p><code>外层作用域</code>无法读取<code>内层作用域</code>的变量。</p></blockquote><pre class="hljs"><code>
+{
+  {<span class="hljs-keyword">let</span> insane = <span class="hljs-string">'Hello World'</span>}
+  <span class="hljs-built_in">console</span>.log(insane); <span class="hljs-comment">// 报错</span>
+};
+</code></pre><blockquote><p>内层作用域可以定义外层作用域的同名变量</p></blockquote><pre class="hljs"><code>
+{
+  <span class="hljs-keyword">let</span> insane = <span class="hljs-string">'Hello World'</span>;
+  {<span class="hljs-keyword">let</span> insane = <span class="hljs-string">'Hello World'</span>}
+};
+</code></pre><blockquote><p><code>块级作用域</code>的出现，实际上使得获得广泛应用的立即执行<code>函数表达式（IIFE）</code>不再必要了。</p></blockquote><pre class="hljs"><code>
+<span class="hljs-comment">// IIFE 写法</span>
+(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">var</span> tmp = ...;
+  ...
+}());
+
+<span class="hljs-comment">// 块级作用域写法</span>
+{
+  <span class="hljs-keyword">let</span> tmp = ...;
+  ...
+}
+</code></pre><hr><h3 id="与函数声明相关">与函数声明相关 <a class="markdownIt-Anchor" href="#与函数声明相关">#</a></h3><blockquote><p>ES5中函数声明</p></blockquote><p><code>函数</code>能不能在<code>块级作用域</code>之中声明？这是一个相当令人混淆的问题。</p><p><code>ES5</code> 规定，函数只能在<code>顶层作用域</code>和<code>函数作用域</code>之中声明，不能在<code>块级作用域</code>声明。</p><pre class="hljs"><code>
+<span class="hljs-comment">// 情况一</span>
+<span class="hljs-keyword">if</span> (<span class="hljs-literal">true</span>) {
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params"></span>) </span>{}
+}
+
+<span class="hljs-comment">// 情况二</span>
+<span class="hljs-keyword">try</span> {
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params"></span>) </span>{}
+} <span class="hljs-keyword">catch</span>(e) {
+  <span class="hljs-comment">// ...</span>
+}
+</code></pre><p>上面两种函数声明，根据 <code>ES5</code> 的规定都是非法的。</p><p>但是，浏览器没有遵守这个规定，为了兼容以前的旧代码，还是支持在<code>块级作用域</code>之中声明<code>函数</code>，因此上面两种情况实际都能运行，不会报错。</p><pre class="hljs"><code>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'I am outside!'</span>); }
+
+(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">if</span> (<span class="hljs-literal">false</span>) {
+    <span class="hljs-comment">// 重复声明一次函数f</span>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'I am inside!'</span>); }
+  }
+
+  f();
+}());
+</code></pre><p>上面代码在 <code>ES5</code> 中运行，会得到<code>I am inside!</code>，因为在<code>if</code>内声明的函数<code>f</code>会被提升到<code>函数头部</code>，实际运行的代码如下。</p><pre class="hljs"><code>
+<span class="hljs-comment">// ES5 环境</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'I am outside!'</span>); }
+
+(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'I am inside!'</span>); }
+  <span class="hljs-keyword">if</span> (<span class="hljs-literal">false</span>) {
+  }
+  f();
+}());
+</code></pre><hr><blockquote><p>ES6中函数声明</p></blockquote><p><code>ES6</code> 引入了<code>块级作用域</code>，明确允许在块级作用域之中声明函数。<code>ES6</code> 规定，<code>块级作用域</code>之中，<code>函数声明</code>语句的行为类似于<code>let</code>，在<code>块级作用域</code>之外不可引用。</p><pre class="hljs"><code>
+<span class="hljs-comment">// 浏览器的 ES6 环境</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'I am outside!'</span>); }
+
+(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">if</span> (<span class="hljs-literal">false</span>) {
+    <span class="hljs-comment">// 重复声明一次函数f</span>
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'I am inside!'</span>); }
+  }
+
+  f();
+}());
+<span class="hljs-comment">// Uncaught TypeError: f is not a function</span>
+</code></pre><p>符合 <code>ES6</code> 的浏览器中运行，理论上会得到<code>I am outside!</code>。因为<code>块级作用域</code>内声明的函数类似于<code>let</code>，对作用域之外没有影响。</p><p>但是，如果你真的在 <code>ES6</code> 浏览器中运行一下上面的代码，是会报错的，这是为什么呢？</p><p>因为实际运行的是下面的代码。</p><pre class="hljs"><code>
+<span class="hljs-comment">// 浏览器的 ES6 环境</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'I am outside!'</span>); }
+(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">var</span> f = <span class="hljs-literal">undefined</span>;
+  <span class="hljs-keyword">if</span> (<span class="hljs-literal">false</span>) {
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params"></span>) </span>{ <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'I am inside!'</span>); }
+  }
+
+  f();
+}());
+<span class="hljs-comment">// Uncaught TypeError: f is not a function</span>
+</code></pre><p>原来，如果改变了<code>块级作用域</code>内声明的函数的<code>处理规则</code>，显然会对<code>老代码</code>产生很大影响。</p><p>为了减轻因此产生的不兼容问题，<code>ES6</code> 在<code>附录 B</code>里面规定，浏览器的实现可以不遵守上面的规定，有自己的<code>行为方式</code>。</p><hr><blockquote><p>ES6中在块级作用域内声明函数规则</p></blockquote><ul><li>允许在块级作用域内声明函数。</li><li><code>函数声明</code>类似于<code>var</code>，即会提升到<code>全局作用域</code>或<code>函数作用域</code>的头部。</li><li>同时，<code>函数声明</code>还会提升到所在的<code>块级作用域</code>的<code>头部</code>。</li></ul><p>注意，上面三条规则只对 <code>ES6</code> 的浏览器实现有效，其他环境的实现不用遵守，还是将<code>块级作用域</code>的<code>函数声明</code>当作<code>let</code>处理。</p><p>根据这三条规则，在浏览器的 <code>ES6</code> 环境中，<code>块级作用域</code>内声明的函数，行为类似于<code>var</code>声明的变量。</p><p>考虑到环境导致的行为差异太大，应该避免在<code>块级作用域</code>内<code>声明函数</code>。如果确实需要，也应该写成<code>函数表达式</code>，而不是<code>函数声明语句</code>。</p><hr><blockquote><p>块级作用域中函数声明需要使用大括号</p></blockquote><p><code>ES6</code> 的<code>块级作用域</code>允许<code>声明函数</code>的规则，只在使用<code>大括号</code>的情况下成立，如果没有使用<code>大括号</code>，就会报错。</p><pre class="hljs"><code><span class="hljs-comment">// 不报错</span>
+<span class="hljs-meta">'use strict'</span>;
+<span class="hljs-keyword">if</span> (<span class="hljs-literal">true</span>) {
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params"></span>) </span>{}
+}
+
+<span class="hljs-comment">// 报错</span>
+<span class="hljs-meta">'use strict'</span>;
+<span class="hljs-keyword">if</span> (<span class="hljs-literal">true</span>)
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params"></span>) </span>{}
+</code></pre><hr><h2 id="作用域提升">作用域提升 <a class="markdownIt-Anchor" href="#作用域提升">#</a></h2><p>我们知道<code>ES6</code>之前没有<code>块级作用域</code>，只有<code>全局作用域</code>和<code>函数作用域</code>。</p><p><code>JS</code>在执行脚本之前会先<code>解析代码</code>，在<code>解析</code>的时候会创建一个全局执行上下文，并将其中的<code>变量</code>、<code>函数</code>都先拿出来，并给它们提前在<code>内存</code>中开辟好空间，变量暂时赋值为<code>undefined</code>，<code>函数</code>则会提前声明，整个存储在内存中，这一步做完了再正式<code>执行</code>程序。</p><p>函数在<code>执行</code>的时候同理，也会先<code>解析</code>代码，创建一个函数执行<code>上下文</code>，将其中的<code>变量</code>、<code>函数</code>提前准备好。</p><pre class="hljs"><code><span class="hljs-built_in">console</span>.log(a); <span class="hljs-comment">// undefined</span>
+<span class="hljs-keyword">var</span> a = <span class="hljs-number">1</span>;
+test(); <span class="hljs-comment">// test is running</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">test</span>(<span class="hljs-params"></span>)</span>{
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'test is running'</span>)
+}
+b=<span class="hljs-number">2</span>;
+</code></pre><p>所以，当执行<code>console.log(a)</code>的时候，<code>JS解析器</code>已经提前把<code>a</code>定义好并赋值为<code>undefined</code>。可以在函数定义前就调用。</p><h3 id="变量提升">变量提升 <a class="markdownIt-Anchor" href="#变量提升">#</a></h3><p>我们在使用<code>变量</code>或<code>函数</code>的时候，理解什么时候<code>被初始化值</code>的是至关重要。</p><p><code>变量提升</code>是指在<code>声明</code>一个<code>变量</code>之前就使用了<code>变量</code>，在<code>全局作用域</code>中，只有使用<code>var</code>关键字<code>声明</code>的<code>变量</code>才会<code>变量提升</code>，<code>变量提升</code>的时候<code>浏览器</code>只知道有这么一个<code>变量</code>。</p><p>但你下面定义的值还没有<code>赋值</code>给这个<code>变量</code>，这时候·的值是<code>undefined</code>的，等到浏览器执行到下面的代码的时候才是一个<code>赋值</code>的过程。</p><p>所以<code>变量提升</code>的时候没有初始化值。用<code>var</code>声明<code>变量</code>的时候会给<code>window</code>增加一个相同<code>变量名</code>的<code>属性</code>，所以你也可以通过<code>属性名</code>的方式获取这个<code>变量</code>的值，当没有使用任何关键字<code>声明</code>时，只是给一个<code>变量</code>赋值时，<code>变量</code>也相当于给<code>window</code>增加一个相同<code>变量名</code>的<code>属性</code>。</p><h3 id="函数提升">函数提升 <a class="markdownIt-Anchor" href="#函数提升">#</a></h3><p>定义一个函数可以使用<code>函数声明</code>和<code>函数表达式</code>，这两种方式在提升的时候也是有区别的，<code>函数声明</code>会提升到<code>作用域</code>的<code>顶部</code>，在<code>提升</code>的时候会分配一个<code>内存空间</code>，<code>变量</code>指向这个函数的<code>内存空间</code>。</p><p>所以在定义一个<code>函数</code>之前是可以执行这个<code>函数</code>的，<code>函数声明</code>的方式定义函数会提升。而<code>函数表达式</code>就跟<code>变量提升</code>，仅仅只是<code>声明</code>，并没有给其<code>赋值</code>。</p><pre class="hljs"><code>
+<span class="hljs-comment">// 函数声明语句</span>
+{
+  <span class="hljs-keyword">let</span> a = <span class="hljs-string">'secret'</span>;
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">return</span> a;
+  }
+}
+
+<span class="hljs-comment">// 函数表达式</span>
+{
+  <span class="hljs-keyword">let</span> a = <span class="hljs-string">'secret'</span>;
+  <span class="hljs-keyword">let</span> f = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">return</span> a;
+  };
+}
+</code></pre><hr><h2 id="暂时性死区">暂时性死区 <a class="markdownIt-Anchor" href="#暂时性死区">#</a></h2><p><code>暂时性死区</code>（temporal dead zone，简称 TDZ），<code>ES6</code> 明确规定，如果区块中存在<code>let</code>和<code>const</code>命令，这个<code>区块</code>对这些命令声明的<code>变量</code>，从一开始就形成了<code>封闭作用域</code>。凡是在<code>声明</code>之前就<code>使用</code>这些变量，就会报错。</p><p><code>暂时性死区</code>的本质就是，只要一进入<code>当前作用域</code>，所要使用的<code>变量</code>就已经存在了，但是<code>不可获取</code>，只有等到<code>声明变</code>量的那一行代码出现，才可以<code>获取</code>和<code>使用</code>该<code>变量</code>。</p><p><code>ES6</code> 规定<code>暂时性死区</code>和<code>let</code>、<code>const</code>语句不出现<code>变量提升</code>，主要是为了减少运行时错误，防止在变量声明前就使用这个变量，从而导致意料之外的行为。</p><p>这样的错误在 <code>ES5</code> 是很常见的，现在有了这种规定，避免此类错误就很容易了。</p><h2 id="es6-声明变量">ES6 声明变量 <a class="markdownIt-Anchor" href="#es6-声明变量">#</a></h2><p><code>ES5</code> 只有两种声明变量的方法：<code>var</code>命令和<code>function</code>命令。</p><p><code>ES6</code> 除了添加<code>let</code>和<code>const</code>命令，后面章节还会提到，另外两种声明变量的方法：<code>import</code>命令和<code>class</code>命令。</p><p>所以，<code>ES6</code> 一共有 6 种声明变量的方法。</p><hr><h2 id="顶层对象">顶层对象 <a class="markdownIt-Anchor" href="#顶层对象">#</a></h2><p><code>ES5</code> 的<code>顶层对象</code>，本身也是一个问题，因为它在各种实现里面是不统一的。</p><p>浏览器里面，顶层对象是<code>window</code>，但 <code>Node</code> 和 <code>Web Worker</code> 没有<code>window</code>。</p><p>浏览器和 <code>Web Worker</code> 里面，<code>self</code>也指向顶层对象，但是 <code>Node</code> 没有<code>self</code>。</p><p><code>Node</code> 里面，顶层对象是<code>global</code>，但其他环境都不支持。</p><p>同一段代码为了能够在<code>各种环境</code>，都能取到<code>顶层对象</code>，现在一般是使用<code>this</code>变量，但是有局限性。</p><p><code>全局环境</code>中，<code>this</code>会返回<code>顶层对象</code>。但是，<code>Node</code> 模块和 <code>ES6</code> 模块中，<code>this</code>返回的是<code>当前模块</code>。</p><p>函数里面的<code>this</code>，如果函数不是作为<code>对象</code>的方法<code>运行</code>，而是单纯作为<code>函数</code>运行，<code>this</code>会指向<code>顶层对象</code>。但是，<code>严格模式</code>下，这时<code>this</code>会返回<code>undefined</code>。</p><p>不管是<code>严格模式</code>，还是<code>普通模式</code>，<code>new Function('return this')()</code>，总是会返回<code>全局对象</code>。</p><p>但是，如果浏览器用了 <code>CSP</code>（<code>Content Security Policy</code>，<code>内容安全策略</code>），那么<code>eval</code>、<code>new Function</code>这些方法都可能无法使用。</p><p>综上所述，很难找到一种方法，可以在所有情况下，都取到<code>顶层对象</code>。下面是两种勉强可以使用的方法。</p><pre class="hljs"><code><span class="hljs-comment">// 方法一</span>
+(<span class="hljs-keyword">typeof</span> <span class="hljs-built_in">window</span> !== <span class="hljs-string">'undefined'</span>
+   ? <span class="hljs-built_in">window</span>
+   : (<span class="hljs-keyword">typeof</span> process === <span class="hljs-string">'object'</span> &amp;&amp;
+      <span class="hljs-keyword">typeof</span> <span class="hljs-built_in">require</span> === <span class="hljs-string">'function'</span> &amp;&amp;
+      <span class="hljs-keyword">typeof</span> global === <span class="hljs-string">'object'</span>)
+     ? global
+     : <span class="hljs-keyword">this</span>);
+
+<span class="hljs-comment">// 方法二</span>
+<span class="hljs-keyword">var</span> getGlobal = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> self !== <span class="hljs-string">'undefined'</span>) { <span class="hljs-keyword">return</span> self; }
+  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> <span class="hljs-built_in">window</span> !== <span class="hljs-string">'undefined'</span>) { <span class="hljs-keyword">return</span> <span class="hljs-built_in">window</span>; }
+  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> global !== <span class="hljs-string">'undefined'</span>) { <span class="hljs-keyword">return</span> global; }
+  <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'unable to locate global object'</span>);
+};
+</code></pre><p>现在有一个<code>提案</code>，在语言标准的层面，引入<code>global</code>作为<code>顶层对象</code>。也就是说，在所有环境下，<code>global</code>都是存在的，都可以从它拿到<code>顶层对象</code>。</p><p>垫片库<code>system.global</code>模拟了这个<code>提案</code>，可以在所有环境拿到<code>global</code>。</p><pre class="hljs"><code><span class="hljs-comment">// CommonJS 的写法</span>
+<span class="hljs-built_in">require</span>(<span class="hljs-string">'system.global/shim'</span>)();
+
+<span class="hljs-comment">// ES6 模块的写法</span>
+<span class="hljs-keyword">import</span> shim <span class="hljs-keyword">from</span> <span class="hljs-string">'system.global/shim'</span>; shim();
+</code></pre><p>上面代码可以保证各种环境里面，<code>global</code>对象都是存在的。</p><pre class="hljs"><code>
+<span class="hljs-comment">// CommonJS 的写法</span>
+<span class="hljs-keyword">var</span> global = <span class="hljs-built_in">require</span>(<span class="hljs-string">'system.global'</span>)();
+
+<span class="hljs-comment">// ES6 模块的写法</span>
+<span class="hljs-keyword">import</span> getGlobal <span class="hljs-keyword">from</span> <span class="hljs-string">'system.global'</span>;
+<span class="hljs-keyword">const</span> global = getGlobal();
+</code></pre><p>上面代码将顶层对象放入变量<code>global</code>。</p><hr><h2 id="顶层对象的属性">顶层对象的属性 <a class="markdownIt-Anchor" href="#顶层对象的属性">#</a></h2><p>顶层对象，在浏览器环境指的是<code>window</code>对象，在 <code>Node</code> 指的是<code>global</code>对象。<code>ES5</code> 之中，<code>顶层对象</code>的属性与<code>全局变量</code>是等价的。</p><pre class="hljs"><code><span class="hljs-built_in">window</span>.a = <span class="hljs-number">1</span>;
+a <span class="hljs-comment">// 1</span>
+
+a = <span class="hljs-number">2</span>;
+<span class="hljs-built_in">window</span>.a <span class="hljs-comment">// 2</span>
+</code></pre><p>上面代码中，<code>顶层对象</code>的<code>属性</code>赋值与<code>全局变量</code>的<code>赋值</code>，是同一件事。</p><p><code>顶层对象</code>的属性与<code>全局变量挂</code>钩，被认为是 <code>JavaScript</code> 语言最大的设计败笔之一。</p><p>这样的设计带来了几个很大的问题</p><ul><li><p>首先是没法在编译时就报出变量未声明的错误，只有运行时才能知道（因为全局变量可能是顶层对象的属性创造的，而属性的创造是动态的）；</p></li><li><p>其次，程序员很容易不知不觉地就创建了全局变量（比如打字出错）；最后，顶层对象的属性是到处可以读写的，这非常不利于模块化编程。</p></li><li><p>另一方面，window对象有实体含义，指的是浏览器的窗口对象，顶层对象是一个有实体含义的对象，也是不合适的。</p></li></ul><p><code>ES6</code> 为了改变这一点，一方面规定，为了保持兼容性，<code>var命令</code>和<code>function命令</code>声明的<code>全局变量</code>，依旧是<code>顶层对象</code>的<code>属性</code>；</p><p>另一方面规定，<code>let命令</code>、<code>const命令</code>、<code>class命令</code>声明的<code>全局变量</code>，不属于<code>顶层对象</code>的<code>属性</code>。</p><p>也就是说，从 <code>ES6</code> 开始，<code>全局变量</code>将逐步与<code>顶层对象</code>的<code>属性</code>脱钩。</p><pre class="hljs"><code><span class="hljs-keyword">var</span> a = <span class="hljs-number">1</span>;
+<span class="hljs-comment">// 如果在 Node 的 REPL 环境，可以写成 global.a</span>
+<span class="hljs-comment">// 或者采用通用方法，写成 this.a</span>
+<span class="hljs-built_in">window</span>.a <span class="hljs-comment">// 1</span>
+
+<span class="hljs-keyword">let</span> b = <span class="hljs-number">1</span>;
+<span class="hljs-built_in">window</span>.b <span class="hljs-comment">// undefined</span>
+</code></pre><p>上面代码中，全局变量<code>a</code>由<code>var</code>命令声明，所以它是<code>顶层对象</code>的<code>属性</code>；</p><p>全局变量<code>b</code>由<code>let命令</code>声明，所以它不是<code>顶层对象</code>的<code>属性</code>，返回<code>undefined</code>。</p><hr></div><div dir="ltr" class="level article-bar is-mobile"><div class="level-item has-text-centered"><a title="previous page" class="previouse-article-link" href="../chapters02/index.html"><span class="icon icon-previous" data-icon="previous"></span><span class="link-content">&laquo; Previous</span></a></div><div class="level-item has-text-centered"><a title="font size" class="link-item link-item-size"><span class="icon icon-size" data-icon="size"></span></a></div><div class="level-item has-text-centered"><a title="table of content" class="link-item link-item-toc"><span class="icon icon-toc" data-icon="toc"></span></a></div><div class="level-item has-text-centered"><a title="top" href="#"><span class="icon icon-up" data-icon="up"></span> <span class="link-content">⤊ Top</span></a></div><div class="level-item has-text-centered"><a title="next page" class="next-article-link" href="../chapters02/let.html"><span class="icon icon-next" data-icon="next"></span><span class="link-content">Next &raquo;</span></a></div></div></div><div class="column is-2-widescreen is-hidden"></div></div><div class="columns foot"><div class="column is-3 is-offset-9 build-by">Build by <a href="https://github.com/ruanyf/loppo" target="_blank">Loppo</a> 0.6.16</div></div><div class="book-toc notification is-warning is-hidden"><h3>Table of chapters &nbsp;<span class="title-close"><a class="button is-danger"> Close</a></span></h3><ul class="chapter-area"><li class="chapter-item"><a href="../chapters01/index.html">第一章 ECMAScript 6 简介</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters01/base-js.html">js基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/base-es.html">es基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/Babel.html">通过Babel使用ES6</a></li><li class="chapter-item"><a href="../chapters01/Traceur.html">通过Traceur使用ES6</a></li><li class="chapter-item"><a href="../chapters01/stage-00.html">Strawman 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-01.html">Proposal 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-02.html">Draft 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/active-proposals.html">Candidate 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-04.html">Finished 阶段的 proposals</a></li></ul><li class="chapter-item"><a href="../chapters02/index.html">第二章 let和const命令</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-collapse" data-icon="collapse"></span></a></li><ul class="chapter-level-1 chapter-level-1-current"><li class="chapter-item chapter-item-current"><a href="../chapters02/base.html">前置知识了解</a></li><li class="chapter-item"><a href="../chapters02/let.html">let 命令</a></li><li class="chapter-item"><a href="../chapters02/const.html">const 命令</a></li><li class="chapter-item"><a href="../chapters02/statement-details.html">语句进阶说明</a></li></ul><li class="chapter-item"><a href="../chapters03/index.html">第三章 变量的解构赋值</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters03/base.html">基础数据结构</a></li><li class="chapter-item"><a href="../chapters03/complex.html">复杂数据结构</a></li><li class="chapter-item"><a href="../chapters03/parentheses.html">圆括号问题</a></li><li class="chapter-item"><a href="../chapters03/use.html">用途</a></li></ul><li class="chapter-item"><a href="../chapters04/index.html">第四章 字符串的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters04/unicode.html">字符的 Unicode 表示法</a></li><li class="chapter-item"><a href="../chapters04/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/template-string.html">模板字符串</a></li><li class="chapter-item"><a href="../chapters04/string-Iterator.html">字符串的遍历器接口</a></li><li class="chapter-item"><a href="../chapters04/tag-template.html">标签模板</a></li></ul><li class="chapter-item"><a href="../chapters05/index.html">第五章 正则的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters05/constructor.html">RegExp 构造函数</a></li><li class="chapter-item"><a href="../chapters05/base.html">RegExp 基础使用</a></li><li class="chapter-item"><a href="../chapters05/prototype-attribute.html">RegExp 原型属性</a></li><li class="chapter-item"><a href="../chapters05/modifier.html">RegExp 修饰符</a></li><li class="chapter-item"><a href="../chapters05/assert.html">RegExp 断言</a></li><li class="chapter-item"><a href="../chapters05/string-with-regExp.html">String中正则相关方法</a></li><li class="chapter-item"><a href="../chapters05/named-group-matching.html">具名组匹配</a></li><li class="chapter-item"><a href="../chapters05/unicode-attribute-class.html">Unicode 属性类</a></li></ul><li class="chapter-item"><a href="../chapters06/index.html">第六章 数值的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters06/base-notation.html">Number 进制表示法</a></li><li class="chapter-item"><a href="../chapters06/prototype-attribute.html">Number 原型属性</a></li><li class="chapter-item"><a href="../chapters06/base-function-extend.html">Number 对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/prototype-function-extend.html">Number 原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/math-extension.html">math 对象扩展</a></li><li class="chapter-item"><a href="../chapters06/exponent-operator.html">指数运算符</a></li></ul><li class="chapter-item"><a href="../chapters07/index.html">第七章 函数的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters07/arrow-function.html">箭头函数</a></li><li class="chapter-item"><a href="../chapters07/strict-mode.html">严格模式</a></li><li class="chapter-item"><a href="../chapters07/function-parameter-improvement.html">函数参数改进</a></li><li class="chapter-item"><a href="../chapters07/the-name-attribute-of-the-function.html">函数的name属性</a></li><li class="chapter-item"><a href="../chapters07/tail-call-optimization.html">尾调用优化</a></li></ul><li class="chapter-item"><a href="../chapters08/index.html">第八章 数组的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters08/extension-operator.html">扩展运算符</a></li><li class="chapter-item"><a href="../chapters08/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/empty-space-processing-of-array.html">数组的空位处理</a></li><li class="chapter-item"><a href="../chapters08/pipeline-optimization-of-arrays.html">数组的管道运算优化</a></li></ul><li class="chapter-item"><a href="../chapters09/index.html">第九章 ts学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters09/history.html">ts历史</a></li><li class="chapter-item"><a href="../chapters09/advantages-and-disadvantages.html">ts优势与劣势</a></li><li class="chapter-item"><a href="../chapters09/learn-primitive-type.html">基础类型学习</a></li><li class="chapter-item"><a href="../chapters09/learn-derivative-type.html">衍生类型基础学习</a></li><li class="chapter-item"><a href="../chapters09/Enum.html">衍生类型之Enum</a></li><li class="chapter-item"><a href="../chapters09/interface.html">衍生类型之interface</a></li><li class="chapter-item"><a href="../chapters09/Class.html">衍生类型之Class</a></li><li class="chapter-item"><a href="../chapters09/ts-util.html">ts 高级工具用法</a></li></ul><li class="chapter-item"><a href="../chapters10/index.html">第十章 react学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters10/history.html">react历史</a></li><li class="chapter-item"><a href="../chapters10/version-management.html">react版本管理</a></li><li class="chapter-item"><a href="../chapters10/advantages-and-disadvantages.html">react优势与劣势</a></li><li class="chapter-item"><a href="../chapters10/base.html">react基础语法</a></li><li class="chapter-item"><a href="../chapters10/common-package.html">react常用组件包</a></li><li class="chapter-item"><a href="../chapters10/family-bucket.html">react全家桶</a></li><li class="chapter-item"><a href="../chapters10/ecosphere.html">react的生态圈</a></li><li class="chapter-item"><a href="../chapters10/substitute-product.html">react和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters11/index.html">第十一章 webpack学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters11/history.html">webpack历史</a></li><li class="chapter-item"><a href="../chapters11/version-management.html">webpack版本管理</a></li><li class="chapter-item"><a href="../chapters11/advantages-and-disadvantages.html">webpack优势与劣势</a></li><li class="chapter-item"><a href="../chapters11/base-config.html">webpack项目基础配置</a></li><li class="chapter-item"><a href="../chapters11/common-package.html">webpack常用组件包</a></li><li class="chapter-item"><a href="../chapters11/ecosphere.html">webpack的生态圈</a></li><li class="chapter-item"><a href="../chapters11/substitute-product.html">webpack和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters12/index.html">第十二章 微信小程序学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters12/history.html">微信小程序历史</a></li><li class="chapter-item"><a href="../chapters12/version-management.html">微信小程序版本管理</a></li><li class="chapter-item"><a href="../chapters12/advantages-and-disadvantages.html">微信小程序优势与劣势</a></li><li class="chapter-item"><a href="../chapters12/base.html">微信小程序基础学习</a></li><li class="chapter-item"><a href="../chapters12/common-ui-package.html">微信小程序常用UI库</a></li><li class="chapter-item"><a href="../chapters12/ecosphere.html">微信小程序的生态圈</a></li><li class="chapter-item"><a href="../chapters12/cross-platform.html">微信小程序跨平台</a></li><li class="chapter-item"><a href="../chapters12/substitute-product.html">微信小程序和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters13/index.html">第十三章 web安全方案</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters13/common-web-risks.html">常见web风险</a></li><li class="chapter-item"><a href="../chapters13/monitoring-system.html">前端监控体系</a></li><li class="chapter-item"><a href="../chapters13/performance-optimization.html">前端性能优化</a></li><li class="chapter-item"><a href="../chapters13/security-prevention-and-control.html">前端安全防控</a></li><li class="chapter-item"><a href="../chapters13/test-system.html">前端测试体系</a></li></ul></ul></div><div class="progress-indicator"></div><!-- SCRIPTS --><script>var LOPPO={current_path:"chapters02/base.md",relative_root_path:"../",article_toc:'<ul class="markdownIt-TOC">\n<li><a href="#%E5%9D%97%E7%BA%A7%E4%BD%9C%E7%94%A8%E5%9F%9F">块级作用域</a>\n<ul>\n<li><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%EF%BC%9F">为什么需要？</a></li>\n<li><a href="#es6-%E7%9A%84%E5%9D%97%E7%BA%A7%E4%BD%9C%E7%94%A8%E5%9F%9F">ES6 的块级作用域</a></li>\n<li><a href="#%E4%B8%8E%E5%87%BD%E6%95%B0%E5%A3%B0%E6%98%8E%E7%9B%B8%E5%85%B3">与函数声明相关</a></li>\n</ul>\n</li>\n<li><a href="#%E4%BD%9C%E7%94%A8%E5%9F%9F%E6%8F%90%E5%8D%87">作用域提升</a>\n<ul>\n<li><a href="#%E5%8F%98%E9%87%8F%E6%8F%90%E5%8D%87">变量提升</a></li>\n<li><a href="#%E5%87%BD%E6%95%B0%E6%8F%90%E5%8D%87">函数提升</a></li>\n</ul>\n</li>\n<li><a href="#%E6%9A%82%E6%97%B6%E6%80%A7%E6%AD%BB%E5%8C%BA">暂时性死区</a></li>\n<li><a href="#es6-%E5%A3%B0%E6%98%8E%E5%8F%98%E9%87%8F">ES6 声明变量</a></li>\n<li><a href="#%E9%A1%B6%E5%B1%82%E5%AF%B9%E8%B1%A1">顶层对象</a></li>\n<li><a href="#%E9%A1%B6%E5%B1%82%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%B1%9E%E6%80%A7">顶层对象的属性</a></li>\n</ul>\n'}</script><script src="../assets/js/app.js"></script></body></html>

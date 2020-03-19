@@ -1,0 +1,305 @@
+<!DOCTYPE html><html><head><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta charset="utf-8"><title>函数参数改进 - learn es6</title><meta name="description" content=""><meta name="author" content=""><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1"><link rel="stylesheet" href="../assets/css/bulma.min.css"><link rel="stylesheet" href="../assets/css/app.css"><!--[if lt IE 9]>
+<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]--><link rel="shortcut icon" href=""></head><body dir="ltr"><nav class="columns navbar"><div class="column logo is-3 is-offset-1"><a class="is-brand" href="../index.html">learn es6</a></div></nav><div class="columns content"><div class="column is-2-desktop is-3-widescreen is-hidden-touch"></div><div class="column article-container is-11-tablet is-8-desktop is-6-widescreen"><div class="breadcrumb-area"><a href="../index.html" class="breadcrumb-item">Home</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters07/index.html" class="breadcrumb-item">第七章 函数的扩展</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters07/function-parameter-improvement.html" class="breadcrumb-item">函数参数改进</a></div><h1 class="article-title">函数参数改进</h1><div class="article"><h2 id="函数参数的默认值">函数参数的默认值 <a class="markdownIt-Anchor" href="#函数参数的默认值">#</a></h2><h3 id="历史原因介绍">历史原因介绍 <a class="markdownIt-Anchor" href="#历史原因介绍">#</a></h3><p><code>ES6</code> 之前，不能直接为函数的参数指定<code>默认值</code>，只能采用变通的方法。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">log</span>(<span class="hljs-params">x, y</span>) </span>{
+  y = y || <span class="hljs-string">'World'</span>;
+  <span class="hljs-built_in">console</span>.log(x, y);
+}
+
+log(<span class="hljs-string">'Hello'</span>) <span class="hljs-comment">// Hello World</span>
+log(<span class="hljs-string">'Hello'</span>, <span class="hljs-string">'China'</span>) <span class="hljs-comment">// Hello China</span>
+log(<span class="hljs-string">'Hello'</span>, <span class="hljs-string">''</span>) <span class="hljs-comment">// Hello World</span>
+</code></pre><p>上面代码检查函数<code>log</code>的参数<code>y</code>有没有赋值，如果没有，则指定默认值为<code>World</code>。</p><p>这种写法的缺点在于，如果参数<code>y</code>赋值了，但是对应的布尔值为<code>false</code>，则该赋值不起作用。就像上面代码的最后一行，参数<code>y</code>等于空字符，结果被改为<code>默认值</code>。</p><p>为了避免这个问题，通常需要先判断一下参数<code>y</code>是否被赋值，如果没有，再等于<code>默认值</code>。</p><pre class="hljs"><code><span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> y === <span class="hljs-string">'undefined'</span>) {
+  y = <span class="hljs-string">'World'</span>;
+}
+</code></pre><hr><h3 id="es6-改进">ES6 改进 <a class="markdownIt-Anchor" href="#es6-改进">#</a></h3><p><code>ES6</code> 允许为函数的参数设置<code>默认值</code>，即直接写在参数定义的后面。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">log</span>(<span class="hljs-params">x, y = <span class="hljs-string">'World'</span></span>) </span>{
+  <span class="hljs-built_in">console</span>.log(x, y);
+}
+
+log(<span class="hljs-string">'Hello'</span>) <span class="hljs-comment">// Hello World</span>
+log(<span class="hljs-string">'Hello'</span>, <span class="hljs-string">'China'</span>) <span class="hljs-comment">// Hello China</span>
+log(<span class="hljs-string">'Hello'</span>, <span class="hljs-string">''</span>) <span class="hljs-comment">// Hello</span>
+</code></pre><p>可以看到，<code>ES6</code> 的写法比 <code>ES5</code> 简洁许多，而且非常自然。下面是另一个例子。</p><pre class="hljs"><code>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Point</span>(<span class="hljs-params">x = <span class="hljs-number">0</span>, y = <span class="hljs-number">0</span></span>) </span>{
+  <span class="hljs-keyword">this</span>.x = x;
+  <span class="hljs-keyword">this</span>.y = y;
+}
+
+<span class="hljs-keyword">const</span> p = <span class="hljs-keyword">new</span> Point();
+p <span class="hljs-comment">// { x: 0, y: 0 }</span>
+</code></pre><p>除了简洁，<code>ES6</code> 的写法还有两个好处：</p><ul><li>阅读代码的人，可以立刻意识到哪些参数是可以省略的，不用查看函数体或文档。</li><li>有利于将来的代码优化，即使未来的版本在对外接口中，彻底拿掉这个参数，也不会导致以前的代码无法运行。</li></ul><hr><h3 id="使用案例">使用案例 <a class="markdownIt-Anchor" href="#使用案例">#</a></h3><blockquote><p>与解构赋值结合使用</p></blockquote><p>参数默认值可以与解构赋值的默认值，结合起来使用。</p><pre class="hljs"><code>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params">{x, y = <span class="hljs-number">5</span>}</span>) </span>{
+  <span class="hljs-built_in">console</span>.log(x, y);
+}
+
+foo({}) <span class="hljs-comment">// undefined 5</span>
+foo({<span class="hljs-attr">x</span>: <span class="hljs-number">1</span>}) <span class="hljs-comment">// 1 5</span>
+foo({<span class="hljs-attr">x</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">2</span>}) <span class="hljs-comment">// 1 2</span>
+foo() <span class="hljs-comment">// TypeError: Cannot read property 'x' of undefined</span>
+</code></pre><p>上面代码只使用了对象的<code>解构赋值</code>默认值，没有使用函数参数的默认值。只有当函数<code>foo</code>的参数是一个对象时，变量<code>x</code>和<code>y</code>才会通过<code>解构赋</code>值生成。</p><p>如果函数<code>foo</code>调用时没提供参数，变量<code>x</code>和<code>y</code>就不会生成，从而报错。通过提供函数参数的默认值，就可以避免这种情况。</p><pre class="hljs"><code>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params">{x, y = <span class="hljs-number">5</span>} = {}</span>) </span>{
+  <span class="hljs-built_in">console</span>.log(x, y);
+}
+
+foo() <span class="hljs-comment">// undefined 5</span>
+</code></pre><p>上面代码指定，如果没有提供参数，函数<code>foo</code>的参数默认为一个<code>空对象</code>。</p><hr><blockquote><p>进阶案例</p></blockquote><pre class="hljs"><code>
+<span class="hljs-comment">// 写法一</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">m1</span>(<span class="hljs-params">{x = <span class="hljs-number">0</span>, y = <span class="hljs-number">0</span>} = {}</span>) </span>{
+  <span class="hljs-keyword">return</span> [x, y];
+}
+
+<span class="hljs-comment">// 写法二</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">m2</span>(<span class="hljs-params">{x, y} = { x: <span class="hljs-number">0</span>, y: <span class="hljs-number">0</span> }</span>) </span>{
+  <span class="hljs-keyword">return</span> [x, y];
+}
+</code></pre><p>上面两种写法都对函数的参数设定了默认值，区别是写法一函数参数的默认值是<code>空对象</code>，但是设置了对象<code>解构赋值</code>的<code>默认值</code>；写法二函数参数的默认值是一个有具体属性的对象，但是没有设置对象<code>解构赋值</code>的默认值。</p><pre class="hljs"><code>
+<span class="hljs-comment">// 函数没有参数的情况</span>
+m1() <span class="hljs-comment">// [0, 0]</span>
+m2() <span class="hljs-comment">// [0, 0]</span>
+
+<span class="hljs-comment">// x 和 y 都有值的情况</span>
+m1({<span class="hljs-attr">x</span>: <span class="hljs-number">3</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">8</span>}) <span class="hljs-comment">// [3, 8]</span>
+m2({<span class="hljs-attr">x</span>: <span class="hljs-number">3</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">8</span>}) <span class="hljs-comment">// [3, 8]</span>
+
+<span class="hljs-comment">// x 有值，y 无值的情况</span>
+m1({<span class="hljs-attr">x</span>: <span class="hljs-number">3</span>}) <span class="hljs-comment">// [3, 0]</span>
+m2({<span class="hljs-attr">x</span>: <span class="hljs-number">3</span>}) <span class="hljs-comment">// [3, undefined]</span>
+
+<span class="hljs-comment">// x 和 y 都无值的情况</span>
+m1({}) <span class="hljs-comment">// [0, 0];</span>
+m2({}) <span class="hljs-comment">// [undefined, undefined]</span>
+
+m1({<span class="hljs-attr">z</span>: <span class="hljs-number">3</span>}) <span class="hljs-comment">// [0, 0]</span>
+m2({<span class="hljs-attr">z</span>: <span class="hljs-number">3</span>}) <span class="hljs-comment">// [undefined, undefined]</span>
+</code></pre><hr><blockquote><p>结合fetch函数</p></blockquote><p><a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API/Using_Fetch" target="_blank" rel="noopener">Fetch API</a> 提供了一个 <code>JavaScript</code>接口，用于访问和操纵<code>HTTP</code>管道的部分，例如<code>请求</code>和<code>响应</code>。它还提供了一个全局 <code>fetch()</code>方法，该方法提供了一种简单，合理的方式来跨网络异步获取资源。</p><p>这种功能以前是使用 <code>XMLHttpRequest</code>实现的。<code>Fetch</code>提供了一个更好的替代方法，可以很容易地被其他技术使用，例如 <code>Service Workers</code>。</p><p><code>Fetch</code>还提供了单个逻辑位置来定义其他<code>HTTP</code>相关概念，例如<code>CORS</code>和<code>HTTP</code>的扩展。</p><p>请注意，<code>fetch</code>规范与<code>jQuery.ajax()</code>主要有两种方式的不同，牢记：</p><ul><li>当接收到一个代表错误的 <code>HTTP</code> 状态码时，从 <code>fetch()</code>返回的 <code>Promise</code> 不会被标记为 <code>reject</code>， 即使该<code>HTTP</code> 响应的状态码是 <code>404</code> 或 <code>500</code>。相反，它会将 <code>Promise</code> 状态标记为 <code>resolve</code> （但是会将 <code>resolve</code> 的返回值的 <code>ok</code> 属性设置为 <code>false</code> ），仅当网络故障时或请求被阻止时，才会标记为 <code>reject</code>。</li><li>默认情况下，<code>fetch</code> 不会从服务端发送或接收任何 <code>cookies</code>, 如果站点依赖于用户 <code>session</code>，则会导致未经认证的请求（要发送 <code>cookies</code>，必须设置 <code>credentials</code> 选项）。自从2017年8月25日后，默认的<code>credentials</code>政策变更为<code>same-origin</code>，<code>Firefox</code>也在<code>61.0b13</code>中改变默认值</li></ul><pre class="hljs"><code>
+<span class="hljs-keyword">const</span> postData = <span class="hljs-function">(<span class="hljs-params">url, {body,method}</span>)=&gt;</span> {
+  <span class="hljs-comment">// Default options are marked with *</span>
+  <span class="hljs-keyword">return</span> fetch(url, {
+    <span class="hljs-attr">body</span>: body || <span class="hljs-built_in">JSON</span>.stringify(data), <span class="hljs-comment">// must match 'Content-Type' header</span>
+    <span class="hljs-attr">cache</span>: <span class="hljs-string">'no-cache'</span>, <span class="hljs-comment">// *default, no-cache, reload, force-cache, only-if-cached</span>
+    <span class="hljs-attr">credentials</span>: <span class="hljs-string">'same-origin'</span>, <span class="hljs-comment">// include, same-origin, *omit</span>
+    <span class="hljs-attr">headers</span>: {
+      <span class="hljs-string">'user-agent'</span>: <span class="hljs-string">'Mozilla/4.0 MDN Example'</span>,
+      <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'application/json'</span>
+    },
+    <span class="hljs-attr">method</span>: method || <span class="hljs-string">'POST'</span>, <span class="hljs-comment">// *GET, POST, PUT, DELETE, etc.</span>
+    <span class="hljs-attr">mode</span>: <span class="hljs-string">'cors'</span>, <span class="hljs-comment">// no-cors, cors, *same-origin</span>
+    <span class="hljs-attr">redirect</span>: <span class="hljs-string">'follow'</span>, <span class="hljs-comment">// manual, *follow, error</span>
+    <span class="hljs-attr">referrer</span>: <span class="hljs-string">'no-referrer'</span>, <span class="hljs-comment">// *client, no-referrer</span>
+  })
+  .then(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> response.json()) <span class="hljs-comment">// parses response to JSON</span>
+}
+
+postData(<span class="hljs-string">'http://example.com'</span>, {})
+  .then(<span class="hljs-function"><span class="hljs-params">data</span> =&gt;</span> <span class="hljs-built_in">console</span>.log(data)) <span class="hljs-comment">// JSON from `response.json()` call</span>
+  .catch(<span class="hljs-function"><span class="hljs-params">error</span> =&gt;</span> <span class="hljs-built_in">console</span>.error(error))
+
+postData(<span class="hljs-string">'http://example.com'</span>)
+  .then(<span class="hljs-function"><span class="hljs-params">data</span> =&gt;</span> <span class="hljs-built_in">console</span>.log(data))
+  .catch(<span class="hljs-function"><span class="hljs-params">error</span> =&gt;</span> <span class="hljs-built_in">console</span>.error(error))
+<span class="hljs-comment">// 报错</span>
+</code></pre><p>上面代码中，如果函数<code>postData</code>的第二个参数是一个对象，就可以为它的三个属性设置默认值。这种写法不能省略第二个参数，如果结合函数参数的默认值，就可以省略第二个参数。这时，就出现了双重默认值。</p><pre class="hljs"><code>
+<span class="hljs-keyword">const</span> postData = <span class="hljs-function">(<span class="hljs-params">url, {body,method} = {}</span>)=&gt;</span> {
+  <span class="hljs-comment">// Default options are marked with *</span>
+  <span class="hljs-keyword">return</span> fetch(url, {
+    <span class="hljs-attr">body</span>: body || <span class="hljs-built_in">JSON</span>.stringify(data), <span class="hljs-comment">// must match 'Content-Type' header</span>
+    <span class="hljs-attr">cache</span>: <span class="hljs-string">'no-cache'</span>, <span class="hljs-comment">// *default, no-cache, reload, force-cache, only-if-cached</span>
+    <span class="hljs-attr">credentials</span>: <span class="hljs-string">'same-origin'</span>, <span class="hljs-comment">// include, same-origin, *omit</span>
+    <span class="hljs-attr">headers</span>: {
+      <span class="hljs-string">'user-agent'</span>: <span class="hljs-string">'Mozilla/4.0 MDN Example'</span>,
+      <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'application/json'</span>
+    },
+    <span class="hljs-attr">method</span>: method || <span class="hljs-string">'POST'</span>, <span class="hljs-comment">// *GET, POST, PUT, DELETE, etc.</span>
+    <span class="hljs-attr">mode</span>: <span class="hljs-string">'cors'</span>, <span class="hljs-comment">// no-cors, cors, *same-origin</span>
+    <span class="hljs-attr">redirect</span>: <span class="hljs-string">'follow'</span>, <span class="hljs-comment">// manual, *follow, error</span>
+    <span class="hljs-attr">referrer</span>: <span class="hljs-string">'no-referrer'</span>, <span class="hljs-comment">// *client, no-referrer</span>
+  })
+  .then(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> response.json()) <span class="hljs-comment">// parses response to JSON</span>
+}
+
+postData(<span class="hljs-string">'http://example.com'</span>)
+  .then(<span class="hljs-function"><span class="hljs-params">data</span> =&gt;</span> <span class="hljs-built_in">console</span>.log(data)) <span class="hljs-comment">// JSON from `response.json()` call</span>
+  .catch(<span class="hljs-function"><span class="hljs-params">error</span> =&gt;</span> <span class="hljs-built_in">console</span>.error(error))
+</code></pre><p>上面代码中，函数<code>postData</code>没有第二个参数时，函数参数的默认值就会生效，然后才是<code>解构赋值</code>的默认值生效，变量<code>method</code>才会取到对应的接口给回值<code>response.json()</code>。</p><hr><blockquote><p>利用参数默认值，可以指定某一个参数不得省略，如果省略就抛出一个错误。</p></blockquote><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">throwIfMissing</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Missing parameter'</span>);
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params">mustBeProvided = throwIfMissing(</span>)) </span>{
+  <span class="hljs-keyword">return</span> mustBeProvided;
+}
+
+foo()
+<span class="hljs-comment">// Error: Missing parameter</span>
+</code></pre><p>上面代码的<code>foo</code>函数，如果调用的时候没有参数，就会调用默认值<code>throwIfMissing</code>函数，从而抛出一个错误。</p><p>从上面代码还可以看到，参数<code>mustBeProvided</code>的默认值等于<code>throwIfMissing</code>函数的运行结果（注意函数名<code>throwIfMissing</code>之后有一对圆括号），这表明参数的默认值不是在定义时执行，而是在运行时执行。如果参数已经赋值，默认值中的函数就不会运行。</p><hr><blockquote><p>将参数默认值设为undefined，表明这个参数是可以省略的。</p></blockquote><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params">optional = undefined</span>) </span>{ ··· }
+</code></pre><hr><h3 id="注意事项">注意事项 <a class="markdownIt-Anchor" href="#注意事项">#</a></h3><blockquote><p>参数默认值只会与<code>undefined</code>进行对比</p></blockquote><p>如果传入<code>undefined</code>，将触发该参数等于默认值，<code>null</code>则没有这个效果。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params">x = <span class="hljs-number">5</span>, y = <span class="hljs-number">6</span></span>) </span>{
+  <span class="hljs-built_in">console</span>.log(x, y);
+}
+
+foo(<span class="hljs-literal">undefined</span>, <span class="hljs-literal">null</span>)
+<span class="hljs-comment">// 5 null</span>
+</code></pre><p>上面代码中，<code>x</code>参数对应<code>undefined</code>，结果触发了默认值，<code>y</code>参数等于<code>null</code>，就没有触发默认值。</p><hr><blockquote><p>参数变量是默认声明的，所以不能用let或const再次声明。</p></blockquote><pre class="hljs"><code>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params">x = <span class="hljs-number">5</span></span>) </span>{
+  <span class="hljs-keyword">let</span> x = <span class="hljs-number">1</span>; <span class="hljs-comment">// error</span>
+  <span class="hljs-keyword">const</span> x = <span class="hljs-number">2</span>; <span class="hljs-comment">// error</span>
+}
+</code></pre><p>上面代码中，参数变量<code>x</code>是默认声明的，在函数体中，不能用<code>let</code>或<code>const</code>再次声明，否则会报错。</p><blockquote><p>使用参数默认值时，函数不能有同名参数</p></blockquote><pre class="hljs"><code>
+<span class="hljs-comment">// 不报错</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params">x, x, y</span>) </span>{
+  <span class="hljs-comment">// ...</span>
+}
+
+<span class="hljs-comment">// 报错</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params">x, x, y = <span class="hljs-number">1</span></span>) </span>{
+  <span class="hljs-comment">// ...</span>
+}
+<span class="hljs-comment">// SyntaxError: Duplicate parameter name not allowed in this context</span>
+</code></pre><p>另外，一个容易忽略的地方是，参数默认值不是传值的，而是每次都重新计算默认值表达式的值。也就是说，参数默认值是惰性求值的。</p><pre class="hljs"><code>
+<span class="hljs-keyword">let</span> x = <span class="hljs-number">99</span>;
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params">p = x + <span class="hljs-number">1</span></span>) </span>{
+  <span class="hljs-built_in">console</span>.log(p);
+}
+
+foo() <span class="hljs-comment">// 100</span>
+
+x = <span class="hljs-number">100</span>;
+foo() <span class="hljs-comment">// 101</span>
+</code></pre><p>上面代码中，参数<code>p</code>的默认值是<code>x + 1</code>。这时，每次调用函数<code>foo</code>，都会重新计算<code>x + 1</code>，而不是默认<code>p</code>等于 <code>100</code>。</p><hr><blockquote><p>参数默认值一般放在可以缺省的尾部</p></blockquote><p>通常情况下，定义了默认值的参数，应该是函数的尾参数。因为这样比较容易看出来，到底省略了哪些参数。如果非尾部的参数设置默认值，实际上这个参数是没法省略的。</p><pre class="hljs"><code><span class="hljs-comment">// 例一</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params">x = <span class="hljs-number">1</span>, y</span>) </span>{
+  <span class="hljs-keyword">return</span> [x, y];
+}
+
+f() <span class="hljs-comment">// [1, undefined]</span>
+f(<span class="hljs-number">2</span>) <span class="hljs-comment">// [2, undefined])</span>
+f(, <span class="hljs-number">1</span>) <span class="hljs-comment">// 报错</span>
+f(<span class="hljs-literal">undefined</span>, <span class="hljs-number">1</span>) <span class="hljs-comment">// [1, 1]</span>
+
+<span class="hljs-comment">// 例二</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params">x, y = <span class="hljs-number">5</span>, z</span>) </span>{
+  <span class="hljs-keyword">return</span> [x, y, z];
+}
+
+f() <span class="hljs-comment">// [undefined, 5, undefined]</span>
+f(<span class="hljs-number">1</span>) <span class="hljs-comment">// [1, 5, undefined]</span>
+f(<span class="hljs-number">1</span>, ,<span class="hljs-number">2</span>) <span class="hljs-comment">// 报错</span>
+f(<span class="hljs-number">1</span>, <span class="hljs-literal">undefined</span>, <span class="hljs-number">2</span>) <span class="hljs-comment">// [1, 5, 2]</span>
+</code></pre><p>上面代码中，有默认值的参数都不是尾参数。这时，无法只省略该参数，而不省略它后面的参数，除非显式输入<code>undefined</code>。</p><hr><blockquote><p>函数的 length 属性</p></blockquote><p>指定了默认值以后，函数的<code>length</code>属性，将返回没有指定默认值的参数个数。也就是说，指定了默认值后，<code>length</code>属性将失真。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">a</span>) </span>{}).length <span class="hljs-comment">// 1</span>
+(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">a = <span class="hljs-number">5</span></span>) </span>{}).length <span class="hljs-comment">// 0</span>
+(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">a, b, c = <span class="hljs-number">5</span></span>) </span>{}).length <span class="hljs-comment">// 2</span>
+</code></pre><p>上面代码中，<code>length</code>属性的返回值，等于函数的参数个数减去指定了默认值的参数个数。比如，上面最后一个函数，定义了 <code>3</code> 个参数，其中有一个参数<code>c</code>指定了默认值，因此<code>length</code>属性等于<code>3</code>减去<code>1</code>，最后得到<code>2</code>。</p><p>这是因为<code>length</code>属性的含义是，该函数预期传入的参数个数。某个参数指定默认值以后，预期传入的参数个数就不包括这个参数了。</p><p>如果设置了默认值的参数不是尾参数，那么<code>length</code>属性也不再计入后面的参数了。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">a = <span class="hljs-number">0</span>, b, c</span>) </span>{}).length <span class="hljs-comment">// 0</span>
+(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">a, b = <span class="hljs-number">1</span>, c</span>) </span>{}).length <span class="hljs-comment">// 1</span>
+</code></pre><hr><blockquote><p>作用域限制</p></blockquote><p>一旦设置了参数的默认值，函数进行声明初始化时，参数会形成一个单独的作用域（<code>context</code>）。等到初始化结束，这个作用域就会消失。这种语法行为，在不设置参数默认值时，是不会出现的。</p><pre class="hljs"><code><span class="hljs-keyword">var</span> x = <span class="hljs-number">1</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params">x, y = x</span>) </span>{
+  <span class="hljs-built_in">console</span>.log(y);
+}
+
+f(<span class="hljs-number">2</span>) <span class="hljs-comment">// 2</span>
+</code></pre><p>上面代码中，参数<code>y</code>的默认值等于变量<code>x</code>。调用函数f时，参数形成一个单独的作用域。在这个作用域里面，默认值变量<code>x</code>指向第一个参数<code>x</code>，而不是全局变量<code>x</code>，所以输出是2。</p><p>再看下面的例子。</p><pre class="hljs"><code><span class="hljs-keyword">let</span> x = <span class="hljs-number">1</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params">y = x</span>) </span>{
+  <span class="hljs-keyword">let</span> x = <span class="hljs-number">2</span>;
+  <span class="hljs-built_in">console</span>.log(y);
+}
+
+f() <span class="hljs-comment">// 1</span>
+</code></pre><p>上面代码中，函数<code>f</code>调用时，参数<code>y = x</code>形成一个单独的作用域。这个作用域里面，变量<code>x</code>本身没有定义，所以指向外层的全局变量<code>x</code>。函数调用时，函数体内部的局部变量<code>x</code>影响不到默认值变量<code>x</code>。</p><p>如果此时，全局变量<code>x</code>不存在，就会报错。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params">y = x</span>) </span>{
+  <span class="hljs-keyword">let</span> x = <span class="hljs-number">2</span>;
+  <span class="hljs-built_in">console</span>.log(y);
+}
+
+f() <span class="hljs-comment">// ReferenceError: x is not defined</span>
+</code></pre><p>下面这样写，也会报错。</p><pre class="hljs"><code><span class="hljs-keyword">var</span> x = <span class="hljs-number">1</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params">x = x</span>) </span>{
+  <span class="hljs-comment">// ...</span>
+}
+
+foo() <span class="hljs-comment">// ReferenceError: x is not defined</span>
+</code></pre><p>上面代码中，参数<code>x = x</code>形成一个单独作用域。实际执行的是<code>let x = x</code>，由于<code>暂时性死区</code>的原因，这行代码会报错<code>x 未定义</code>。</p><p>如果参数的默认值是一个<code>函数</code>，该函数的作用域也遵守这个规则。请看下面的例子。</p><pre class="hljs"><code><span class="hljs-keyword">let</span> foo = <span class="hljs-string">'outer'</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">bar</span>(<span class="hljs-params">func = (</span>) =&gt; <span class="hljs-title">foo</span>) </span>{
+  <span class="hljs-keyword">let</span> foo = <span class="hljs-string">'inner'</span>;
+  <span class="hljs-built_in">console</span>.log(func());
+}
+
+bar(); <span class="hljs-comment">// outer</span>
+</code></pre><p>上面代码中，函数<code>bar</code>的参数<code>func</code>的默认值是一个匿名函数，返回值为变量<code>foo</code>。函数参数形成的单独作用域里面，并没有定义变量<code>foo</code>，所以<code>foo</code>指向外层的全局变量<code>foo</code>，因此输出<code>outer</code>。</p><p>如果写成下面这样，就会报错。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">bar</span>(<span class="hljs-params">func = (</span>) =&gt; <span class="hljs-title">foo</span>) </span>{
+  <span class="hljs-keyword">let</span> foo = <span class="hljs-string">'inner'</span>;
+  <span class="hljs-built_in">console</span>.log(func());
+}
+
+bar() <span class="hljs-comment">// ReferenceError: foo is not defined</span>
+</code></pre><p>上面代码中，匿名函数里面的<code>foo</code>指向函数外层，但是函数外层并没有声明变量<code>foo</code>，所以就报错了。</p><p>下面是一个更复杂的例子。</p><pre class="hljs"><code><span class="hljs-keyword">var</span> x = <span class="hljs-number">1</span>;
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params">x, y = function(</span>) </span>{ x = <span class="hljs-number">2</span>; }) {
+  <span class="hljs-keyword">var</span> x = <span class="hljs-number">3</span>;
+  y();
+  <span class="hljs-built_in">console</span>.log(x);
+}
+
+foo() <span class="hljs-comment">// 3</span>
+x <span class="hljs-comment">// 1</span>
+</code></pre><p>上面代码中，函数<code>foo</code>的参数形成一个单独作用域。这个作用域里面，首先声明了变量<code>x</code>，然后声明了变量<code>y</code>，<code>y</code>的默认值是一个匿名函数。</p><p>这个匿名函数内部的变量<code>x</code>，指向同一个作用域的第一个参数<code>x</code>。函数<code>foo</code>内部又声明了一个内部变量<code>x</code>，该变量与第一个参数<code>x</code>由于不是同一个作用域，所以不是同一个变量，因此执行<code>y</code>后，内部变量<code>x</code>和外部全局变量<code>x</code>的值都没变。</p><p>如果将<code>var x = 3</code>的<code>var</code>去除，函数<code>foo</code>的内部变量<code>x</code>就指向第一个参数<code>x</code>，与匿名函数内部的<code>x</code>是一致的，所以最后输出的就是<code>2</code>，而外层的全局变量<code>x</code>依然不受影响。</p><pre class="hljs"><code><span class="hljs-keyword">var</span> x = <span class="hljs-number">1</span>;
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">foo</span>(<span class="hljs-params">x, y = function(</span>) </span>{ x = <span class="hljs-number">2</span>; }) {
+  x = <span class="hljs-number">3</span>;
+  y();
+  <span class="hljs-built_in">console</span>.log(x);
+}
+
+foo() <span class="hljs-comment">// 2</span>
+x <span class="hljs-comment">// 1</span>
+</code></pre><h2 id="rest-参数">rest 参数 <a class="markdownIt-Anchor" href="#rest-参数">#</a></h2><h3 id="基础说明">基础说明 <a class="markdownIt-Anchor" href="#基础说明">#</a></h3><p><code>ES6</code> 引入 <code>rest 参数</code>（形式为<code>...变量名</code>），用于获取函数的多余参数，这样就不需要使用<code>arguments</code>对象了。rest 参数搭配的变量是一个数组，该变量将多余的参数放入数组中。</p><hr><h3 id="案例说明">案例说明 <a class="markdownIt-Anchor" href="#案例说明">#</a></h3><blockquote><p>基础案例</p></blockquote><p><code>add</code>函数是一个求和函数，利用 <code>rest</code> 参数，可以向该函数传入任意数目的参数。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">add</span>(<span class="hljs-params">...values</span>) </span>{
+  <span class="hljs-keyword">let</span> sum = <span class="hljs-number">0</span>;
+
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> val <span class="hljs-keyword">of</span> values) {
+    sum += val;
+  }
+
+  <span class="hljs-keyword">return</span> sum;
+}
+
+add(<span class="hljs-number">2</span>, <span class="hljs-number">5</span>, <span class="hljs-number">3</span>) <span class="hljs-comment">// 10</span>
+</code></pre><hr><blockquote><p>rest 参数代替arguments变量</p></blockquote><pre class="hljs"><code><span class="hljs-comment">// arguments变量的写法</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sortNumbers</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-built_in">Array</span>.prototype.slice.call(<span class="hljs-built_in">arguments</span>).sort();
+}
+
+<span class="hljs-comment">// rest参数的写法</span>
+<span class="hljs-keyword">const</span> sortNumbers = <span class="hljs-function">(<span class="hljs-params">...numbers</span>) =&gt;</span> numbers.sort();
+</code></pre><p>上面代码的两种写法，比较后可以发现，<code>rest</code> 参数的写法更自然也更简洁。</p><p><code>arguments</code>对象不是数组，而是一个类似<code>数组</code>的对象。所以为了使用<code>数组</code>的方法，必须使用<code>Array.prototype.slice.call</code>先将其转为<code>数组</code>。</p><hr><blockquote><p>rest 参数改写数组push方法</p></blockquote><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-params">()</span>=&gt;</span>{
+  <span class="hljs-keyword">const</span> {log,error} = <span class="hljs-built_in">console</span>;
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">push</span>(<span class="hljs-params">array, ...items</span>) </span>{
+    items.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">item</span>) </span>{
+      array.push(item);
+    });
+    <span class="hljs-keyword">return</span> array;
+  }
+
+  <span class="hljs-keyword">var</span> a = [];
+  log(push(a, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>))<span class="hljs-comment">// [1, 2, 3]</span>
+})()
+</code></pre><hr><h3 id="注意事项-1">注意事项 <a class="markdownIt-Anchor" href="#注意事项-1">#</a></h3><blockquote><p>函数的length失真</p></blockquote><p><code>rest</code> 参数也不会计入<code>length</code>属性。</p><pre class="hljs"><code>(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">a</span>) </span>{}).length  <span class="hljs-comment">// 1</span>
+(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">...a</span>) </span>{}).length  <span class="hljs-comment">// 0</span>
+(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">a, ...b</span>) </span>{}).length  <span class="hljs-comment">// 1</span>
+</code></pre><hr><blockquote><p>rest 参数之后不能再有其他参数</p></blockquote><p>rest 参数之后不能再有其他参数（即只能是最后一个参数），否则会报错。</p><pre class="hljs"><code><span class="hljs-comment">// Uncaught SyntaxError: Rest parameter must be last formal parameter</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params">a, ...b, c</span>) </span>{
+  <span class="hljs-comment">// ...</span>
+}
+</code></pre><hr><h2 id="函数参数的尾逗号">函数参数的尾逗号 <a class="markdownIt-Anchor" href="#函数参数的尾逗号">#</a></h2><p><code>ES2017</code> 允许函数的最后一个参数有尾逗号（<code>trailing comma</code>）。</p><p>此前，函数定义和调用时，都不允许最后一个参数后面出现逗号。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">clownsEverywhere</span>(<span class="hljs-params">
+  param1,
+  param2
+</span>) </span>{ <span class="hljs-comment">/* ... */</span> }
+
+clownsEverywhere(
+  <span class="hljs-string">'foo'</span>,
+  <span class="hljs-string">'bar'</span>
+);
+</code></pre><p>上面代码中，如果在<code>param2</code>或<code>bar</code>后面加一个逗号，就会报错。</p><p>如果像上面这样，将参数写成多行（即每个参数占据一行），以后修改代码的时候，想为函数<code>clownsEverywhere</code>添加第三个参数，或者调整参数的次序，就势必要在原来最后一个参数后面添加一个逗号。</p><p>这对于<code>版本管理系统</code>来说，就会显示添加逗号的那一行也发生了变动。这看上去有点冗余，因此新的语法允许定义和调用时，尾部直接有一个逗号。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">clownsEverywhere</span>(<span class="hljs-params">
+  param1,
+  param2,
+</span>) </span>{ <span class="hljs-comment">/* ... */</span> }
+
+clownsEverywhere(
+  <span class="hljs-string">'foo'</span>,
+  <span class="hljs-string">'bar'</span>,
+);
+</code></pre><p>这样的规定也使得，<code>函数参数</code>与<code>数组</code>和<code>对象</code>的<code>尾逗号</code>规则，保持一致了。</p><hr></div><div dir="ltr" class="level article-bar is-mobile"><div class="level-item has-text-centered"><a title="previous page" class="previouse-article-link" href="../chapters07/strict-mode.html"><span class="icon icon-previous" data-icon="previous"></span><span class="link-content">&laquo; Previous</span></a></div><div class="level-item has-text-centered"><a title="font size" class="link-item link-item-size"><span class="icon icon-size" data-icon="size"></span></a></div><div class="level-item has-text-centered"><a title="table of content" class="link-item link-item-toc"><span class="icon icon-toc" data-icon="toc"></span></a></div><div class="level-item has-text-centered"><a title="top" href="#"><span class="icon icon-up" data-icon="up"></span> <span class="link-content">⤊ Top</span></a></div><div class="level-item has-text-centered"><a title="next page" class="next-article-link" href="../chapters07/the-name-attribute-of-the-function.html"><span class="icon icon-next" data-icon="next"></span><span class="link-content">Next &raquo;</span></a></div></div></div><div class="column is-2-widescreen is-hidden"></div></div><div class="columns foot"><div class="column is-3 is-offset-9 build-by">Build by <a href="https://github.com/ruanyf/loppo" target="_blank">Loppo</a> 0.6.16</div></div><div class="book-toc notification is-warning is-hidden"><h3>Table of chapters &nbsp;<span class="title-close"><a class="button is-danger"> Close</a></span></h3><ul class="chapter-area"><li class="chapter-item"><a href="../chapters01/index.html">第一章 ECMAScript 6 简介</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters01/base-js.html">js基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/base-es.html">es基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/Babel.html">通过Babel使用ES6</a></li><li class="chapter-item"><a href="../chapters01/Traceur.html">通过Traceur使用ES6</a></li><li class="chapter-item"><a href="../chapters01/stage-00.html">Strawman 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-01.html">Proposal 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-02.html">Draft 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/active-proposals.html">Candidate 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-04.html">Finished 阶段的 proposals</a></li></ul><li class="chapter-item"><a href="../chapters02/index.html">第二章 let和const命令</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters02/base.html">前置知识了解</a></li><li class="chapter-item"><a href="../chapters02/let.html">let 命令</a></li><li class="chapter-item"><a href="../chapters02/const.html">const 命令</a></li><li class="chapter-item"><a href="../chapters02/statement-details.html">语句进阶说明</a></li></ul><li class="chapter-item"><a href="../chapters03/index.html">第三章 变量的解构赋值</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters03/base.html">基础数据结构</a></li><li class="chapter-item"><a href="../chapters03/complex.html">复杂数据结构</a></li><li class="chapter-item"><a href="../chapters03/parentheses.html">圆括号问题</a></li><li class="chapter-item"><a href="../chapters03/use.html">用途</a></li></ul><li class="chapter-item"><a href="../chapters04/index.html">第四章 字符串的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters04/unicode.html">字符的 Unicode 表示法</a></li><li class="chapter-item"><a href="../chapters04/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/template-string.html">模板字符串</a></li><li class="chapter-item"><a href="../chapters04/string-Iterator.html">字符串的遍历器接口</a></li><li class="chapter-item"><a href="../chapters04/tag-template.html">标签模板</a></li></ul><li class="chapter-item"><a href="../chapters05/index.html">第五章 正则的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters05/constructor.html">RegExp 构造函数</a></li><li class="chapter-item"><a href="../chapters05/base.html">RegExp 基础使用</a></li><li class="chapter-item"><a href="../chapters05/prototype-attribute.html">RegExp 原型属性</a></li><li class="chapter-item"><a href="../chapters05/modifier.html">RegExp 修饰符</a></li><li class="chapter-item"><a href="../chapters05/assert.html">RegExp 断言</a></li><li class="chapter-item"><a href="../chapters05/string-with-regExp.html">String中正则相关方法</a></li><li class="chapter-item"><a href="../chapters05/named-group-matching.html">具名组匹配</a></li><li class="chapter-item"><a href="../chapters05/unicode-attribute-class.html">Unicode 属性类</a></li></ul><li class="chapter-item"><a href="../chapters06/index.html">第六章 数值的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters06/base-notation.html">Number 进制表示法</a></li><li class="chapter-item"><a href="../chapters06/prototype-attribute.html">Number 原型属性</a></li><li class="chapter-item"><a href="../chapters06/base-function-extend.html">Number 对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/prototype-function-extend.html">Number 原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/math-extension.html">math 对象扩展</a></li><li class="chapter-item"><a href="../chapters06/exponent-operator.html">指数运算符</a></li></ul><li class="chapter-item"><a href="../chapters07/index.html">第七章 函数的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-collapse" data-icon="collapse"></span></a></li><ul class="chapter-level-1 chapter-level-1-current"><li class="chapter-item"><a href="../chapters07/arrow-function.html">箭头函数</a></li><li class="chapter-item"><a href="../chapters07/strict-mode.html">严格模式</a></li><li class="chapter-item chapter-item-current"><a href="../chapters07/function-parameter-improvement.html">函数参数改进</a></li><li class="chapter-item"><a href="../chapters07/the-name-attribute-of-the-function.html">函数的name属性</a></li><li class="chapter-item"><a href="../chapters07/tail-call-optimization.html">尾调用优化</a></li></ul><li class="chapter-item"><a href="../chapters08/index.html">第八章 数组的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters08/extension-operator.html">扩展运算符</a></li><li class="chapter-item"><a href="../chapters08/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/empty-space-processing-of-array.html">数组的空位处理</a></li><li class="chapter-item"><a href="../chapters08/pipeline-optimization-of-arrays.html">数组的管道运算优化</a></li></ul><li class="chapter-item"><a href="../chapters09/index.html">第九章 ts学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters09/history.html">ts历史</a></li><li class="chapter-item"><a href="../chapters09/advantages-and-disadvantages.html">ts优势与劣势</a></li><li class="chapter-item"><a href="../chapters09/learn-primitive-type.html">基础类型学习</a></li><li class="chapter-item"><a href="../chapters09/learn-derivative-type.html">衍生类型基础学习</a></li><li class="chapter-item"><a href="../chapters09/Enum.html">衍生类型之Enum</a></li><li class="chapter-item"><a href="../chapters09/interface.html">衍生类型之interface</a></li><li class="chapter-item"><a href="../chapters09/Class.html">衍生类型之Class</a></li><li class="chapter-item"><a href="../chapters09/ts-util.html">ts 高级工具用法</a></li></ul><li class="chapter-item"><a href="../chapters10/index.html">第十章 react学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters10/history.html">react历史</a></li><li class="chapter-item"><a href="../chapters10/version-management.html">react版本管理</a></li><li class="chapter-item"><a href="../chapters10/advantages-and-disadvantages.html">react优势与劣势</a></li><li class="chapter-item"><a href="../chapters10/base.html">react基础语法</a></li><li class="chapter-item"><a href="../chapters10/common-package.html">react常用组件包</a></li><li class="chapter-item"><a href="../chapters10/family-bucket.html">react全家桶</a></li><li class="chapter-item"><a href="../chapters10/ecosphere.html">react的生态圈</a></li><li class="chapter-item"><a href="../chapters10/substitute-product.html">react和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters11/index.html">第十一章 webpack学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters11/history.html">webpack历史</a></li><li class="chapter-item"><a href="../chapters11/version-management.html">webpack版本管理</a></li><li class="chapter-item"><a href="../chapters11/advantages-and-disadvantages.html">webpack优势与劣势</a></li><li class="chapter-item"><a href="../chapters11/base-config.html">webpack项目基础配置</a></li><li class="chapter-item"><a href="../chapters11/common-package.html">webpack常用组件包</a></li><li class="chapter-item"><a href="../chapters11/ecosphere.html">webpack的生态圈</a></li><li class="chapter-item"><a href="../chapters11/substitute-product.html">webpack和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters12/index.html">第十二章 微信小程序学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters12/history.html">微信小程序历史</a></li><li class="chapter-item"><a href="../chapters12/version-management.html">微信小程序版本管理</a></li><li class="chapter-item"><a href="../chapters12/advantages-and-disadvantages.html">微信小程序优势与劣势</a></li><li class="chapter-item"><a href="../chapters12/base.html">微信小程序基础学习</a></li><li class="chapter-item"><a href="../chapters12/common-ui-package.html">微信小程序常用UI库</a></li><li class="chapter-item"><a href="../chapters12/ecosphere.html">微信小程序的生态圈</a></li><li class="chapter-item"><a href="../chapters12/cross-platform.html">微信小程序跨平台</a></li><li class="chapter-item"><a href="../chapters12/substitute-product.html">微信小程序和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters13/index.html">第十三章 web安全方案</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters13/common-web-risks.html">常见web风险</a></li><li class="chapter-item"><a href="../chapters13/monitoring-system.html">前端监控体系</a></li><li class="chapter-item"><a href="../chapters13/performance-optimization.html">前端性能优化</a></li><li class="chapter-item"><a href="../chapters13/security-prevention-and-control.html">前端安全防控</a></li><li class="chapter-item"><a href="../chapters13/test-system.html">前端测试体系</a></li></ul></ul></div><div class="progress-indicator"></div><!-- SCRIPTS --><script>var LOPPO={current_path:"chapters07/function-parameter-improvement.md",relative_root_path:"../",article_toc:'<ul class="markdownIt-TOC">\n<li><a href="#%E5%87%BD%E6%95%B0%E5%8F%82%E6%95%B0%E7%9A%84%E9%BB%98%E8%AE%A4%E5%80%BC">函数参数的默认值</a>\n<ul>\n<li><a href="#%E5%8E%86%E5%8F%B2%E5%8E%9F%E5%9B%A0%E4%BB%8B%E7%BB%8D">历史原因介绍</a></li>\n<li><a href="#es6-%E6%94%B9%E8%BF%9B">ES6 改进</a></li>\n<li><a href="#%E4%BD%BF%E7%94%A8%E6%A1%88%E4%BE%8B">使用案例</a></li>\n<li><a href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9">注意事项</a></li>\n</ul>\n</li>\n<li><a href="#rest-%E5%8F%82%E6%95%B0">rest 参数</a>\n<ul>\n<li><a href="#%E5%9F%BA%E7%A1%80%E8%AF%B4%E6%98%8E">基础说明</a></li>\n<li><a href="#%E6%A1%88%E4%BE%8B%E8%AF%B4%E6%98%8E">案例说明</a></li>\n<li><a href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-1">注意事项</a></li>\n</ul>\n</li>\n<li><a href="#%E5%87%BD%E6%95%B0%E5%8F%82%E6%95%B0%E7%9A%84%E5%B0%BE%E9%80%97%E5%8F%B7">函数参数的尾逗号</a></li>\n</ul>\n'}</script><script src="../assets/js/app.js"></script></body></html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html><html><head><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta charset="utf-8"><title>尾调用优化 - learn es6</title><meta name="description" content=""><meta name="author" content=""><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1"><link rel="stylesheet" href="../assets/css/bulma.min.css"><link rel="stylesheet" href="../assets/css/app.css"><!--[if lt IE 9]>
+<script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]--><link rel="shortcut icon" href=""></head><body dir="ltr"><nav class="columns navbar"><div class="column logo is-3 is-offset-1"><a class="is-brand" href="../index.html">learn es6</a></div></nav><div class="columns content"><div class="column is-2-desktop is-3-widescreen is-hidden-touch"></div><div class="column article-container is-11-tablet is-8-desktop is-6-widescreen"><div class="breadcrumb-area"><a href="../index.html" class="breadcrumb-item">Home</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters07/index.html" class="breadcrumb-item">第七章 函数的扩展</a><span class="breadcrumb-delimiter"> &gt; </span><a href="../chapters07/tail-call-optimization.html" class="breadcrumb-item">尾调用优化</a></div><h1 class="article-title">尾调用优化</h1><div class="article"><h2 id="尾调用">尾调用 <a class="markdownIt-Anchor" href="#尾调用">#</a></h2><h3 id="基础说明">基础说明 <a class="markdownIt-Anchor" href="#基础说明">#</a></h3><p><code>尾调用（Tail Call）</code>是函数式编程的一个重要概念，本身非常简单，一句话就能说清楚，就是指某个函数的最后一步是调用另一个函数。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params">x</span>)</span>{
+  <span class="hljs-keyword">return</span> g(x);
+}
+</code></pre><p>上面代码中，函数<code>f</code>的最后一步是调用函数<code>g</code>，这就叫<code>尾调用</code>。</p><p>以下三种情况，都不属于<code>尾调用</code>。</p><pre class="hljs"><code><span class="hljs-comment">// 情况一</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params">x</span>)</span>{
+  <span class="hljs-keyword">let</span> y = g(x);
+  <span class="hljs-keyword">return</span> y;
+}
+
+<span class="hljs-comment">// 情况二</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params">x</span>)</span>{
+  <span class="hljs-keyword">return</span> g(x) + <span class="hljs-number">1</span>;
+}
+
+<span class="hljs-comment">// 情况三</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params">x</span>)</span>{
+  g(x);
+}
+</code></pre><p>上面代码中，情况一是调用函数<code>g</code>之后，还有赋值操作，所以不属于<code>尾调用</code>，即使语义完全一样。</p><p>情况二也属于调用后还有操作，即使写在一行内。情况三等同于下面的代码。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params">x</span>)</span>{
+  g(x);
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">undefined</span>;
+}
+</code></pre><p><code>尾调用</code>不一定出现在函数尾部，只要是最后一步操作即可。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params">x</span>) </span>{
+  <span class="hljs-keyword">if</span> (x &gt; <span class="hljs-number">0</span>) {
+    <span class="hljs-keyword">return</span> m(x)
+  }
+  <span class="hljs-keyword">return</span> n(x);
+}
+</code></pre><p>上面代码中，函数<code>m</code>和<code>n</code>都属于<code>尾调用</code>，因为它们都是函数<code>f</code>的最后一步操作。</p><hr><h3 id="原理说明">原理说明 <a class="markdownIt-Anchor" href="#原理说明">#</a></h3><p><code>尾调用</code>之所以与其他调用不同，就在于它的特殊的调用位置。</p><p>我们知道，函数调用会在内存形成一个<code>调用记录</code>，又称<code>调用帧</code>（call frame），保存调用位置和内部变量等信息。</p><p>如果在函数<code>A</code>的内部调用函数<code>B</code>，那么在<code>A</code>的调用帧上方，还会形成一个<code>B</code>的调用帧。等到<code>B</code>运行结束，将结果返回到<code>A</code>，<code>B</code>的调用帧才会消失。</p><p>如果函数<code>B</code>内部还调用函数<code>C</code>，那就还有一个<code>C的</code>调用帧，以此类推。所有的调用帧，就形成一个<code>调用栈</code>（call stack）。</p><p><code>尾调用</code>由于是函数的最后一步操作，所以不需要保留<code>外层函数</code>的<code>调用帧</code>，因为<code>调用位置</code>、<code>内部变量</code>等信息都不会再用到了，只要直接用<code>内层函数</code>的<code>调用帧</code>，取代<code>外层函数</code>的<code>调用帧</code>就可以了。</p><hr><h3 id="优化说明">优化说明 <a class="markdownIt-Anchor" href="#优化说明">#</a></h3><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">let</span> m = <span class="hljs-number">1</span>;
+  <span class="hljs-keyword">let</span> n = <span class="hljs-number">2</span>;
+  <span class="hljs-keyword">return</span> g(m + n);
+}
+f();
+
+<span class="hljs-comment">// 等同于</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">f</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> g(<span class="hljs-number">3</span>);
+}
+f();
+
+<span class="hljs-comment">// 等同于</span>
+g(<span class="hljs-number">3</span>);
+</code></pre><p>上面代码中，如果函数<code>g</code>不是<code>尾调用</code>，函数<code>f</code>就需要保存内部变量<code>m</code>和<code>n</code>的值、<code>g</code>的调用位置等信息。但由于调用<code>g</code>之后，函数<code>f</code>就结束了，所以执行到最后一步，完全可以删除<code>f(x)</code>的调用帧，只保留<code>g(3)</code>的调用帧。</p><p>这就叫做<code>尾调用优化</code>（Tail call optimization），即只保留<code>内层函数</code>的<code>调用帧</code>。如果所有函数都是<code>尾调用</code>，那么完全可以做到每次执行时，<code>调用帧</code>只有一项，这将大大节省内存。这就是<code>尾调用优化</code>的意义。</p><p>注意，只有不再用到<code>外层函数</code>的<code>内部变量</code>，<code>内层函数</code>的<code>调用帧</code>才会取代<code>外层函数</code>的<code>调用帧</code>，否则就无法进行<code>尾调用优化</code>。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">addOne</span>(<span class="hljs-params">a</span>)</span>{
+  <span class="hljs-keyword">var</span> one = <span class="hljs-number">1</span>;
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">inner</span>(<span class="hljs-params">b</span>)</span>{
+    <span class="hljs-keyword">return</span> b + one;
+  }
+  <span class="hljs-keyword">return</span> inner(a);
+}
+</code></pre><p>上面的函数不会进行<code>尾调用优化</code>，因为内层函数<code>inner</code>用到了外层函数<code>addOne</code>的内部变量<code>one</code>。</p><hr><h2 id="尾递归">尾递归 <a class="markdownIt-Anchor" href="#尾递归">#</a></h2><h3 id="基础说明-1">基础说明 <a class="markdownIt-Anchor" href="#基础说明-1">#</a></h3><p>函数调用自身，称为<code>递归</code>。如果尾调用自身，就称为<code>尾递归</code>。</p><p>递归非常耗费内存，因为需要同时保存成千上百个调用帧，很容易发生<code>栈溢出</code>错误（stack overflow）。但对于<code>尾递归</code>来说，由于只存在一个调用帧，所以永远不会发生<code>栈溢出</code>错误。</p><pre class="hljs"><code>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">factorial</span>(<span class="hljs-params">n</span>) </span>{
+  <span class="hljs-keyword">if</span> (n === <span class="hljs-number">1</span>) <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+  <span class="hljs-keyword">return</span> n * factorial(n - <span class="hljs-number">1</span>);
+}
+
+factorial(<span class="hljs-number">5</span>) <span class="hljs-comment">// 120</span>
+</code></pre><p>上面代码是一个阶乘函数，计算<code>n</code>的阶乘，最多需要保存<code>n</code>个调用记录，复杂度 <code>O(n)</code> 。</p><hr><h3 id="优化案例">优化案例 <a class="markdownIt-Anchor" href="#优化案例">#</a></h3><blockquote><p>阶乘优化方案一</p></blockquote><p><code>尾递归</code>写阶乘，只保留一个调用记录，复杂度 <code>O(1)</code> 。</p><pre class="hljs"><code>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">factorial</span>(<span class="hljs-params">n, total</span>) </span>{
+  <span class="hljs-keyword">if</span> (n === <span class="hljs-number">1</span>) <span class="hljs-keyword">return</span> total;
+  <span class="hljs-keyword">return</span> factorial(n - <span class="hljs-number">1</span>, n * total);
+}
+
+factorial(<span class="hljs-number">5</span>, <span class="hljs-number">1</span>) <span class="hljs-comment">// 120</span>
+</code></pre><hr><blockquote><p>阶乘优化方案二</p></blockquote><p><code>尾递归</code>的实现，往往需要改写递归函数，确保最后一步只调用自身。做到这一点的方法，就是把所有用到的内部变量改写成函数的参数。</p><p>比如上面的例子，阶乘函数 <code>factorial</code> 需要用到一个中间变量<code>total</code>，那就把这个中间变量改写成函数的参数。这样做的缺点就是不太直观，第一眼很难看出来，为什么计算<code>5</code>的阶乘，需要传入两个参数<code>5</code>和<code>1</code>？</p><p>在<code>尾递归</code>函数之外，再提供一个正常形式的<code>函数</code>。</p><pre class="hljs"><code>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">tailFactorial</span>(<span class="hljs-params">n, total</span>) </span>{
+  <span class="hljs-keyword">if</span> (n === <span class="hljs-number">1</span>) <span class="hljs-keyword">return</span> total;
+  <span class="hljs-keyword">return</span> tailFactorial(n - <span class="hljs-number">1</span>, n * total);
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">factorial</span>(<span class="hljs-params">n</span>) </span>{
+  <span class="hljs-keyword">return</span> tailFactorial(n, <span class="hljs-number">1</span>);
+}
+
+factorial(<span class="hljs-number">5</span>) <span class="hljs-comment">// 120</span>
+</code></pre><p>上面代码通过一个正常形式的阶乘函数<code>factorial</code>，调用尾递归函数<code>tailFactorial</code>，看起来就正常多了。</p><hr><blockquote><p>阶乘优化方案三</p></blockquote><p>函数式编程有一个概念，叫做<code>柯里化（currying）</code>，意思是将<code>多参数</code>的<code>函数</code>转换成<code>单参数</code>的形式。这里也可以使用<code>柯里化</code>，进行相关改造。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">currying</span>(<span class="hljs-params">fn, n</span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">m</span>) </span>{
+    <span class="hljs-keyword">return</span> fn.call(<span class="hljs-keyword">this</span>, m, n);
+  };
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">tailFactorial</span>(<span class="hljs-params">n, total</span>) </span>{
+  <span class="hljs-keyword">if</span> (n === <span class="hljs-number">1</span>) <span class="hljs-keyword">return</span> total;
+  <span class="hljs-keyword">return</span> tailFactorial(n - <span class="hljs-number">1</span>, n * total);
+}
+
+<span class="hljs-keyword">const</span> factorial = currying(tailFactorial, <span class="hljs-number">1</span>);
+
+factorial(<span class="hljs-number">5</span>) <span class="hljs-comment">// 120</span>
+</code></pre><hr><blockquote><p>阶乘优化方案四</p></blockquote><p>这里也可以采用 <code>ES6</code> 的函数默认值。</p><pre class="hljs"><code>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">factorial</span>(<span class="hljs-params">n, total = <span class="hljs-number">1</span></span>) </span>{
+  <span class="hljs-keyword">if</span> (n === <span class="hljs-number">1</span>) <span class="hljs-keyword">return</span> total;
+  <span class="hljs-keyword">return</span> factorial(n - <span class="hljs-number">1</span>, n * total);
+}
+
+factorial(<span class="hljs-number">5</span>) <span class="hljs-comment">// 120</span>
+</code></pre><p>上面代码中，参数<code>total</code>有默认值<code>1</code>，所以调用时不用提供这个值。</p><hr><blockquote><p>Fibonacci 数列</p></blockquote><p>非尾递归的 <code>Fibonacci</code> 数列实现如下。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Fibonacci</span> (<span class="hljs-params">n</span>) </span>{
+  <span class="hljs-keyword">if</span> ( n &lt;= <span class="hljs-number">1</span> ) {<span class="hljs-keyword">return</span> <span class="hljs-number">1</span>};
+
+  <span class="hljs-keyword">return</span> Fibonacci(n - <span class="hljs-number">1</span>) + Fibonacci(n - <span class="hljs-number">2</span>);
+}
+
+Fibonacci(<span class="hljs-number">10</span>) <span class="hljs-comment">// 89</span>
+Fibonacci(<span class="hljs-number">100</span>) <span class="hljs-comment">// 超时</span>
+Fibonacci(<span class="hljs-number">500</span>) <span class="hljs-comment">// 超时</span>
+</code></pre><p>尾递归优化过的 <code>Fibonacci</code> 数列实现如下。</p><pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Fibonacci2</span> (<span class="hljs-params">n , ac1 = <span class="hljs-number">1</span> , ac2 = <span class="hljs-number">1</span></span>) </span>{
+  <span class="hljs-keyword">if</span>( n &lt;= <span class="hljs-number">1</span> ) {<span class="hljs-keyword">return</span> ac2};
+
+  <span class="hljs-keyword">return</span> Fibonacci2 (n - <span class="hljs-number">1</span>, ac2, ac1 + ac2);
+}
+
+Fibonacci2(<span class="hljs-number">100</span>) <span class="hljs-comment">// 573147844013817200000</span>
+Fibonacci2(<span class="hljs-number">1000</span>) <span class="hljs-comment">// 7.0330367711422765e+208</span>
+Fibonacci2(<span class="hljs-number">10000</span>) <span class="hljs-comment">// Infinity</span>
+</code></pre><p>由此可见，<code>尾调用优化</code>对<code>递归</code>操作意义重大，所以一些函数式编程语言将其写入了语言规格。</p><p>ES6 亦是如此，第一次明确规定，所有 <code>ECMAScript</code> 的实现，都必须部署<code>尾调用优化</code>。这就是说，ES6 中只要使用<code>尾递归</code>，就不会发生<code>栈溢出</code>（或者层层递归造成的超时），相对节省内存。</p><h3 id="优化总结">优化总结 <a class="markdownIt-Anchor" href="#优化总结">#</a></h3><p>总结一下，递归本质上是一种循环操作。纯粹的<code>函数式编程语言</code>没有循环操作命令，所有的循环都用递归实现，这就是为什么尾递归对这些语言极其重要。对于其他支持<code>尾调用优化</code>的语言（比如 <code>Lua</code>，<code>ES6</code>），只需要知道循环可以用递归代替，而一旦使用递归，就最好使用<code>尾递归</code>。</p><hr><h3 id="替换方案">替换方案 <a class="markdownIt-Anchor" href="#替换方案">#</a></h3><p><code>尾递归优化</code>只在<code>严格模式</code>下生效，那么正常模式下，或者那些不支持该功能的环境中，有没有办法也使用尾递归优化呢？回答是可以的，就是自己实现<code>尾递归优化</code>。</p><p>它的原理非常简单。<code>尾递归</code>之所以需要优化，原因是<code>调用栈</code>太多，造成<code>溢出</code>，那么只要减少<code>调用栈</code>，就不会<code>溢出</code>。</p><p>怎么做可以减少<code>调用栈</code>呢？就是采用<code>循环</code>换掉<code>递归</code>。</p><p>下面是一个正常的<code>递归函数</code>。</p><pre class="hljs"><code>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sum</span>(<span class="hljs-params">x, y</span>) </span>{
+  <span class="hljs-keyword">if</span> (y &gt; <span class="hljs-number">0</span>) {
+    <span class="hljs-keyword">return</span> sum(x + <span class="hljs-number">1</span>, y - <span class="hljs-number">1</span>);
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">return</span> x;
+  }
+}
+
+sum(<span class="hljs-number">1</span>, <span class="hljs-number">100000</span>)
+<span class="hljs-comment">// Uncaught RangeError: Maximum call stack size exceeded(…)</span>
+</code></pre><p>上面代码中，<code>sum</code>是一个<code>递归函数</code>，参数<code>x</code>是需要累加的值，参数<code>y</code>控制递归次数。一旦指定<code>sum</code>递归 <code>100000</code> 次，就会报错，提示超出<code>调用栈</code>的最大次数。</p><p><code>蹦床函数（trampoline）</code>可以将<code>递归</code>执行转为<code>循环</code>执行。</p><pre class="hljs"><code>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">trampoline</span>(<span class="hljs-params">f</span>) </span>{
+  <span class="hljs-keyword">while</span> (f &amp;&amp; f <span class="hljs-keyword">instanceof</span> <span class="hljs-built_in">Function</span>) {
+    f = f();
+  }
+  <span class="hljs-keyword">return</span> f;
+}
+</code></pre><p>上面就是<code>蹦床函数</code>的一个实现，它接受一个函数<code>f</code>作为参数。只要<code>f</code>执行后返回一个函数，就继续执行。</p><p>注意，这里是返回一个<code>函数</code>，然后执行该<code>函数</code>，而不是<code>函数</code>里面调用<code>函数</code>，这样就避免了<code>递归执行</code>，从而就消除了<code>调用栈</code>过大的问题。</p><p>然后，要做的就是将原来的<code>递归函数</code>，改写为每一步返回另一个函数。</p><pre class="hljs"><code>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sum</span>(<span class="hljs-params">x, y</span>) </span>{
+  <span class="hljs-keyword">if</span> (y &gt; <span class="hljs-number">0</span>) {
+    <span class="hljs-keyword">return</span> sum.bind(<span class="hljs-literal">null</span>, x + <span class="hljs-number">1</span>, y - <span class="hljs-number">1</span>);
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">return</span> x;
+  }
+}
+</code></pre><p>上面代码中，<code>sum</code>函数的每次执行，都会返回自身的另一个版本。</p><p>现在，使用<code>蹦床函数</code>执行<code>sum</code>，就不会发生<code>调用栈溢出</code>。</p><pre class="hljs"><code>
+trampoline(sum(<span class="hljs-number">1</span>, <span class="hljs-number">100000</span>))
+<span class="hljs-comment">// 100001</span>
+</code></pre><p><code>蹦床函数</code>并不是真正的<code>尾递归优化</code>，下面的实现才是。</p><pre class="hljs"><code>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">tco</span>(<span class="hljs-params">f</span>) </span>{
+  <span class="hljs-keyword">var</span> value;
+  <span class="hljs-keyword">var</span> active = <span class="hljs-literal">false</span>;
+  <span class="hljs-keyword">var</span> accumulated = [];
+
+  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">accumulator</span>(<span class="hljs-params"></span>) </span>{
+    accumulated.push(<span class="hljs-built_in">arguments</span>);
+    <span class="hljs-keyword">if</span> (!active) {
+      active = <span class="hljs-literal">true</span>;
+      <span class="hljs-keyword">while</span> (accumulated.length) {
+        value = f.apply(<span class="hljs-keyword">this</span>, accumulated.shift());
+      }
+      active = <span class="hljs-literal">false</span>;
+      <span class="hljs-keyword">return</span> value;
+    }
+  };
+}
+
+<span class="hljs-keyword">var</span> sum = tco(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x, y</span>) </span>{
+  <span class="hljs-keyword">if</span> (y &gt; <span class="hljs-number">0</span>) {
+    <span class="hljs-keyword">return</span> sum(x + <span class="hljs-number">1</span>, y - <span class="hljs-number">1</span>)
+  }
+  <span class="hljs-keyword">else</span> {
+    <span class="hljs-keyword">return</span> x
+  }
+});
+
+sum(<span class="hljs-number">1</span>, <span class="hljs-number">100000</span>)
+<span class="hljs-comment">// 100001</span>
+</code></pre><p>上面代码中，<code>tco</code>函数是<code>尾递归优化</code>的实现，它的奥妙就在于状态变量<code>active</code>。</p><p>默认情况下，这个变量是不激活的。一旦进入<code>尾递归优化</code>的过程，这个变量就激活了。</p><p>然后，每一轮递归<code>sum</code>返回的都是<code>undefined</code>，所以就避免了递归执行。</p><p>而<code>accumulated</code>数组存放每一轮<code>sum</code>执行的参数，总是有值的，这就保证了<code>accumulator</code>函数内部的<code>while</code>循环总是会执行。</p><p>这样就很巧妙地将<code>递归</code>改成了<code>循环</code>，而后一轮的参数会取代前一轮的参数，保证了<code>调用栈</code>只有一层。</p><hr></div><div dir="ltr" class="level article-bar is-mobile"><div class="level-item has-text-centered"><a title="previous page" class="previouse-article-link" href="../chapters07/the-name-attribute-of-the-function.html"><span class="icon icon-previous" data-icon="previous"></span><span class="link-content">&laquo; Previous</span></a></div><div class="level-item has-text-centered"><a title="font size" class="link-item link-item-size"><span class="icon icon-size" data-icon="size"></span></a></div><div class="level-item has-text-centered"><a title="table of content" class="link-item link-item-toc"><span class="icon icon-toc" data-icon="toc"></span></a></div><div class="level-item has-text-centered"><a title="top" href="#"><span class="icon icon-up" data-icon="up"></span> <span class="link-content">⤊ Top</span></a></div><div class="level-item has-text-centered"><a title="next page" class="next-article-link" href="../chapters08/index.html"><span class="icon icon-next" data-icon="next"></span><span class="link-content">Next &raquo;</span></a></div></div></div><div class="column is-2-widescreen is-hidden"></div></div><div class="columns foot"><div class="column is-3 is-offset-9 build-by">Build by <a href="https://github.com/ruanyf/loppo" target="_blank">Loppo</a> 0.6.16</div></div><div class="book-toc notification is-warning is-hidden"><h3>Table of chapters &nbsp;<span class="title-close"><a class="button is-danger"> Close</a></span></h3><ul class="chapter-area"><li class="chapter-item"><a href="../chapters01/index.html">第一章 ECMAScript 6 简介</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters01/base-js.html">js基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/base-es.html">es基础前置知识</a></li><li class="chapter-item"><a href="../chapters01/Babel.html">通过Babel使用ES6</a></li><li class="chapter-item"><a href="../chapters01/Traceur.html">通过Traceur使用ES6</a></li><li class="chapter-item"><a href="../chapters01/stage-00.html">Strawman 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-01.html">Proposal 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-02.html">Draft 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/active-proposals.html">Candidate 阶段的 proposals</a></li><li class="chapter-item"><a href="../chapters01/stage-04.html">Finished 阶段的 proposals</a></li></ul><li class="chapter-item"><a href="../chapters02/index.html">第二章 let和const命令</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters02/base.html">前置知识了解</a></li><li class="chapter-item"><a href="../chapters02/let.html">let 命令</a></li><li class="chapter-item"><a href="../chapters02/const.html">const 命令</a></li><li class="chapter-item"><a href="../chapters02/statement-details.html">语句进阶说明</a></li></ul><li class="chapter-item"><a href="../chapters03/index.html">第三章 变量的解构赋值</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters03/base.html">基础数据结构</a></li><li class="chapter-item"><a href="../chapters03/complex.html">复杂数据结构</a></li><li class="chapter-item"><a href="../chapters03/parentheses.html">圆括号问题</a></li><li class="chapter-item"><a href="../chapters03/use.html">用途</a></li></ul><li class="chapter-item"><a href="../chapters04/index.html">第四章 字符串的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters04/unicode.html">字符的 Unicode 表示法</a></li><li class="chapter-item"><a href="../chapters04/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters04/template-string.html">模板字符串</a></li><li class="chapter-item"><a href="../chapters04/string-Iterator.html">字符串的遍历器接口</a></li><li class="chapter-item"><a href="../chapters04/tag-template.html">标签模板</a></li></ul><li class="chapter-item"><a href="../chapters05/index.html">第五章 正则的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters05/constructor.html">RegExp 构造函数</a></li><li class="chapter-item"><a href="../chapters05/base.html">RegExp 基础使用</a></li><li class="chapter-item"><a href="../chapters05/prototype-attribute.html">RegExp 原型属性</a></li><li class="chapter-item"><a href="../chapters05/modifier.html">RegExp 修饰符</a></li><li class="chapter-item"><a href="../chapters05/assert.html">RegExp 断言</a></li><li class="chapter-item"><a href="../chapters05/string-with-regExp.html">String中正则相关方法</a></li><li class="chapter-item"><a href="../chapters05/named-group-matching.html">具名组匹配</a></li><li class="chapter-item"><a href="../chapters05/unicode-attribute-class.html">Unicode 属性类</a></li></ul><li class="chapter-item"><a href="../chapters06/index.html">第六章 数值的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters06/base-notation.html">Number 进制表示法</a></li><li class="chapter-item"><a href="../chapters06/prototype-attribute.html">Number 原型属性</a></li><li class="chapter-item"><a href="../chapters06/base-function-extend.html">Number 对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/prototype-function-extend.html">Number 原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters06/math-extension.html">math 对象扩展</a></li><li class="chapter-item"><a href="../chapters06/exponent-operator.html">指数运算符</a></li></ul><li class="chapter-item"><a href="../chapters07/index.html">第七章 函数的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-collapse" data-icon="collapse"></span></a></li><ul class="chapter-level-1 chapter-level-1-current"><li class="chapter-item"><a href="../chapters07/arrow-function.html">箭头函数</a></li><li class="chapter-item"><a href="../chapters07/strict-mode.html">严格模式</a></li><li class="chapter-item"><a href="../chapters07/function-parameter-improvement.html">函数参数改进</a></li><li class="chapter-item"><a href="../chapters07/the-name-attribute-of-the-function.html">函数的name属性</a></li><li class="chapter-item chapter-item-current"><a href="../chapters07/tail-call-optimization.html">尾调用优化</a></li></ul><li class="chapter-item"><a href="../chapters08/index.html">第八章 数组的扩展</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters08/extension-operator.html">扩展运算符</a></li><li class="chapter-item"><a href="../chapters08/prototype-function-extend.html">原型对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/instance-function-extend.html">实例对象方法扩展</a></li><li class="chapter-item"><a href="../chapters08/empty-space-processing-of-array.html">数组的空位处理</a></li><li class="chapter-item"><a href="../chapters08/pipeline-optimization-of-arrays.html">数组的管道运算优化</a></li></ul><li class="chapter-item"><a href="../chapters09/index.html">第九章 ts学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters09/history.html">ts历史</a></li><li class="chapter-item"><a href="../chapters09/advantages-and-disadvantages.html">ts优势与劣势</a></li><li class="chapter-item"><a href="../chapters09/learn-primitive-type.html">基础类型学习</a></li><li class="chapter-item"><a href="../chapters09/learn-derivative-type.html">衍生类型基础学习</a></li><li class="chapter-item"><a href="../chapters09/Enum.html">衍生类型之Enum</a></li><li class="chapter-item"><a href="../chapters09/interface.html">衍生类型之interface</a></li><li class="chapter-item"><a href="../chapters09/Class.html">衍生类型之Class</a></li><li class="chapter-item"><a href="../chapters09/ts-util.html">ts 高级工具用法</a></li></ul><li class="chapter-item"><a href="../chapters10/index.html">第十章 react学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters10/history.html">react历史</a></li><li class="chapter-item"><a href="../chapters10/version-management.html">react版本管理</a></li><li class="chapter-item"><a href="../chapters10/advantages-and-disadvantages.html">react优势与劣势</a></li><li class="chapter-item"><a href="../chapters10/base.html">react基础语法</a></li><li class="chapter-item"><a href="../chapters10/common-package.html">react常用组件包</a></li><li class="chapter-item"><a href="../chapters10/family-bucket.html">react全家桶</a></li><li class="chapter-item"><a href="../chapters10/ecosphere.html">react的生态圈</a></li><li class="chapter-item"><a href="../chapters10/substitute-product.html">react和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters11/index.html">第十一章 webpack学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters11/history.html">webpack历史</a></li><li class="chapter-item"><a href="../chapters11/version-management.html">webpack版本管理</a></li><li class="chapter-item"><a href="../chapters11/advantages-and-disadvantages.html">webpack优势与劣势</a></li><li class="chapter-item"><a href="../chapters11/base-config.html">webpack项目基础配置</a></li><li class="chapter-item"><a href="../chapters11/common-package.html">webpack常用组件包</a></li><li class="chapter-item"><a href="../chapters11/ecosphere.html">webpack的生态圈</a></li><li class="chapter-item"><a href="../chapters11/substitute-product.html">webpack和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters12/index.html">第十二章 微信小程序学习</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters12/history.html">微信小程序历史</a></li><li class="chapter-item"><a href="../chapters12/version-management.html">微信小程序版本管理</a></li><li class="chapter-item"><a href="../chapters12/advantages-and-disadvantages.html">微信小程序优势与劣势</a></li><li class="chapter-item"><a href="../chapters12/base.html">微信小程序基础学习</a></li><li class="chapter-item"><a href="../chapters12/common-ui-package.html">微信小程序常用UI库</a></li><li class="chapter-item"><a href="../chapters12/ecosphere.html">微信小程序的生态圈</a></li><li class="chapter-item"><a href="../chapters12/cross-platform.html">微信小程序跨平台</a></li><li class="chapter-item"><a href="../chapters12/substitute-product.html">微信小程序和替代产品类比</a></li></ul><li class="chapter-item"><a href="../chapters13/index.html">第十三章 web安全方案</a>&nbsp;<a class="first-level-collapse"><span class="icon icon-expand" data-icon="expand"></span></a></li><ul class="chapter-level-1"><li class="chapter-item"><a href="../chapters13/common-web-risks.html">常见web风险</a></li><li class="chapter-item"><a href="../chapters13/monitoring-system.html">前端监控体系</a></li><li class="chapter-item"><a href="../chapters13/performance-optimization.html">前端性能优化</a></li><li class="chapter-item"><a href="../chapters13/security-prevention-and-control.html">前端安全防控</a></li><li class="chapter-item"><a href="../chapters13/test-system.html">前端测试体系</a></li></ul></ul></div><div class="progress-indicator"></div><!-- SCRIPTS --><script>var LOPPO={current_path:"chapters07/tail-call-optimization.md",relative_root_path:"../",article_toc:'<ul class="markdownIt-TOC">\n<li><a href="#%E5%B0%BE%E8%B0%83%E7%94%A8">尾调用</a>\n<ul>\n<li><a href="#%E5%9F%BA%E7%A1%80%E8%AF%B4%E6%98%8E">基础说明</a></li>\n<li><a href="#%E5%8E%9F%E7%90%86%E8%AF%B4%E6%98%8E">原理说明</a></li>\n<li><a href="#%E4%BC%98%E5%8C%96%E8%AF%B4%E6%98%8E">优化说明</a></li>\n</ul>\n</li>\n<li><a href="#%E5%B0%BE%E9%80%92%E5%BD%92">尾递归</a>\n<ul>\n<li><a href="#%E5%9F%BA%E7%A1%80%E8%AF%B4%E6%98%8E-1">基础说明</a></li>\n<li><a href="#%E4%BC%98%E5%8C%96%E6%A1%88%E4%BE%8B">优化案例</a></li>\n<li><a href="#%E4%BC%98%E5%8C%96%E6%80%BB%E7%BB%93">优化总结</a></li>\n<li><a href="#%E6%9B%BF%E6%8D%A2%E6%96%B9%E6%A1%88">替换方案</a></li>\n</ul>\n</li>\n</ul>\n'}</script><script src="../assets/js/app.js"></script></body></html>
